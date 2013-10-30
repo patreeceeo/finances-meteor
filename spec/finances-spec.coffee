@@ -25,25 +25,37 @@ describe "finances", ->
     expect(a1 in accounts)
     expect(a2 in accounts)
 
-  it 'should know how much each account owes (w/o cycles)', ->
-    a1.paysAndUses i1
-    a2.pays i2
-    a3.paysAndUses i3
+  describe 'simplifying payment graphs without cycles', ->
+    beforeEach ->
+      a1.paysAndUses i1
+      a2.pays i2
+      a3.paysAndUses i3
 
-    a1.uses i2
-    a2.uses i1
-    a3.uses i1
+      a1.uses i2
+      a2.uses i1
+      a3.uses i1
 
-    expect(a1.owes().total).toBe 25
-    expect(a2.owes().total).toBe 60 / 3
-    expect(a3.owes().total).toBe 60 / 3
+      finances.createInternalPayments()
+      finances.simplifyPayments()
 
-  xit 'should know how much each account owes (w/ cycles)', ->
+    it 'should say Fred owes 25 for the costume', ->
+      expect(a1.owes().total).toBe 25
+
+    it 'should say Dafny owes 1/3 of 60 for dinner', ->
+      expect(a2.owes().total).toBe 60 / 3
+
+    it 'should say Shaggy/Scooby owe 1/3 of 60 for dinner', ->
+      expect(a3.owes().total).toBe 60 / 3
+
+  it 'should know how much each account owes (w/ cycles)', ->
     a1.uses i1
     a2.pays i1
     a2.uses i2
     a3.pays i2
     a3.uses i3
     a1.pays i3
+
+    finances.createInternalPayments()
+    finances.simplifyPayments()
 
     expect(a1.owes().total + a2.owes().total + a3.owes().total).toBe 0
