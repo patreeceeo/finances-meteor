@@ -21,11 +21,11 @@ describe "finances", ->
   it 'should track payments', ->
     a1.pays i1, 50
     a2.pays i1, 50
-    accounts = p.account for p in finances.getPayments(i1)
+    accounts = (p.fromAccount for p in finances.getPayments(i1))
     expect(a1 in accounts)
     expect(a2 in accounts)
 
-  it 'should know how much each person (account) owes (w/o non-trivial cycles)', ->
+  it 'should know how much each account owes (w/o cycles)', ->
     a1.paysAndUses i1
     a2.pays i2
     a3.paysAndUses i3
@@ -38,7 +38,7 @@ describe "finances", ->
     expect(a2.owes().total).toBe 60 / 3
     expect(a3.owes().total).toBe 60 / 3
 
-  xit 'should know how much each person (account) owes (w/ non-trivial cycles)', ->
+  xit 'should know how much each account owes (w/ cycles)', ->
     a1.uses i1
     a2.pays i1
     a2.uses i2
