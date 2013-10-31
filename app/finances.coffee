@@ -20,7 +20,8 @@ class Account
     @sendsPayments = []
     @receivesPayments = []
   pays: (item, percent = 100) ->
-    new Payment item,
+    new Payment 
+      item: item
       percent: percent
       fromAccount: this
   uses: (item) ->
@@ -32,56 +33,82 @@ class Account
   owes: ->
     total = 0
     for p in @sendsPayments when not p.settled
-      share = p.item.amount / finances.getUsers(p.item).length
-      # for payment in finances.getPayments(item)
-      #   if payment.fromAccount is this
-      #     share = Math.max 0, share - payment.amount()
-      console.debug "add payment from #{p.fromAccount.name} to #{p.toAccount?.name} for #{p.item.name}"
-      total += share
+      # share = 
+      # if p.item?
+      #   p.amount / finances.getUsers(p.item).length
+      # else
+      #   p.amount
+      
+      console.debug "add #{p.toString()} to total"
+      total += p.amount
     total: total
 
 class Payment
-  constructor: (@item, @options) ->
-    finances.getPayments(@item).push this
+  constructor: (@options) ->
+    finances.payments.push this
+    @item = @options.item
     @percent = @options.percent or 100
+    if @item?
+      finances.getPaymentsForItem(@item).push this
+
+    @amount = 
+    if @item?
+      @item.amount * 
+      if @percent
+        100/@percent
+      else
+        1/@getUsers(@item).length
+    else
+      @options.amount or 0
+      
     @settled = if @options.settled? then @options.settled else true
     @fromAccount = @options.fromAccount
     @fromAccount?.sendsPayments.push this
     @toAccount = @options.toAccount
     @toAccount?.receivesPayments.push this
-    console.debug "create#{if @settled then ' ' else ' unsettled '}payment from #{@fromAccount.name} to #{@toAccount?.name} for #{@item.name}"
+    console.debug "create #{@toString()}"
 
-  amount: ->
-    @item.amount * (@percent/100)
+  # amount: ->
+  #   @amount * (@percent/100)
   isInternal: ->
     @fromAccount? and @toAccount? 
+  toString: ->
+    "#{if @settled then '' else 'unsettled '}payment from #{@fromAccount.name} to #{@toAccount?.name} for #{@item?.name} ($#{@amount})"
 
 @finances ?=
-  getPayments: (item) ->
-    @payments[item.name] ?= []
+  getPaymentsForItem: (item) ->
+    @paymentsForItem[item.name] ?= []
   getUsers: (item) ->
     @users[item.name] ?= []
   reset: ->
     @items = {}
-    @payments = {}
+    @paymentsForItem = {}
     @users = {}
+    @payments = []
   deletePayment: (p) ->
-    console.debug "delete payment from #{p.fromAccount.name} to #{p.toAccount?.name} for #{p.item.name}"
+    console.debug "delete #{p.toString()}"
     deleteFromArray = (parent, prop, value) ->
       parent[prop] = _(parent[prop]).without(value)
     deleteFromArray p.fromAccount, 'sendsPayments', p
     deleteFromArray p.toAccount, 'receivesPayments', p
-    delete @payments[p.item.name]
-    console.debug "#{p.fromAccount.name} sends payments",p.fromAccount.sendsPayments
+    if p.item?
+      delete @paymentsForItem[p.item.name]
     p.settled = true
+  createOrIncreasePayment: (options) ->
+    payments = _(@payments).filter (p) -> p.fromAccount is options.fromAccount and p.toAccount is options.toAccount
+    if payments[0]
+      payments[0].amount += options.amount
+      payments[0]
+    else
+      new Payment options
   createInternalPayments: ->
     for item in _.values(@items)
-      for p in @getPayments(item) when p.settled
+      for p in @getPaymentsForItem(item) when p.settled
         for user in @getUsers(item)
-          new Payment item,
+          @createOrIncreasePayment
+            amount: item.amount / @getUsers(item).length
             toAccount: p.fromAccount
             fromAccount: user
-            percent: 100 / @getUsers(item).length
             settled: false
     undefined
   simplifyPayments: ->
@@ -97,11 +124,11 @@ class Payment
     # For each A1 => A2
     #   If A2 => A3
     #     If A1 => A2 > A2 => A3
-    #       (A1 => A3) = (A1 => A2) - (A2 => A3)
+    #       (A1 => A3) += (A1 => A2) - (A2 => A3)
     #       (A1 => A2) -= (A1 => A3)
     #       (A2 => A3) = 0
     #     Else If A1 => A2 < A2 => A3
-    #       (A1 => A3) = (A2 => A3) - (A1 => A2)
+    #       (A1 => A3) += (A2 => A3) - (A1 => A2)
     #       (A2 => A3) -= (A1 => A3)
     #       (A1 => A2) = 0
     #     Else If A1 => A2 is A2 => A3
@@ -110,15 +137,27 @@ class Payment
 
     # Implemenation: currently assumes all payments are 100%, so not a general
     #                solution.
-    for item in _.values(@items)
-      for p in @getPayments(item) when not p.settled and p.isInternal()
-        # A possible optimization:
-        #   if p.toAccount is p2.fromAccount
-        #     @deletePayment(p)
-        #   else
-        for p2 in @getPayments(item) when not p2.settled and p2.isInternal() and p2.toAccount is p2.fromAccount
+    @payments = _(@payments).sortBy 'amount'
+    console.debug 'payments', @payments
+    for p in @payments when not p.settled and p.isInternal()
+      for p2 in @payments when not p2.settled and p2.isInternal() and p.toAccount is p2.fromAccount
+        if p.amount is p2.amount
           p.toAccount = p2.toAccount
           @deletePayment(p2)
+        else
+          newp = @createOrIncreasePayment
+            fromAccount: p.fromAccount
+            toAccount: p2.toAccount
+            amount: Math.min(p.amount, p2.amount)
+          if p.amount > p2.amount
+            console.debug "decrease #{p.toString()} by #{newp.amount}"
+            p.amount -= newp.amount
+            @deletePayment(p2)
+          else
+            console.debug "decrease #{p.toString()} by #{newp.amount}"
+            p2.amount -= newp.amount
+            @deletePayment(p)
+
     undefined
           
   Item: Item

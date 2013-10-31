@@ -21,7 +21,7 @@ describe "finances", ->
   it 'should track payments', ->
     a1.pays i1, 50
     a2.pays i1, 50
-    accounts = (p.fromAccount for p in finances.getPayments(i1))
+    accounts = (p.fromAccount for p in finances.getPaymentsForItem(i1))
     expect(a1 in accounts)
     expect(a2 in accounts)
 
