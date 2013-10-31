@@ -20,7 +20,7 @@ class Account
     @sendsPayments = []
     @receivesPayments = []
   pays: (item, percent = 100) ->
-    new Payment 
+    new Payment
       item: item
       percent: percent
       fromAccount: this
@@ -33,7 +33,7 @@ class Account
   owes: ->
     total = 0
     for p in @sendsPayments when not p.settled
-      # share = 
+      # share =
       # if p.item?
       #   p.amount / finances.getUsers(p.item).length
       # else
@@ -51,9 +51,9 @@ class Payment
     if @item?
       finances.getPaymentsForItem(@item).push this
 
-    @amount = 
+    @amount =
     if @item?
-      @item.amount * 
+      @item.amount *
       if @percent
         100/@percent
       else
@@ -71,9 +71,22 @@ class Payment
   # amount: ->
   #   @amount * (@percent/100)
   isInternal: ->
-    @fromAccount? and @toAccount? 
+    @fromAccount? and @toAccount?
   toString: ->
-    "#{if @settled then '' else 'unsettled '}payment from #{@fromAccount.name} to #{@toAccount?.name} for #{@item?.name} ($#{@amount})"
+    """#{
+    if @settled
+      ''
+    else
+      'unsettled '
+    }payment from #{
+      @fromAccount.name
+    } to #{
+      @toAccount?.name
+    } for #{
+      @item?.name
+    } ($#{
+      @amount
+    })"""
 
 @finances ?=
   getPaymentsForItem: (item) ->
@@ -95,7 +108,8 @@ class Payment
       delete @paymentsForItem[p.item.name]
     p.settled = true
   createOrIncreasePayment: (options) ->
-    payments = _(@payments).filter (p) -> p.fromAccount is options.fromAccount and p.toAccount is options.toAccount
+    payments = _(@payments).filter (p) ->
+      p.fromAccount is options.fromAccount and p.toAccount is options.toAccount
     if payments[0]
       payments[0].amount += options.amount
       payments[0]
@@ -135,12 +149,31 @@ class Payment
     #       (A1 => A3) = (A1 => A2)
     #       (A1 => A2) = (A2 => A3) = 0
 
-    # Implemenation: currently assumes all payments are 100%, so not a general
+    # Implemenation: currently assumes all payments are
+    #                100%, so not a general
     #                solution.
-    @payments = _(@payments).sortBy 'amount'
-    console.debug 'payments', @payments
-    for p in @payments when not p.settled and p.isInternal()
-      for p2 in @payments when not p2.settled and p2.isInternal() and p.toAccount is p2.fromAccount
+    payments = _(@payments)
+      .sortBy('amount')
+      .filter (p) -> not p.settled and p.isInternal()
+
+    console.debug 'payments', payments
+    for p in payments
+      for p2 in payments when p.toAccount is p2.fromAccount and
+          not (p.settled or p2.settled)
+        console.debug """#{
+          p.fromAccount.name
+        } owes $#{
+          p.amount
+        } to #{
+          p.toAccount.name
+        } and #{
+          p2.fromAccount.name
+        } owes $#{
+          p2.amount
+        } to #{
+          p2.toAccount.name
+        }"""
+
         if p.amount is p2.amount
           p.toAccount = p2.toAccount
           @deletePayment(p2)

@@ -38,8 +38,9 @@ describe "finances", ->
       finances.createInternalPayments()
       finances.simplifyPayments()
 
-    it 'should say Fred owes 25 for the costume', ->
-      expect(a1.owes().total).toBe 25
+    it """should say Fred owes 25 for the costume
+    minus what Dafny owes him for dinner (20)""", ->
+      expect(a1.owes().total).toBe 5
 
     it 'should say Dafny owes 1/3 of 60 for dinner', ->
       expect(a2.owes().total).toBe 60 / 3
