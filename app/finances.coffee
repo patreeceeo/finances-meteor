@@ -39,7 +39,7 @@ class Account
       # else
       #   p.amount
       
-      console.debug "add #{p.toString()} to total"
+      console.debug "include in total #{p.toString()}"
       total += p.amount
     total: total
 
@@ -111,6 +111,7 @@ class Payment
     payments = _(@payments).filter (p) ->
       p.fromAccount is options.fromAccount and p.toAccount is options.toAccount
     if payments[0]
+      console.debug "increase #{payments[0].toString()} by $#{options.amount}"
       payments[0].amount += options.amount
       payments[0]
     else
@@ -156,7 +157,6 @@ class Payment
       .sortBy('amount')
       .filter (p) -> not p.settled and p.isInternal()
 
-    console.debug 'payments', payments
     for p in payments
       for p2 in payments when p.toAccount is p2.fromAccount and
           not (p.settled or p2.settled)
@@ -175,21 +175,30 @@ class Payment
         }"""
 
         if p.amount is p2.amount
-          p.toAccount = p2.toAccount
+          if p.fromAccount isnt p2.toAccount
+            console.debug "redirect #{p.toString()} to #{p2.toAccount.name}"
+            p.toAccount = p2.toAccount
           @deletePayment(p2)
         else
-          newp = @createOrIncreasePayment
-            fromAccount: p.fromAccount
-            toAccount: p2.toAccount
-            amount: Math.min(p.amount, p2.amount)
+          minflow = Math.min(p.amount, p2.amount)
+
+          if p.fromAccount isnt p2.toAccount
+            newp = @createOrIncreasePayment
+              fromAccount: p.fromAccount
+              toAccount: p2.toAccount
+              amount: minflow
+              settled: false
+              
           if p.amount > p2.amount
-            console.debug "decrease #{p.toString()} by #{newp.amount}"
-            p.amount -= newp.amount
+            console.debug "decrease #{p.toString()} by $#{minflow}"
+            p.amount -= minflow
             @deletePayment(p2)
           else
-            console.debug "decrease #{p.toString()} by #{newp.amount}"
-            p2.amount -= newp.amount
+            console.debug "decrease #{p2.toString()} by $#{minflow}"
+            p2.amount -= minflow
             @deletePayment(p)
+
+    console.debug 'payments', payments
 
     undefined
           

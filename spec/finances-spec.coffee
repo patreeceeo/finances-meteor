@@ -38,15 +38,18 @@ describe "finances", ->
       finances.createInternalPayments()
       finances.simplifyPayments()
 
-    it """should say Fred owes 25 for the costume
-    minus what Dafny owes him for dinner (20)""", ->
-      expect(a1.owes().total).toBe 5
+      console.debug "#{a1.name} owes #{a1.owes().total}"
+      console.debug "#{a2.name} owes #{a2.owes().total}"
+      console.debug "#{a3.name} owes #{a3.owes().total}"
 
-    it 'should say Dafny owes 1/3 of 60 for dinner', ->
-      expect(a2.owes().total).toBe 60 / 3
+    it "should say Fred owes $0", ->
+      expect(a1.owes().total).toBe 0
 
-    it 'should say Shaggy/Scooby owe 1/3 of 60 for dinner', ->
-      expect(a3.owes().total).toBe 60 / 3
+    it "should say Dafny owes $0", ->
+      expect(a2.owes().total).toBe 0
+
+    it 'should say Shaggy/Scooby owe $20', ->
+      expect(a3.owes().total).toBe 20
 
   it 'should know how much each account owes (w/ cycles)', ->
     a1.uses i1
@@ -58,5 +61,10 @@ describe "finances", ->
 
     finances.createInternalPayments()
     finances.simplifyPayments()
+    finances.simplifyPayments()
 
-    expect(a1.owes().total + a2.owes().total + a3.owes().total).toBe 0
+    console.debug "#{a1.name} owes #{a1.owes().total}"
+    console.debug "#{a2.name} owes #{a2.owes().total}"
+    console.debug "#{a3.name} owes #{a3.owes().total}"
+
+    expect(a1.owes().total + a2.owes().total + a3.owes().total).toBe 48
