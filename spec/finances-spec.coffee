@@ -1,3 +1,4 @@
+_ = Package.underscore._
 describe "finances", ->
   [a1, a2, a3, i1, i2, i3] = (null for i in [1..6])
   beforeEach ->
@@ -116,62 +117,47 @@ describe "finances", ->
           expect(a3.owes().total).toBe i1.amount / 2
           expect(a2.owes().total).toBe i2.amount / 2 - i1.amount / 2
           expect(a1.owes().total).toBe 0
+  
+  describe 'test scenarios', ->
+    # TODO: make a scenario class and move all the methods and
+    #       properties of `finances` to `finances.Scenario`
+    count = 10
+    findSum = (list) ->
+      add = (a, b) ->
+        a + b
+      _.reduce list, add, 0
+    withEachScenario = (fn) =>
+      for i in [1..count]
+        finances.reset()
+        s = finances.testScenario(i)
+        fn(s)
 
+    it 'should have payments', ->
+      withEachScenario (s) ->
+        expect(s.totalPayments).toBeGreaterThan 0
 
+    it 'should have all items paid for', ->
+      withEachScenario (s) ->
+        expect(s.totalPayments).toBe findSum (i.amount for i in s.items)
+        expect(finances.payments.length >= s.items.length).toBeTruthy()
+        for i in s.items
+          expect(findSum(
+            p.amount for p in finances.getPaymentsForItem(i)
+          )).toBe i.amount
+        
+    it 'should have every account at least either a payer or a user', ->
+      withEachScenario (s) ->
+        for a in s.accounts
+          expect(a.usesItems.length or a.sendsPayments.length).toBeTruthy()
 
+    it """should transform to one in which the net amount
+          that each account pays is equal""", ->
+      withEachScenario (s) ->
+        finances.createInternalPayments()
+        finances.simplifyPayments()
+        fairShare = s.totalPayments / s.accounts.length
+        for a in s.accounts.length
+          share = findSum (p.amount for p in a.sendsPayments) -
+            findSum (p.amount for p in a.receivesPayments)
 
-
-
-
-
-
-
-
-
-
-
-
-
-      
-  xdescribe 'in a big complex scenario that should be re-factored', ->
-    beforeEach ->
-      a1.paysAndUses i1
-      a2.pays i2
-      a3.paysAndUses i3
-
-      a1.uses i2
-      a2.uses i1
-      a3.uses i1
-
-      finances.createInternalPayments()
-      finances.simplifyPayments()
-
-      console.debug "#{a1.name} owes #{a1.owes().total}"
-      console.debug "#{a2.name} owes #{a2.owes().total}"
-      console.debug "#{a3.name} owes #{a3.owes().total}"
-
-    it "should say Fred owes $0", ->
-      expect(a1.owes().total).toBe 0
-
-    it "should say Dafny owes $0", ->
-      expect(a2.owes().total).toBe 0
-
-    it 'should say Shaggy/Scooby owe $20', ->
-      expect(a3.owes().total).toBe 20
-
-  xit 'in another complex scenario that should be re-factored', ->
-    a1.uses i1
-    a2.pays i1
-    a2.uses i2
-    a3.pays i2
-    a3.uses i3
-    a1.pays i3
-
-    finances.createInternalPayments()
-    finances.simplifyPayments()
-
-    console.debug "#{a1.name} owes #{a1.owes().total}"
-    console.debug "#{a2.name} owes #{a2.owes().total}"
-    console.debug "#{a3.name} owes #{a3.owes().total}"
-
-    expect(a1.owes().total + a2.owes().total + a3.owes().total).toBe 48
+          expect(share).toEqual fairShare

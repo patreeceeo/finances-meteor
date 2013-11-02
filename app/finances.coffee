@@ -1,4 +1,8 @@
 
+log =
+  write: ->
+    console.debug.apply console, arguments
+
 #
 # dinner:
 #   sugardaddy: Fred
@@ -35,7 +39,7 @@ class Account
   owes: ->
     total = 0
     for p in @sendsPayments when not p.settled
-      console.debug "include in total #{p.toString()}"
+      log.write "include in total #{p.toString()}"
       total += p.amount
     total: total
 
@@ -62,10 +66,8 @@ class Payment
     @fromAccount?.sendsPayments.push this
     @toAccount = @options.toAccount
     @toAccount?.receivesPayments.push this
-    console.debug "create #{@toString()}"
+    log.write "create #{@toString()}"
 
-  # amount: ->
-  #   @amount * (@percent/100)
   isInternal: ->
     @fromAccount? and @toAccount?
   toString: ->
@@ -95,7 +97,7 @@ class Payment
     @users = {}
     @payments = []
   deletePayment: (p) ->
-    console.debug "delete #{p.toString()}"
+    log.write "delete #{p.toString()}"
     deleteFromArray = (parent, prop, value) ->
       parent[prop] = _(parent[prop]).without(value)
     deleteFromArray p.fromAccount, 'sendsPayments', p
@@ -107,7 +109,7 @@ class Payment
     payments = _(@payments).filter (p) ->
       p.fromAccount is options.fromAccount and p.toAccount is options.toAccount
     if payments[0]
-      console.debug "increase #{payments[0].toString()} by $#{options.amount}"
+      log.write "increase #{payments[0].toString()} by $#{options.amount}"
       payments[0].amount += options.amount
       payments[0]
     else
@@ -156,7 +158,7 @@ class Payment
     for p in payments
       for p2 in payments when p.toAccount is p2.fromAccount and
           not (p.settled or p2.settled)
-        console.debug """#{
+        log.write """#{
           p.fromAccount.name
         } owes $#{
           p.amount
@@ -172,7 +174,7 @@ class Payment
 
         if p.amount is p2.amount
           if p.fromAccount isnt p2.toAccount
-            console.debug "redirect #{p.toString()} to #{p2.toAccount.name}"
+            log.write "redirect #{p.toString()} to #{p2.toAccount.name}"
             p.toAccount = p2.toAccount
           else
             @deletePayment(p)
@@ -188,14 +190,14 @@ class Payment
               settled: false
               
           if p.amount > p2.amount
-            console.debug "decrease #{p.toString()} by $#{minflow}"
+            log.write "decrease #{p.toString()} by $#{minflow}"
             if p.amount > minflow
               p.amount -= minflow
             else
               @deletePayment(p)
             @deletePayment(p2)
           else
-            console.debug "decrease #{p2.toString()} by $#{minflow}"
+            log.write "decrease #{p2.toString()} by $#{minflow}"
             if p2.amount > minflow
               p2.amount -= minflow
             else
@@ -203,6 +205,36 @@ class Payment
             @deletePayment(p)
 
     undefined
+
+  testScenario: (seed) ->
+    random = (min, max) ->
+      x = Math.sin(seed++) * 10000
+      r = x - Math.floor(x)
+      Math.round r * (max - min) + min
+
+    totalPayments = 0
+
+    nUsers = random(2, 10)
+    nPayers = random(2, 10)
+
+    nAccounts = do ->
+      min = Math.max(nUsers, nPayers)
+      random(min, nUsers + nPayers)
+    nItems = random(nAccounts / 2, nAccounts * 2)
+
+    accounts = (new Account "account #{i}" for i in [1..nAccounts])
+    items = (new Item("item #{i}", random(2, 30)) for i in [1..nItems])
+
+    for index, item of items
+      accounts[index % nPayers].pays item
+      accounts[accounts.length - 1 - index % nUsers].uses item
+      totalPayments += item.amount
+
+    totalPayments: totalPayments
+    accounts: accounts
+    items: items
+
+
           
   Item: Item
   Account: Account
