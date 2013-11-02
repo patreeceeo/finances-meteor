@@ -13,6 +13,8 @@ if not _?
 class Item
   constructor: (@name, @amount) ->
     finances.items[@name] = this
+  clone: (name = @name) ->
+    new Item(name, @amount)
 
 class Account
   constructor: (@name) ->
@@ -33,12 +35,6 @@ class Account
   owes: ->
     total = 0
     for p in @sendsPayments when not p.settled
-      # share =
-      # if p.item?
-      #   p.amount / finances.getUsers(p.item).length
-      # else
-      #   p.amount
-      
       console.debug "include in total #{p.toString()}"
       total += p.amount
     total: total
@@ -119,7 +115,7 @@ class Payment
   createInternalPayments: ->
     for item in _.values(@items)
       for p in @getPaymentsForItem(item) when p.settled
-        for user in @getUsers(item)
+        for user in @getUsers(item) when user isnt p.fromAccount
           @createOrIncreasePayment
             amount: item.amount / @getUsers(item).length
             toAccount: p.fromAccount
@@ -136,6 +132,7 @@ class Payment
     # Arithmetic operations with payments are performed with payment amounts
     # Assignment operations create payments if none existed previously
     #
+    #
     # For each A1 => A2
     #   If A2 => A3
     #     If A1 => A2 > A2 => A3
@@ -150,9 +147,8 @@ class Payment
     #       (A1 => A3) = (A1 => A2)
     #       (A1 => A2) = (A2 => A3) = 0
 
-    # Implemenation: currently assumes all payments are
-    #                100%, so not a general
-    #                solution.
+    # Implemenation:
+
     payments = _(@payments)
       .sortBy('amount')
       .filter (p) -> not p.settled and p.isInternal()
@@ -178,12 +174,14 @@ class Payment
           if p.fromAccount isnt p2.toAccount
             console.debug "redirect #{p.toString()} to #{p2.toAccount.name}"
             p.toAccount = p2.toAccount
+          else
+            @deletePayment(p)
           @deletePayment(p2)
         else
           minflow = Math.min(p.amount, p2.amount)
 
           if p.fromAccount isnt p2.toAccount
-            newp = @createOrIncreasePayment
+            payments.push newp = @createOrIncreasePayment
               fromAccount: p.fromAccount
               toAccount: p2.toAccount
               amount: minflow
@@ -191,14 +189,18 @@ class Payment
               
           if p.amount > p2.amount
             console.debug "decrease #{p.toString()} by $#{minflow}"
-            p.amount -= minflow
+            if p.amount > minflow
+              p.amount -= minflow
+            else
+              @deletePayment(p)
             @deletePayment(p2)
           else
             console.debug "decrease #{p2.toString()} by $#{minflow}"
-            p2.amount -= minflow
+            if p2.amount > minflow
+              p2.amount -= minflow
+            else
+              @deletePayment(p2)
             @deletePayment(p)
-
-    console.debug 'payments', payments
 
     undefined
           
