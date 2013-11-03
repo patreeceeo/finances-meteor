@@ -12,6 +12,14 @@ body {
   background-color: #aea;
 }
 
+.pull-right {
+  float: right;
+}
+
+.muted {
+  color: #444;
+}
+
 
 #account-form, #item-form {
   margin: 0.5em;
@@ -34,15 +42,16 @@ body {
     position: relative;
   }
 
-  a[data-link], a[data-remove-button] {
+  a[data-link], a[type=button] {
     cursor: pointer;
+    color: black;
+    text-decoration: none;
     &:hover, &:active {
       background-color: #e1f0ea;
-      color: black;
     }
   }
 
-  [data-remove-button] {
+  [data-remove-button], [data-add-button] {
     width: 15%;
     max-width: 2em;
     text-align: center;
@@ -52,10 +61,6 @@ body {
     display: inline-block;
   }
 
-  [data-link] {
-    color: black;
-    text-decoration: none;
-  }
 }
 
 #account-form {
@@ -77,5 +82,9 @@ body {
   [data-input=amount] {
     display: inline-block;
     width: 20%;
+    text-align: right;
+  }
+  span {
+    padding-right: 15px;
   }
 }

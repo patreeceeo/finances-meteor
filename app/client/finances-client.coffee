@@ -34,10 +34,7 @@ _.extend Template['item-form'],
   message: -> Session.get 'message'
   events: do ->
     item = {}
-    setField = (e) ->
-      key = e.target.dataset.input
-      value = e.target.value
-      item[key] = value
+    addItem = (e) ->
       if item.amount > 0 and item.name isnt ''
         items = Session.get 'items'
         items.unshift new finances.Item item.name, item.amount
@@ -52,14 +49,19 @@ _.extend Template['item-form'],
       deleted = _(items).findWhere name: e.target.dataset.item
       items = _(items).without deleted
       Session.set 'items', items
-
+    trackChange = (e) ->
+      key = e.target.dataset.input
+      value = e.target.value
+      item[key] = value
     handlers =
-    'focusout input': setField
+    'click [data-add-button]': addItem
+    'change input': trackChange
     'keydown input': (e) ->
       if e.keyCode is 13
         e.preventDefault()
         e.stopPropagation()
-        setField e
+        trackChange e
+        addItem e
     'click [data-remove-button]': removeItem
 
 Template['account-form'].preserve ['input']
