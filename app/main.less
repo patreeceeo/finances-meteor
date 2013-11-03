@@ -20,10 +20,31 @@ body {
   color: #444;
 }
 
+#global-menu {
+  font-size: 3em;
+  line-height: 1.5em;
+  [data-next-button] {
+    text-align: center;
+  }
+
+  a[data-link], a[type=button] {
+    margin-right: 0.5em;
+    width: 20%;
+    max-width: 4em;
+    min-width: 2em;
+    cursor: pointer;
+    color: black;
+    text-decoration: none;
+    display: inline-block;
+    &:hover, &:active {
+      background-color: #e1f0ea;
+    }
+  }
+}
 
 #account-form, #item-form {
-  margin: 0.5em;
-  font-size: 4em;
+  margin: 0em 0.5em 0 0.5em;
+  font-size: 3em;
   line-height: 1.5em;
   width: 100%;
   padding-right: 1em;
@@ -38,14 +59,11 @@ body {
     border: 0;
   }
 
-  li { 
-    position: relative;
-  }
-
   a[data-link], a[type=button] {
     cursor: pointer;
     color: black;
     text-decoration: none;
+    display: inline-block;
     &:hover, &:active {
       background-color: #e1f0ea;
     }
@@ -54,11 +72,10 @@ body {
   [data-remove-button], [data-add-button] {
     width: 15%;
     max-width: 2em;
-    text-align: center;
     right: 0;
     color: white;
+    text-align: center;
     background-color: limegreen;
-    display: inline-block;
   }
 
 }

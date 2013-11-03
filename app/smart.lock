@@ -2,19 +2,13 @@
   "meteor": {},
   "dependencies": {
     "basePackages": {
-      "belt-jade-handlebars": {},
-      "jade-handlebars": {}
+      "iron-router": {}
     },
     "packages": {
-      "belt-jade-handlebars": {
-        "git": "https://github.com/meteorbelt/belt-jade-handlebars.git",
-        "tag": "v0.2.0",
-        "commit": "e9b9f3ecfaee8097b861284365d1a314cb3669f8"
-      },
-      "jade-handlebars": {
-        "git": "https://github.com/SimonDegraeve/meteor-jade-handlebars.git",
-        "tag": "v0.2.7",
-        "commit": "82f6f9ac43a68ffabe1d9b9620be2a4ca6790b56"
+      "iron-router": {
+        "git": "https://github.com/EventedMind/iron-router.git",
+        "tag": "v0.6.1",
+        "commit": "4e1ee0581d68bff422a915dacb0bd30eae10fe08"
       }
     }
   }

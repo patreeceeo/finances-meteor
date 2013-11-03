@@ -3,8 +3,15 @@
 </head>
 
 <body>
+  {{> global-menu }}
   {{> item-form}}
 </body>
+
+<template name='global-menu'>
+  <div id='global-menu' class='clearfix'>
+    <a data-next-button type=button class='pull-right {{#if nextButtonDisabled}}muted{{/if}}'>next &rarr;</a>
+  </div> 
+</template>
 
 <template name="account-form">
   <form id='account-form'>
@@ -15,7 +22,7 @@
       </li>
     {{#each accounts}}
     <li>
-      <a data-link data-account='{{name}}' 'javascript:void 0'>{{name}}</a><a type='button' data-remove-button data-account='{{name}}'>&#x2718;</a>
+      <a data-link data-account='{{name}}'>{{name}}</a><a type='button' data-remove-button data-account='{{name}}'>&#x2718;</a>
     </li>
     {{/each}}
     </ul>
@@ -27,7 +34,7 @@
     <h1>List shared items</h1>
     <ul>
       <li>
-      <input type='text' placeholder='Name' value="{{name}}" data-input=name tabindex=2><input type='number' placeholder='$$$' value="{{amount}}" data-input=amount min=0 tabindex=3><a type='button' data-add-button data-item='{{name}}'>&#x2713;</a>
+      <input type='text' placeholder='Name' value="{{name}}" data-input=name tabindex=2><input type='number' placeholder='$$$' value="{{amount}}" data-input=amount min=0 tabindex=3><a type='button' data-add-button data-item='{{name}}'>&#x2714;</a>
       </li>
     {{#each items}}
     <li>
