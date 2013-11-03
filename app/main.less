@@ -3,30 +3,30 @@
 @font-family: "Franklin Gothic Medium", "Franklin Gothic", "ITC Franklin Gothic", Arial, sans-serif;
 
 
-
 body, input {
   font-family: @font-family;
 }
 
 body {
   font-size: 100%;
+  background-color: #aea;
 }
 
 
-#account-form {
+#account-form, #item-form {
   margin: 0.5em;
   font-size: 4em;
   line-height: 1.5em;
-  width: 50%;
+  width: 100%;
   padding-right: 1em;
+  display: inline-block;
+  vertical-align: top;
 
   input {
     font-size: 1em;
     height: 1.5em;
-    width: 85%;
     -webkit-appearance: none;
     padding: 0;
-    outline: 1px solid limegreen;
     border: 0;
   }
 
@@ -34,19 +34,48 @@ body {
     position: relative;
   }
 
-  input, a[data-account] {
+  a[data-link], a[data-remove-button] {
+    cursor: pointer;
+    &:hover, &:active {
+      background-color: #e1f0ea;
+      color: black;
+    }
   }
-
 
   [data-remove-button] {
     width: 15%;
+    max-width: 2em;
     text-align: center;
-    cursor: pointer;
-    position: absolute;
     right: 0;
     color: white;
     background-color: limegreen;
-    outline: 1px solid limegreen;
+    display: inline-block;
+  }
+
+  [data-link] {
+    color: black;
+    text-decoration: none;
   }
 }
-  
+
+#account-form {
+  input, a[data-link] {
+    display: inline-block;
+    width: 70%;
+  }
+}
+
+#item-form {
+  a[data-link] {
+    display: inline-block;
+    width: 70%;
+  }
+  [data-input=name] {
+    display: inline-block;
+    width: 50%;
+  }
+  [data-input=amount] {
+    display: inline-block;
+    width: 20%;
+  }
+}

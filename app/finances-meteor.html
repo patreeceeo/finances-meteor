@@ -4,19 +4,35 @@
 
 <body>
   {{> account-form}}
+  {{> item-form}}
 </body>
 
 <template name="account-form">
   <form id='account-form'>
-    <h1>{{message}}!</h1>
+    <h1>List accounts (peeps)</h1>
     <ul>
       <li>
-        <input type='text' placeholder='Name' value="{{name}}" data-account-name-input tabindex=0><a type='button' data-remove-button>✘</a>
+        <input type='text' placeholder='Name' value="{{name}}" data-account-name-input tabindex=0>
       </li>
     {{#each accounts}}
     <li>
-      <a data-account={{name}} 'javascript:void 0'>{{name}}</a>
-      <a type='button' data-remove-button data-account={{name}}>✘</a>
+      <a data-link data-account='{{name}}' 'javascript:void 0'>{{name}}</a><a type='button' data-remove-button data-account='{{name}}'>✘</a>
+    </li>
+    {{/each}}
+    </ul>
+  </form>
+</template>
+
+<template name="item-form">
+  <form id='item-form'>
+    <h1>List shared items</h1>
+    <ul>
+      <li>
+        <input type='text' placeholder='Name' value="{{name}}" data-input=name tabindex=2><input type='number' placeholder='$$$' value="{{amount}}" data-input=amount min=0 tabindex=3>
+      </li>
+    {{#each items}}
+    <li>
+    <a data-link data-item='{{name}}' href='#'>{{name}}</a><a type='button' data-remove-button data-item='{{name}}' href='#'>✘</a>
     </li>
     {{/each}}
     </ul>
