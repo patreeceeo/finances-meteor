@@ -1,0 +1,52 @@
+/* CSS declarations go here */
+
+@font-family: "Franklin Gothic Medium", "Franklin Gothic", "ITC Franklin Gothic", Arial, sans-serif;
+
+
+
+body, input {
+  font-family: @font-family;
+}
+
+body {
+  font-size: 100%;
+}
+
+
+#account-form {
+  margin: 0.5em;
+  font-size: 4em;
+  line-height: 1.5em;
+  width: 50%;
+  padding-right: 1em;
+
+  input {
+    font-size: 1em;
+    height: 1.5em;
+    width: 85%;
+    -webkit-appearance: none;
+    padding: 0;
+    outline: 1px solid limegreen;
+    border: 0;
+  }
+
+  li { 
+    position: relative;
+  }
+
+  input, a[data-account] {
+  }
+
+
+  [data-remove-button] {
+    width: 15%;
+    text-align: center;
+    cursor: pointer;
+    position: absolute;
+    right: 0;
+    color: white;
+    background-color: limegreen;
+    outline: 1px solid limegreen;
+  }
+}
+  

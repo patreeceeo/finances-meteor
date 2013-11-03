@@ -3,11 +3,23 @@
 </head>
 
 <body>
-  {{> who-paid-what-form}}
+  {{> account-form}}
 </body>
 
-<template name="who-paid-what-form">
-  <h1>Hello World!</h1>
-  {{greeting}}
-  <input type="button" value="Click" />
+<template name="account-form">
+  <form id='account-form'>
+    <h1>{{message}}!</h1>
+    <ul>
+      <li>
+        <input type='text' placeholder='Name' value="{{name}}" data-account-name-input tabindex=0><a type='button' data-remove-button>✘</a>
+      </li>
+    {{#each accounts}}
+    <li>
+      <a data-account={{name}} 'javascript:void 0'>{{name}}</a>
+      <a type='button' data-remove-button data-account={{name}}>✘</a>
+    </li>
+    {{/each}}
+    </ul>
+  </form>
 </template>
+

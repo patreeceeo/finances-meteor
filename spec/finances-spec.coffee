@@ -117,6 +117,16 @@ describe "finances", ->
           expect(a3.owes().total).toBe i1.amount / 2
           expect(a2.owes().total).toBe i2.amount / 2 - i1.amount / 2
           expect(a1.owes().total).toBe 0
+
+  describe 'pseudo-random number generator', ->
+
+    it 'should always generate the same sequence for a given seed', ->
+      rng1 = finances.getPRNG(42)
+      sequence1 = rng1() for i in [1..20]
+      rng2 = finances.getPRNG(42)
+      sequence2 = rng2() for i in [1..20]
+      for i in [1..20]
+        expect(sequence1[i]).toEqual sequence2[i]
   
   describe 'test scenarios', ->
     # TODO: make a scenario class and move all the methods and
