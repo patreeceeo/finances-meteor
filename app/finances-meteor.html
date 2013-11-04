@@ -3,17 +3,40 @@
 </head>
 
 <body>
-  {{> global-menu }}
-  {{> item-form}}
 </body>
+
+<template name='home'>
+  <div id='home' class='center page'>
+    <p>
+      Need to settle debts among friends (or co-workers, roommates, random strangers, anyone really) without unnecessary transactions (read pain and hassle)? Simply indicate:
+    </p>
+    <ol>
+      <li>&#x2714; names of people/parties involved</li>
+      <li>&#x2714; names of items purchased and their amount</li>
+      <li>&#x2714; who paid for and/or used what</li>
+    </ol>
+    <p>
+      And suddenly your life will be slightly easier.
+    </p>
+
+    </ol>
+    <div class='call-to-action'>
+      <a data-start-button type=button class='center' href='/accounts'>Get Started!</a>
+    </div>
+  </div>
+</template>
 
 <template name='global-menu'>
   <div id='global-menu' class='clearfix'>
-    <a data-next-button type=button class='pull-right {{#if nextButtonDisabled}}muted{{/if}}'>next &rarr;</a>
+      <a data-next-button type=button class='pull-right {{#if nextButtonDisabled}}disabled{{/if}}'>next &rarr;</a>
+      <a data-up-button type=button class='pull-right {{#if upButtonDisabled}}disabled{{/if}}'>up &uarr;</a>
+      <span class='muted'>Step {{stepNumber}}/3</span>
+    </div>
   </div> 
 </template>
 
 <template name="account-form">
+  {{> global-menu}}
   <form id='account-form'>
     <h1>List accounts (peeps)</h1>
     <ul>
@@ -30,7 +53,9 @@
 </template>
 
 <template name="item-form">
+  {{> global-menu}}
   <form id='item-form'>
+    <p class='flash'>{{message}}</p>
     <h1>List shared items</h1>
     <ul>
       <li>
@@ -38,10 +63,31 @@
       </li>
     {{#each items}}
     <li>
-    <a data-link data-item='{{name}}' href='#'>{{name}}<span class='pull-right muted'>${{amount}}</span></a></a><a type='button' data-remove-button data-item='{{name}}' href='#'>✘</a>
+    <a data-link data-item='{{name}}' href='#'>{{name}}<span class='pull-right'>${{amount}}</span></a></a><a type='button' data-remove-button data-item='{{name}}' href='#'>✘</a>
     </li>
     {{/each}}
     </ul>
+  </form>
+</template>
+
+<template name='item-detail-form'>
+  {{> global-menu}}
+  <form id='item-detail-form'>
+    <div class='flash'>Drag and drop each person to the appropriate action</div>
+    <h1>Who did what with the {{itemName}}?</h1>
+    <div data-account='{{account.name}}' draggable=true>{{account.name}} Hello!</div>
+    <div data-both-drop-zone>
+      Used and paid for {{itemName}}
+    </div>
+    <div data-use-drop-zone>
+      Just used {{itemName}}
+    </div>
+    <div data-pay-drop-zone>
+      Just paid for {{itemName}}
+    </div>
+    <div data-nothing-drop-zone>
+      None of the above
+    </div>
   </form>
 </template>
 

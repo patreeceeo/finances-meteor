@@ -1,7 +1,32 @@
 
 Session.set 'accounts', []
 Session.set 'items', []
-Session.set 'message', 'coffee'
+Session.set 'message', ''
+
+_.extend Template['global-menu'], do ->
+
+  nextButtonDisabled = ->
+    not Router.getData().nextPage? or
+    switch Router.getData().page
+      when 'item-form'
+        items = Session.get('items')
+        items.length < 2
+      when 'account-form'
+        accounts = Session.get('accounts')
+        accounts.length < 2
+  upButtonDisabled = ->
+    not Router.getData().upPage?
+  nextButtonDisabled: nextButtonDisabled
+  upButtonDisabled: upButtonDisabled
+  stepNumber: ->
+    Router.getData().stepNumber
+  events: do ->
+    'click [data-next-button]': ->
+      if not nextButtonDisabled()
+        Router.go Router.getData().nextPage
+    'click [data-up-button]': ->
+      if not upButtonDisabled()
+        Router.go Router.getData().upPage
 
 _.extend Template['account-form'],
   accounts: -> Session.get 'accounts'
@@ -28,6 +53,7 @@ _.extend Template['account-form'],
         e.stopPropagation()
         addAccount e
     'click [data-remove-button]': removeAccount
+Template['account-form'].preserve ['input']
 
 _.extend Template['item-form'],
   items: -> Session.get 'items'
@@ -39,6 +65,7 @@ _.extend Template['item-form'],
         items = Session.get 'items'
         items.unshift new finances.Item item.name, item.amount
         Session.set 'items', items
+        Session.set 'message', 'Note: click an item to add people'
         do ->
           parent = $(e.target).parent()
           parent.find('input').val ''
@@ -63,9 +90,21 @@ _.extend Template['item-form'],
         trackChange e
         addItem e
     'click [data-remove-button]': removeItem
+    'click [data-item]': (e) ->
+      Router.go 'item-detail-form', name: e.target.dataset.item
 
-Template['account-form'].preserve ['input']
 Template['item-form'].preserve ['input[type=text]', 'input[type=number]']
 
 
-        
+_.extend Template['item-detail-form'],
+  itemName: ->
+    Router.getData().itemName
+  events: do ->
+    'dragstart [data-account]': (e) ->
+      e.dataTransfer.dropEffect = e.dataTransfer.effectAllowed = 'move'
+
+    'drop [data-both-drop-zone]': (e) ->
+      # account = finances.accounts[e.target.dataset.account]
+      # item = finances.items[
+      # account.paysAndUses
+      

@@ -25,6 +25,7 @@ class Account
     @usesItems = []
     @sendsPayments = []
     @receivesPayments = []
+    finances.accounts[@name] = this
   pays: (item, percent = 100) ->
     new Payment
       item: item
@@ -93,6 +94,7 @@ class Payment
     @users[item.name] ?= []
   reset: ->
     @items = {}
+    @accounts = {}
     @paymentsForItem = {}
     @users = {}
     @payments = []
