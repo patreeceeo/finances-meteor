@@ -1,6 +1,13 @@
 
-Session.set 'accounts', []
-Session.set 'items', []
+Session.set 'accounts', [
+  new finances.Account 'dude'
+  new finances.Account 'walter'
+  ]
+Session.set 'accountIndex', 0
+Session.set 'items', [
+  new finances.Item 'ball', 13
+  new finances.Item 'whiterussian', 6
+]
 Session.set 'message', ''
 
 _.extend Template['global-menu'], do ->
@@ -96,15 +103,74 @@ _.extend Template['item-form'],
 Template['item-form'].preserve ['input[type=text]', 'input[type=number]']
 
 
-_.extend Template['item-detail-form'],
-  itemName: ->
-    Router.getData().itemName
-  events: do ->
-    'dragstart [data-account]': (e) ->
-      e.dataTransfer.dropEffect = e.dataTransfer.effectAllowed = 'move'
+_.extend Template['item-detail-form'], do ->
+  usersDep = new Deps.Dependency
+  payersDep = new Deps.Dependency
+  itemHelper = ->
+    finances.items[Router.getData().itemName]
+  usersHelper = ->
+    usersDep.depend()
+    finances.getUsers(itemHelper())
+  payersHelper = ->
+    payersDep.depend()
+    p.fromAccount for p in finances.getPaymentsForItem itemHelper()
 
-    'drop [data-both-drop-zone]': (e) ->
-      # account = finances.accounts[e.target.dataset.account]
-      # item = finances.items[
-      # account.paysAndUses
+  item: itemHelper
+  users: usersHelper
+  payers: payersHelper
+  boths: ->
+    _.intersection usersHelper(), payersHelper()
+  nothings: ->
+    accounts = _(finances.accounts).values()
+    _(accounts).difference usersHelper(), payersHelper()
+  account: ->
+    accounts = _.values finances.accounts
+    index = Session.get 'accountIndex'
+    accounts[index]
+  events: do ->
+    onDragOver = (e) ->
+      e.preventDefault?() # allows drop to happen
+      e.dataTransfer.dropEffect = 'copy'
+      false
+    onDragEnter = -> false # just for you, IE
+    makeOnDrop = (fn) ->
+      (e) ->
+        e.stopPropagation?()
+        fn.call(this, e)
+        usersDep.changed()
+        payersDep.changed()
+        index = Session.get 'accountIndex'
+        accounts = _.values finances.accounts
+        if index < accounts.length - 1
+          Session.set 'accountIndex', index + 1
+        else
+          Router.go 'item-form'
+    getAccountAndItem = (e) ->
+      accountName = e.dataTransfer.getData 'text/plain'
+      account = finances.accounts[accountName]
+      item = itemHelper()
+      [account, item]
+
+    'dragstart [data-account]': (e) ->
+      e.dataTransfer.effectAllowed = 'copy'
+      e.dataTransfer.setData 'text/plain', e.target.dataset.account
+
+    'dragover [data-both-drop-zone]': onDragOver
+    'dragenter [data-both-drop-zone]': onDragEnter
+    'drop [data-both-drop-zone]': makeOnDrop (e) ->
+      [account, item] = getAccountAndItem(e)
+      account.paysAndUses item
+    'dragover [data-use-drop-zone]': onDragOver
+    'dragenter [data-use-drop-zone]': onDragEnter
+    'drop [data-use-drop-zone]': makeOnDrop (e) ->
+      [account, item] = getAccountAndItem(e)
+      account.uses item
+    'dragover [data-pay-drop-zone]': onDragOver
+    'dragenter [data-pay-drop-zone]': onDragEnter
+    'drop [data-pay-drop-zone]': makeOnDrop (e) ->
+      [account, item] = getAccountAndItem(e)
+      account.pays item
+    'dragover [data-nothing-drop-zone]': onDragOver
+    'dragenter [data-nothing-drop-zone]': onDragEnter
+    'drop [data-nothing-drop-zone]': makeOnDrop ->
       

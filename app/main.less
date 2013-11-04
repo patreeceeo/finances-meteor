@@ -141,17 +141,22 @@ body {
   [data-nothing-drop-zone], [data-pay-drop-zone], 
   [data-use-drop-zone], [data-both-drop-zone],
   [data-account] {
-    height: 1.5em;
     line-height: 1.5em;
     margin-bottom: 0.5em;
   }
   [data-nothing-drop-zone], [data-pay-drop-zone], 
   [data-use-drop-zone], [data-both-drop-zone] {
     background-color: darken(#aea, 10%);
+    ul {
+      line-height: 1em;
+    }
   }
   [data-account] {
-    cursor: pointer;
+    cursor: move;
     background-color: lighten(#aea, 10%);
+    &:hover:after {
+      content: ' (drag me)';
+    }
   }
 
 }

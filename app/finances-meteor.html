@@ -74,19 +74,39 @@
   {{> global-menu}}
   <form id='item-detail-form'>
     <div class='flash'>Drag and drop each person to the appropriate action</div>
-    <h1>Who did what with the {{itemName}}?</h1>
-    <div data-account='{{account.name}}' draggable=true>{{account.name}} Hello!</div>
+    <h1>Who did what with the {{item.name}}?</h1>
+    <div data-account='{{account.name}}' draggable=true>{{account.name}}</div>
     <div data-both-drop-zone>
-      Used and paid for {{itemName}}
+      Used and paid for {{item.name}}:
+      <ul>
+        {{#each boths}}
+        <li>{{name}}</li>
+        {{/each}}
+      </ul>
     </div>
     <div data-use-drop-zone>
-      Just used {{itemName}}
+      Used {{item.name}}:
+      <ul>
+        {{#each users}}
+        <li>{{name}}</li>
+        {{/each}}
+      </ul>
     </div>
     <div data-pay-drop-zone>
-      Just paid for {{itemName}}
+      Paid for {{item.name}}:
+      <ul>
+        {{#each payers}}
+        <li>{{name}}</li>
+        {{/each}}
+      </ul>
     </div>
     <div data-nothing-drop-zone>
-      None of the above
+      None of the above:
+      <ul>
+        {{#each nothings}}
+        <li>{{name}}</li>
+        {{/each}}
+       </ul>
     </div>
   </form>
 </template>
