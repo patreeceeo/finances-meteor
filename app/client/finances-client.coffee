@@ -3,9 +3,8 @@ Session.set 'accounts', [
   new finances.Account 'dude'
   new finances.Account 'walter'
   ]
-Session.set 'accountIndex', 0
 Session.set 'items', [
-  new finances.Item 'ball', 13
+  new finances.Item 'ball', 6
   new finances.Item 'whiterussian', 6
 ]
 Session.set 'message', ''
@@ -106,6 +105,8 @@ Template['item-form'].preserve ['input[type=text]', 'input[type=number]']
 _.extend Template['item-detail-form'], do ->
   usersDep = new Deps.Dependency
   payersDep = new Deps.Dependency
+  accountDep = new Deps.Dependency
+  accountIndex = 0
   itemHelper = ->
     finances.items[Router.getData().itemName]
   usersHelper = ->
@@ -114,42 +115,38 @@ _.extend Template['item-detail-form'], do ->
   payersHelper = ->
     payersDep.depend()
     p.fromAccount for p in finances.getPaymentsForItem itemHelper()
+  accountHelper = ->
+    accountDep.depend()
+    accounts = _.values finances.accounts
+    accounts[accountIndex]
 
+  created: ->
+    accountIndex = 0
   item: itemHelper
   users: usersHelper
   payers: payersHelper
   boths: ->
     _.intersection usersHelper(), payersHelper()
   nothings: ->
-    accounts = _(finances.accounts).values()
-    _(accounts).difference usersHelper(), payersHelper()
-  account: ->
     accounts = _.values finances.accounts
-    index = Session.get 'accountIndex'
-    accounts[index]
+    _(accounts).difference usersHelper(), payersHelper()
+  account: accountHelper
   events: do ->
     onDragOver = (e) ->
       e.preventDefault?() # allows drop to happen
       e.dataTransfer.dropEffect = 'copy'
       false
     onDragEnter = -> false # just for you, IE
-    makeOnDrop = (fn) ->
+    useAccount = (fn) ->
       (e) ->
         e.stopPropagation?()
-        fn.call(this, e)
+        fn.call(this, accountHelper(), itemHelper())
         usersDep.changed()
         payersDep.changed()
-        index = Session.get 'accountIndex'
         accounts = _.values finances.accounts
-        if index < accounts.length - 1
-          Session.set 'accountIndex', index + 1
-        else
-          Router.go 'item-form'
-    getAccountAndItem = (e) ->
-      accountName = e.dataTransfer.getData 'text/plain'
-      account = finances.accounts[accountName]
-      item = itemHelper()
-      [account, item]
+        if accountIndex < accounts.length
+          accountIndex++
+          accountDep.changed()
 
     'dragstart [data-account]': (e) ->
       e.dataTransfer.effectAllowed = 'copy'
@@ -157,20 +154,38 @@ _.extend Template['item-detail-form'], do ->
 
     'dragover [data-both-drop-zone]': onDragOver
     'dragenter [data-both-drop-zone]': onDragEnter
-    'drop [data-both-drop-zone]': makeOnDrop (e) ->
-      [account, item] = getAccountAndItem(e)
+    'drop [data-both-drop-zone]': useAccount (account, item) ->
+      account.paysAndUses item
+    'click [data-both-drop-zone]': useAccount (account, item) ->
       account.paysAndUses item
     'dragover [data-use-drop-zone]': onDragOver
     'dragenter [data-use-drop-zone]': onDragEnter
-    'drop [data-use-drop-zone]': makeOnDrop (e) ->
-      [account, item] = getAccountAndItem(e)
+    'drop [data-use-drop-zone]': useAccount (account, item) ->
+      account.uses item
+    'click [data-use-drop-zone]': useAccount (account, item) ->
       account.uses item
     'dragover [data-pay-drop-zone]': onDragOver
     'dragenter [data-pay-drop-zone]': onDragEnter
-    'drop [data-pay-drop-zone]': makeOnDrop (e) ->
-      [account, item] = getAccountAndItem(e)
+    'drop [data-pay-drop-zone]': useAccount (account, item) ->
+      account.pays item
+    'click [data-pay-drop-zone]': useAccount (account, item) ->
+      item = itemHelper()
+      account = accountHelper()
       account.pays item
     'dragover [data-nothing-drop-zone]': onDragOver
     'dragenter [data-nothing-drop-zone]': onDragEnter
-    'drop [data-nothing-drop-zone]': makeOnDrop ->
+    'drop [data-nothing-drop-zone]': useAccount ->
+    'click [data-nothing-drop-zone]': useAccount ->
       
+_.extend Template['results'], do ->
+  externalPayments: ->
+    _(finances.payments).where settled: true, toAccount: undefined
+  unsettledPayments: ->
+    _(finances.payments).where settled: false
+  userItem: ->
+    result = []
+    for item in _.values finances.items
+      for user in finances.getUsers(item)
+        result.push {account: user, item: item}
+      
+    result

@@ -8,7 +8,7 @@ body, input {
 }
 
 body {
-  font-size: 100%;
+  font-size: 150%;
   background-color: #aea;
 }
 
@@ -84,7 +84,7 @@ body {
   }
 }
 
-#account-form, #item-form, #item-detail-form {
+#account-form, #item-form, #item-detail-form, #results {
   .buttons;
   font-size: 3em;
   line-height: 1.5em;
@@ -147,6 +147,7 @@ body {
   [data-nothing-drop-zone], [data-pay-drop-zone], 
   [data-use-drop-zone], [data-both-drop-zone] {
     background-color: darken(#aea, 10%);
+    cursor: pointer;
     ul {
       line-height: 1em;
     }
@@ -155,7 +156,7 @@ body {
     cursor: move;
     background-color: lighten(#aea, 10%);
     &:hover:after {
-      content: ' (drag me)';
+      // content: ' (drag me)';
     }
   }
 

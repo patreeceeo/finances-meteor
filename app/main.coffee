@@ -18,6 +18,7 @@ Router.map ->
     data:
       stepNumber: 2
       page: 'item-form'
+      nextPage: 'results'
 
   @route 'item-detail-form',
     path: '/item/:name'
@@ -26,4 +27,13 @@ Router.map ->
       stepNumber: 2
       page: 'item-detail-form'
       upPage: 'item-form'
+      nextPage: 'results'
+
+  @route 'results',
+    path: '/results'
+    before: ->
+      finances.createInternalPayments()
+      finances.simplifyPayments()
+    data: ->
+      stepNumber: 3
 

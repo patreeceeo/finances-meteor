@@ -16,7 +16,7 @@
       <li>&#x2714; who paid for and/or used what</li>
     </ol>
     <p>
-      And suddenly your life will be slightly easier.
+      And receive the shortest possible list of steps to get everyone what they're owed.
     </p>
 
     </ol>
@@ -73,9 +73,14 @@
 <template name='item-detail-form'>
   {{> global-menu}}
   <form id='item-detail-form'>
-    <div class='flash'>Drag and drop each person to the appropriate action</div>
+    <div class='flash'>Click actions that apply</div>
+    {{#if account}}
     <h1>Who did what with the {{item.name}}?</h1>
     <div data-account='{{account.name}}' draggable=true>{{account.name}}</div>
+    {{/if}}
+    {{#unless account}}
+    <h1>Looks like we're done here! (click up)</h1>
+    {{/unless}}
     <div data-both-drop-zone>
       Used and paid for {{item.name}}:
       <ul>
@@ -111,3 +116,27 @@
   </form>
 </template>
 
+<template name='results'>
+  {{> global-menu }}
+  <div id='results'>
+    <h1>What happened:</h1>
+    <ol>
+      {{#each externalPayments}}
+      <li>{{fromAccount.name}} paid ${{amount}} for {{item.name}}</li>
+      {{/each}}
+      {{#each userItem}}
+      <li>{{account.name}} used {{item.name}}</li>
+      {{/each}}
+    </ol>
+    <h1>What needs to happen:</h1>
+    <ol>
+      {{#each unsettledPayments}}
+      <li>{{fromAccount.name}} should pay ${{amount}} to {{toAccount.name}}</li>
+      {{/each}}
+      {{#unless unsettledPayments}}
+      <li>Nothing! You're already even!</li>
+      {{/unless}}
+    </ol>
+    <h1>...And, that's it!</h1>
+  </div>
+</template>
