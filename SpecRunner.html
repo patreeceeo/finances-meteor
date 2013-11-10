@@ -11,12 +11,31 @@
 
   <!-- include lib files here... -->
   <script type="text/javascript" src="packages/underscore.js"></script>
+  <script type="text/javascript" src="packages/meteor.js"></script>
+  <script type="text/javascript" src="packages/random.js"></script>
+  <script type="text/javascript" src="packages/json.js"></script>
+  <script type="text/javascript" src="packages/ejson.js"></script>
+  <script type="text/javascript" src="packages/check.js"></script>
+  <script type="text/javascript" src="packages/deps.js"></script>
+  <script type="text/javascript" src="packages/logging.js"></script>
+  <script type="text/javascript" src="packages/geojson-utils.js"></script>
+  <script type="text/javascript" src="packages/reload.js"></script>
+  <script type="text/javascript" src="packages/ordered-dict.js"></script>
+  <script type="text/javascript" src="packages/minimongo.js"></script>
+  <script type="text/javascript" src="packages/livedata.js"></script>
+  <script type="text/javascript" src="packages/mongo-livedata.js"></script>
+  <script type='text/javascript'>
+    this.Meteor = Package.meteor.Meteor;
+    this._ = Package.underscore._;
+  </script>
 
   <!-- include source files here... -->
   <script type="text/javascript" src="build/lib/finances.coffee.js"></script>
+  <script type="text/javascript" src="build/example-data.coffee.js"></script>
 
   <!-- include spec files here... -->
   <script type="text/javascript" src="spec/finances-spec.js"></script>
+  <script type="text/javascript" src="spec/example-data-spec.js"></script>
 
   <script type="text/javascript">
     (function() {

@@ -1,7 +1,7 @@
 
 log =
   write: ->
-    console.debug.apply console, arguments
+    # console.debug.apply console, arguments
 
 #
 # dinner:
@@ -15,13 +15,18 @@ if not _?
   _ = Package?.underscore._
 
 class Item
-  constructor: (@name, @amount) ->
+  constructor: (@attributes) ->
+    @name = @attributes.name
+    @amount = @attributes.amount
     finances.items[@name] = this
   clone: (name = @name) ->
-    new Item(name, @amount)
+    attributes = _.clone(@attributes)
+    attributes.name = name
+    new Item(attributes)
 
 class Account
-  constructor: (@name) ->
+  constructor: (@attributes) ->
+    @name = @attributes.name
     @usesItems = []
     @sendsPayments = []
     @receivesPayments = []
@@ -45,10 +50,10 @@ class Account
     total: total
 
 class Payment
-  constructor: (@options) ->
+  constructor: (@attributes) ->
     finances.payments.push this
-    @item = @options.item
-    @percent = @options.percent or 100
+    @item = @attributes.item
+    @percent = @attributes.percent or 100
     if @item?
       finances.getPaymentsForItem(@item).push this
 
@@ -60,12 +65,12 @@ class Payment
       else
         1/@getUsers(@item).length
     else
-      @options.amount or 0
+      @attributes.amount or 0
       
-    @settled = if @options.settled? then @options.settled else true
-    @fromAccount = @options.fromAccount
+    @settled = if @attributes.settled? then @attributes.settled else true
+    @fromAccount = @attributes.fromAccount
     @fromAccount?.sendsPayments.push this
-    @toAccount = @options.toAccount
+    @toAccount = @attributes.toAccount
     @toAccount?.receivesPayments.push this
     log.write "create #{@toString()}"
 
@@ -107,15 +112,16 @@ class Payment
     if p.item?
       delete @paymentsForItem[p.item.name]
     p.settled = true
-  createOrIncreasePayment: (options) ->
+  createOrIncreasePayment: (attributes) ->
     payments = _(@payments).filter (p) ->
-      p.fromAccount is options.fromAccount and p.toAccount is options.toAccount
+      p.fromAccount is attributes.fromAccount and
+        p.toAccount is attributes.toAccount
     if payments[0]
-      log.write "increase #{payments[0].toString()} by $#{options.amount}"
-      payments[0].amount += options.amount
+      log.write "increase #{payments[0].toString()} by $#{attributes.amount}"
+      payments[0].amount += attributes.amount
       payments[0]
     else
-      new Payment options
+      new Payment attributes
   createInternalPayments: ->
     for item in _.values(@items)
       for p in @getPaymentsForItem(item) when p.settled
@@ -227,7 +233,9 @@ class Payment
     nItems = random(nAccounts / 2, nAccounts * 2)
 
     accounts = (new Account "account #{i}" for i in [1..nAccounts])
-    items = (new Item("item #{i}", random(2, 30)) for i in [1..nItems])
+    items =
+      for i in [1..nItems]
+        new Item name: "item #{i}", amount: random(2, 30)
 
     for index, item of items
       accounts[index % nPayers].pays item

@@ -1,14 +1,16 @@
-_ = Package.underscore._
 describe "finances", ->
   [a1, a2, a3, i1, i2, i3] = (null for i in [1..6])
+  Account = finances.Account
+  Item = finances.Item
+
   beforeEach ->
     finances.reset()
-    a1 = new finances.Account 'Fred'
-    a2 = new finances.Account 'Dafny'
-    a3 = new finances.Account 'Shaggy/Scooby'
-    i1 = new finances.Item 'dinner', 60
-    i2 = new finances.Item 'costume', 25
-    i3 = new finances.Item 'snacks', 12
+    a1 = new Account name: 'Fred'
+    a2 = new Account name: 'Dafny'
+    a3 = new Account name: 'Shaggy/Scooby'
+    i1 = new Item name: 'dinner', amount: 60
+    i2 = new Item name: 'costume', amount: 25
+    i3 = new Item name: 'snacks', amount: 12
 
   it 'should be groovy', ->
     expect(finances).toBeDefined()
@@ -87,7 +89,7 @@ describe "finances", ->
 
         it 'should reduce debts along a given path and create a direct debt', ->
 
-          i2 = new finances.Item 'dessert', i1.amount + 5
+          i2 = new Item name: 'dessert', amount: i1.amount + 5
 
           a1.paysAndUses i1
           a2.uses i1
@@ -104,7 +106,7 @@ describe "finances", ->
       describe 'when the second debt in the path is bigger', ->
 
         it 'should reduce debts along a given path and create a direct debt', ->
-          i2 = new finances.Item 'dessert', i1.amount + 5
+          i2 = new finances.Item name: 'dessert', amount: i1.amount + 5
 
           a1.paysAndUses i2
           a2.uses i2
