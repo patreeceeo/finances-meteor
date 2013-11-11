@@ -231,12 +231,19 @@ class Scenario
 
     undefined
 
+
+@finances =
+  Item: Item
+  Account: Account
+  Payment: Payment
+  Scenario: Scenario
   getPRNG: (seed) ->
     (min, max) ->
       x = Math.sin(seed++) * 10000
       r = x - Math.floor(x)
       Math.round r * (max - min) + min
   testScenario: (seed) ->
+    scenario = new Scenario
 
     random = @getPRNG(seed)
     totalPayments = 0
@@ -247,31 +254,21 @@ class Scenario
     nAccounts = do ->
       min = Math.max(nUsers, nPayers)
       random(min, nUsers + nPayers)
-    nItems = random(nAccounts / 2, nAccounts * 2)
+    nItems = random(Math.max(nUsers, nPayers), nAccounts * 3)
 
-    accounts = (new Account "account #{i}" for i in [1..nAccounts])
+    accounts =
+      for i in [1..nAccounts]
+        scenario.createAccount name: "account #{i}"
     items =
       for i in [1..nItems]
-        new Item name: "item #{i}", amount: random(2, 30)
+        scenario.createItem
+          name: "item #{i}"
+          amount: random(2, 100)
 
     for index, item of items
       accounts[index % nPayers].pays item
       accounts[accounts.length - 1 - index % nUsers].uses item
       totalPayments += item.amount
-
-    totalPayments: totalPayments
-    accounts: accounts
-    items: items
-
-
-@finances =
-  Item: Item
-  Account: Account
-  Payment: Payment
-  Scenario: Scenario
-
-
     
-
-     
-
+    scenario.totalPayments = totalPayments
+    scenario

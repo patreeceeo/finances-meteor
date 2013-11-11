@@ -126,14 +126,14 @@ describe "finances", ->
   describe 'pseudo-random number generator', ->
 
     it 'should always generate the same sequence for a given seed', ->
-      rng1 = s.getPRNG(42)
+      rng1 = finances.getPRNG(42)
       sequence1 = rng1() for i in [1..20]
-      rng2 = s.getPRNG(42)
+      rng2 = finances.getPRNG(42)
       sequence2 = rng2() for i in [1..20]
       for i in [1..20]
         expect(sequence1[i]).toEqual sequence2[i]
   
-  xdescribe 'test scenarios', ->
+  describe 'test scenarios', ->
     # TODO: make a scenario class and move all the methods and
     #       properties of `finances` to `finances.Scenario`
     count = 10
@@ -141,18 +141,18 @@ describe "finances", ->
       add = (a, b) ->
         a + b
       _.reduce list, add, 0
-    withEachScenario = (fn) =>
-      for i in [1..count]
-        s.reset()
-        s = s.testScenario(i)
-        fn(s)
+    scenarios = []
+    beforeEach ->
+      scenarios =
+        for seed in [0..20]
+          finances.testScenario seed
 
     it 'should have payments', ->
-      withEachScenario (s) ->
+      for s in scenarios
         expect(s.totalPayments).toBeGreaterThan 0
 
     it 'should have all items paid for', ->
-      withEachScenario (s) ->
+      for s in scenarios
         expect(s.totalPayments).toBe findSum (i.amount for i in s.items)
         expect(s.payments.length >= s.items.length).toBeTruthy()
         for i in s.items
@@ -161,13 +161,13 @@ describe "finances", ->
           )).toBe i.amount
         
     it 'should have every account at least either a payer or a user', ->
-      withEachScenario (s) ->
+      for s in scenarios
         for a in s.accounts
-          expect(a.usesItems.length or a.sendsPayments.length).toBeTruthy()
+          expect(a.usesItems.length or a.sendsPayments.length).toBeGreaterThan 0
 
     it """should transform to one in which the net amount
           that each account pays is equal""", ->
-      withEachScenario (s) ->
+      for s in scenarios
         s.createInternalPayments()
         s.simplifyPayments()
         fairShare = s.totalPayments / s.accounts.length
