@@ -1,7 +1,31 @@
-xdescribe 'the example data', ->
+describe 'the example data', ->
 
   beforeEach ->
-    finances.reset()
+    AccountCollection.remove {}
+    ItemCollection.remove {}
+    PaymentCollection.remove {}
+    AccountCollection.insert example for example in [
+      { name: 'dude' }
+      { name: 'walter' }
+    ]
+    ItemCollection.insert example for example in [
+      { name: 'ball', amount: 6 }
+      { name: 'whiterussian', amount: 6 }
+    ]
+    PaymentCollection.insert example for example in [
+      {
+        fromAccount:
+          name: 'dude'
+        item:
+          name: 'ball'
+      }
+      {
+        fromAccount:
+          name: 'walter'
+        item:
+          name: 'whiterussian'
+      }
+    ]
 
   describe 'account collection', ->
 
@@ -13,7 +37,7 @@ xdescribe 'the example data', ->
         AccountCollection.find({})
           .fetch()[0].constructor
       ).toBe finances.Account
-      expect(_.values(finances.accounts).length).toBeGreaterThan 0
+      expect(_.values(currentScenario.accounts).length).toBeGreaterThan 0
 
   describe 'item collection', ->
 
@@ -25,7 +49,7 @@ xdescribe 'the example data', ->
         ItemCollection.find({})
           .fetch()[0].constructor
       ).toBe finances.Item
-      expect(_.values(finances.items).length).toBeGreaterThan 0
+      expect(_.values(currentScenario.items).length).toBeGreaterThan 0
 
   describe 'payment collection', ->
 
@@ -37,6 +61,6 @@ xdescribe 'the example data', ->
         PaymentCollection.find({})
           .fetch()[0].constructor
       ).toBe finances.Payment
-      expect(finances.payments.length).toBeGreaterThan 0
+      expect(currentScenario.payments.length).toBeGreaterThan 0
 
       
