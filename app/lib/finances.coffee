@@ -14,11 +14,13 @@ log =
 if not _?
   _ = Package?.underscore._
 
+
 class Item
   constructor: (@attributes) ->
     @name = @attributes.name
     @amount = @attributes.amount
-    finances.items[@name] = this
+    @scenario = @attributes.scenario
+    @scenario.items.push this
   clone: (name = @name) ->
     attributes = _.clone(@attributes)
     attributes.name = name
@@ -27,17 +29,18 @@ class Item
 class Account
   constructor: (@attributes) ->
     @name = @attributes.name
-    @usesItems = []
-    @sendsPayments = []
-    @receivesPayments = []
-    finances.accounts[@name] = this
+    @usesItems = @attributes.usesItems or []
+    @sendsPayments = @attributes.sendsPayments or []
+    @receivesPayments = @attributes.receivesPayments or []
+    @scenario = @attributes.scenario
+    @scenario.accounts.push this
   pays: (item, percent = 100) ->
     new Payment
       item: item
       percent: percent
       fromAccount: this
+      scenario: @scenario
   uses: (item) ->
-    finances.getUsers(item).push this
     @usesItems.push item
   paysAndUses: (item, percent = 100) ->
     @pays(item, percent)
@@ -51,19 +54,20 @@ class Account
 
 class Payment
   constructor: (@attributes) ->
-    finances.payments.push this
     @item = @attributes.item
     @percent = @attributes.percent or 100
+    @scenario = @attributes.scenario
     if @item?
-      finances.getPaymentsForItem(@item).push this
+      @scenario.getPaymentsForItem(@item).push this
 
+    @scenario.payments.push this
     @amount =
     if @item?
       @item.amount *
       if @percent
-        100/@percent
+        100 / @percent
       else
-        1/@getUsers(@item).length
+        1 / @scenario.getUsers(@item).length
     else
       @attributes.amount or 0
       
@@ -92,26 +96,39 @@ class Payment
       @amount
     })"""
 
-@finances ?=
-  getPaymentsForItem: (item) ->
-    @paymentsForItem[item.name] ?= []
-  getUsers: (item) ->
-    @users[item.name] ?= []
-  reset: ->
-    @items = {}
-    @accounts = {}
-    @paymentsForItem = {}
-    @users = {}
+
+class Scenario
+  constructor: (@attributes) ->
+    @accounts = []
+    @items = []
     @payments = []
-  deletePayment: (p) ->
-    log.write "delete #{p.toString()}"
-    deleteFromArray = (parent, prop, value) ->
-      parent[prop] = _(parent[prop]).without(value)
-    deleteFromArray p.fromAccount, 'sendsPayments', p
-    deleteFromArray p.toAccount, 'receivesPayments', p
-    if p.item?
-      delete @paymentsForItem[p.item.name]
-    p.settled = true
+  createAccount: (doc) ->
+    new Account _.extend doc, scenario: this
+  createItem: (doc) ->
+    new Item _.extend doc, scenario: this
+  createPayment: (doc) ->
+    new Payment _.extend doc, scenario: this
+  getPaymentsForItem: (item) ->
+    _(@payments).filter (p) ->
+      p.item is item
+  getUsers: (item) ->
+    _(@accounts).filter (a) ->
+      _(a.usesItems).contains item
+      
+  deletePayment: (deleteMe) ->
+    log.write "delete #{deleteMe.toString()}"
+    deleteFrom = (propName) ->
+      in: (object) ->
+        object[propName] =
+        _(object[propName]).reject (o) ->
+          o is deleteMe
+
+    deleteFrom('sendsPayments').in(deleteMe.fromAccount)
+    deleteFrom('receivesPayments').in(deleteMe.toAccount)
+
+    # TODO: should a payment actually be made settled after
+    #       it's deleted?
+    deleteMe.settled = true
   createOrIncreasePayment: (attributes) ->
     payments = _(@payments).filter (p) ->
       p.fromAccount is attributes.fromAccount and
@@ -121,9 +138,9 @@ class Payment
       payments[0].amount += attributes.amount
       payments[0]
     else
-      new Payment attributes
+      @createPayment attributes
   createInternalPayments: ->
-    for item in _.values(@items)
+    for item in @items
       for p in @getPaymentsForItem(item) when p.settled
         for user in @getUsers(item) when user isnt p.fromAccount
           @createOrIncreasePayment
@@ -247,12 +264,12 @@ class Payment
     items: items
 
 
-          
+@finances =
   Item: Item
   Account: Account
   Payment: Payment
+  Scenario: Scenario
 
-finances.reset()
 
     
 

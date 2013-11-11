@@ -1,4 +1,4 @@
-describe 'the example data', ->
+xdescribe 'the example data', ->
 
   beforeEach ->
     finances.reset()

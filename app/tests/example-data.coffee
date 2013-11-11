@@ -1,12 +1,14 @@
+scenario = new finances.Scenario
+
 AccountCollection = new Meteor.Collection null,
   transform: (doc) ->
-    new finances.Account doc
+    scenario.createAccount doc
 ItemCollection = new Meteor.Collection null,
   transform: (doc) ->
-    new finances.Item doc
+    scenario.createItem doc
 PaymentCollection = new Meteor.Collection null,
   transform: (doc) ->
-    new finances.Payment doc
+    scenario.createPayment doc
 
 AccountCollection.insert example for example in [
   { name: 'dude' }
