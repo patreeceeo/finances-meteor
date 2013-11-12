@@ -20,20 +20,28 @@ class Item
     @name = @attributes.name
     @amount = @attributes.amount
     @scenario = @attributes.scenario
-    @scenario.items.push this
+    _id = @attributes._id
+    unless @scenario.byId[_id]? and _id?
+      @scenario.items.push this
+      @scenario.byId[_id] = this
   clone: (name = @name) ->
     attributes = _.clone(@attributes)
     attributes.name = name
     new Item(attributes)
+  toJSON: ->
+    _(@attributes).clone()
 
 class Account
   constructor: (@attributes) ->
     @name = @attributes.name
     @usesItems = @attributes.usesItems or []
-    @sendsPayments = @attributes.sendsPayments or []
-    @receivesPayments = @attributes.receivesPayments or []
+    @sendsPayments = []
+    @receivesPayments = []
     @scenario = @attributes.scenario
-    @scenario.accounts.push this
+    _id = @attributes._id
+    unless @scenario.byId[_id]? and _id?
+      @scenario.accounts.push this
+      @scenario.byId[_id] = this
   pays: (item, percent = 100) ->
     new Payment
       item: item
@@ -51,14 +59,17 @@ class Account
       log.write "include in total #{p.toString()}"
       total += p.amount
     total: total
+  toJSON: ->
+    _(@attributes).omit(
+      'sendsPayments'
+      'receivesPayments'
+    )
 
 class Payment
   constructor: (@attributes) ->
     @item = @attributes.item
     @percent = @attributes.percent or 100
     @scenario = @attributes.scenario
-    if @item?
-      @scenario.getPaymentsForItem(@item).push this
 
     @scenario.payments.push this
     @amount =
@@ -73,9 +84,14 @@ class Payment
       
     @settled = if @attributes.settled? then @attributes.settled else true
     @fromAccount = @attributes.fromAccount
-    @fromAccount?.sendsPayments.push this
     @toAccount = @attributes.toAccount
-    @toAccount?.receivesPayments.push this
+
+    _id = @attributes._id
+    unless @scenario.byId[_id]? and _id?
+      if @item?
+        @scenario.getPaymentsForItem(@item).push this
+      @fromAccount?.sendsPayments.push this
+      @toAccount?.receivesPayments.push this
     log.write "create #{@toString()}"
 
   isInternal: ->
@@ -95,13 +111,15 @@ class Payment
     } ($#{
       @amount
     })"""
-
+  toJSON: ->
+    _(@attributes).clone()
 
 class Scenario
   constructor: (@attributes) ->
     @accounts = []
     @items = []
     @payments = []
+    @byId = {}
   createAccount: (doc) ->
     new Account _.extend doc, scenario: this
   createItem: (doc) ->

@@ -1,5 +1,5 @@
-scenario = new finances.Scenario
 
+scenario = new finances.Scenario
 
 AccountCollection = new Meteor.Collection 'accounts',
   connection: null
@@ -17,10 +17,23 @@ PaymentCollection = new Meteor.Collection 'payments',
     doc.item = ItemCollection.findOne doc.item
     scenario.createPayment doc
 
+
 exports = this
 _.extend exports,
   AccountCollection: AccountCollection
   ItemCollection: ItemCollection
   PaymentCollection: PaymentCollection
+  fetchAccounts: ->
+    AccountCollection.find({}).fetch()
+  fetchItems: ->
+    ItemCollection.find({}).fetch()
+  fetchPayments: ->
+    PaymentCollection.find({}).fetch()
+  fetchAll: ->
+    accounts: @fetchAccounts()
+    items: @fetchItems()
+    payments: @fetchPayments()
+  upsertAll: ->
+    PaymentCollection.upsert scenario.payments
   currentScenario: scenario
-
+  # prepareTestData: prepareTestData

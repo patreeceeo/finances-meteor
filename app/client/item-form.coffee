@@ -2,7 +2,7 @@
 Template['item-form'].preserve ['input[type=text]', 'input[type=number]']
 
 _.extend Template['item-form'],
-  items: -> ItemCollection.find({}).count()
+  items: -> ItemCollection.find({}).fetch()
   message: -> Session.get 'message'
   events: do ->
     item = {}

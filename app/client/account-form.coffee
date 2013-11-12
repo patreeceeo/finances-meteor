@@ -10,7 +10,6 @@ _.extend Template['account-form'],
     removeAccount = (e) ->
       AccountCollection.remove name: e.target.dataset.account
 
-    handlers =
     'change input': addAccount
     'focusout input': addAccount
     'keydown input': (e) ->

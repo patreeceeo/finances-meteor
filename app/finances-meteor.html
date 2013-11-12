@@ -124,8 +124,15 @@
       {{#each externalPayments}}
       <li>{{fromAccount.name}} paid ${{amount}} for {{item.name}}</li>
       {{/each}}
-      {{#each userItem}}
-      <li>{{account.name}} used {{item.name}}</li>
+      {{#each accounts}}
+      <li>
+        {{name}} used
+        <ul>
+          {{#each usesItems}}
+            <li>{{name}}</li>
+          {{/each}}
+        </ul>
+      </li>
       {{/each}}
     </ol>
     <h1>What needs to happen:</h1>
