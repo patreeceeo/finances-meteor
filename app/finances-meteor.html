@@ -77,19 +77,11 @@
     <div class='flash'>Click actions that apply</div>
     {{#if account}}
     <h1>Who did what with the {{item.name}}?</h1>
-    <div data-account='{{account.name}}' draggable=true>{{account.name}}</div>
+    <div data-account='{{account.name}}'>{{account.name}}</div>
     {{/if}}
     {{#unless account}}
     <h1>Looks like we're done here! (click up)</h1>
     {{/unless}}
-    <!-- <div data-both-drop-zone> -->
-    <!--   Used and paid for {{item.name}}: -->
-    <!--   <ul> -->
-    <!--     {{#each boths}} -->
-    <!--     <li>{{name}}</li> -->
-    <!--     {{/each}} -->
-    <!--   </ul> -->
-    <!-- </div> -->
     <div data-use-drop-zone>
       Used {{item.name}}:
       <ul>

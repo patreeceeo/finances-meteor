@@ -17,19 +17,8 @@ if not _?
 class Base
   constructor: (doc) ->
     _.extend this, doc
-  toJSON: ->
-    _(this).omit 'scenario'
 
 class Item extends Base
-  # constructor: (doc) ->
-  #   _.extend this, doc
-    # @name = @attributes.name
-    # @amount = @attributes.amount
-    # @scenario = @attributes.scenario
-    # _id = @attributes._id
-    # unless @scenario.byId[_id]? and _id?
-    #   @scenario.items.push this
-    #   @scenario.byId[_id] = this
   toJSON: ->
     name: @name
     amount: @amount
@@ -37,17 +26,6 @@ class Item extends Base
     @scenario.createItem name: name, amount: @amount
 
 class Account extends Base
-  # constructor: (doc) ->
-  #   _.extend this, doc
-    # @name = @attributes.name
-    # @usesItems = @attributes.usesItems or []
-    # @sendsPayments = []
-    # @receivesPayments = []
-    # @scenario = @attributes.scenario
-    # _id = @attributes._id
-    # unless @scenario.byId[_id]? and _id?
-    #   @scenario.accounts.push this
-    #   @scenario.byId[_id] = this
   pays: (item, percent = 100) ->
     @scenario.createPayment
       item: item.toJSON()
@@ -121,19 +99,6 @@ class Scenario
     @findAccount(usage.fromAccount) for usage in usages
       
   deletePayment: (sel) ->
-    # log.write "delete #{deleteMe.toString()}"
-    # deleteFrom = (propName) ->
-    #   in: (object) ->
-    #     object[propName] =
-    #     _(object[propName]).reject (o) ->
-    #       o is deleteMe
-
-    # deleteFrom('sendsPayments').in(deleteMe.fromAccount)
-    # deleteFrom('receivesPayments').in(deleteMe.toAccount)
-
-    # TODO: should a payment actually be made settled after
-    #       it's deleted?
-    # deleteMe.settled = true
   createOrIncreasePayment: (attributes) ->
     payment = @findPayment 
       fromAccount: attributes.fromAccount
