@@ -1,14 +1,29 @@
-@media (min-width: 769px) {
+@media (min-width: 400px) {
 
   @page-width: 800px;
   @button-width: @page-width * 0.1;
+  @shadow-offset: 10px;
 
   .page {
     width: @page-width;
   }
 
+  h1, p, ul, ol, a {
+    margin-bottom: @shadow-offset !important;
+  }
+
+  a[type=button] {
+    box-shadow: @shadow-offset @shadow-offset 0 0 darken(#aea, 20%);
+  }
+
   [data-remove-button], [data-add-button] {
     width: @button-width;
+  }
+
+  #global-menu {
+    a[type=button] {
+      margin-right: @shadow-offset;
+    }
   }
 
   #account-form, #item-form {

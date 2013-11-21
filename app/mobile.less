@@ -1,25 +1,40 @@
 
-@media (max-width: 769px) {
+@media (max-width: 400px) {
 
-  @page-width: 669px;
+  @page-width: 300px;
   @button-width: @page-width * 0.15;
+  @shadow-offset: 4px;
 
   #global-menu, #account-form, #item-form, #item-detail-form {
     h1, li, p, a, input {
-      font-size: 48pt;
-      line-height: 48pt;
+      font-size: 20pt;
+      line-height: 20pt * 1.5;
     }
   }
 
-  [data-flash-message] {
-    position: fixed;
-    bottom: 0;
-    background-color: #aea;
-    margin: 0;
+  #global-menu {
+    p[data-flash-message] {
+      position: fixed;
+      top: 0;
+      background-color: #aea;
+      margin: 0;
+      width: 100%;
+    }
+    a[type=button] {
+      margin-right: @shadow-offset;
+    }
   }
 
   .page {
     width: @page-width;
+  }
+
+  h1, p, ul, ol, a {
+    margin-bottom: @shadow-offset !important;
+  }
+
+  a[type=button] {
+    box-shadow: @shadow-offset @shadow-offset 0 0 darken(#aea, 20%);
   }
 
   [data-remove-button], [data-add-button] {
