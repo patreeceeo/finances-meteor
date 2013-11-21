@@ -2,18 +2,21 @@
 
 @font-family: "Franklin Gothic Medium", "Franklin Gothic", "ITC Franklin Gothic", Arial, sans-serif;
 
+@danger-color: tomato;
 
 body, input {
   font-family: @font-family;
 }
 
 body {
-  font-size: 150%;
   background-color: #aea;
 }
 
 .pull-right {
   float: right;
+}
+.pull-left {
+  float: left;
 }
 
 .flash {
@@ -21,8 +24,21 @@ body {
   background-color: lighten(#aea, 10%)
 }
 
+.center {
+  margin: 0 auto;
+}
+
+h1, p, ul, ol, a {
+  margin-bottom: 10px;
+}
 
 .buttons {
+  a[type=button] {
+    text-align: center;
+    box-shadow: 10px 10px 0 0 darken(#aea, 20%);
+    // margin-bottom: 10px;
+    background-color: darken(#aea, 10%);
+  }
   a[data-link], a[type=button] {
     cursor: pointer;
     text-decoration: none;
@@ -30,26 +46,22 @@ body {
     line-height: 1.5em;
     color: black;
     &:hover, &:active {
-      background-color: #e1f0ea;
+      background-color: white;
       color: black;
     }
     &.disabled {
-      color: gray !important;
-      background-color: #e1f0ea !important;
-      cursor: not-allowed !important;
-      &:hover, &:active {
-        color: gray
-      }
+      box-shadow: none;
+      color: transparent;
+      background-color: transparent;
+      cursor: default;
     }
+  }
+  a[data-reset-button]:hover {
+    background-color: @danger-color;
   }
 }
 
-.center {
-  margin: 0 auto;
-}
-
 .page {
-  width: 800px;
   box-sizing: border-box;
   p, ul, ol {
     display: block;
@@ -59,13 +71,16 @@ body {
 
 #home {
   .buttons;
-  .call-to-action, [data-start-button] {
+  .call-to-action-row {
     text-align: center;
   }
   font-size: 2em;
-  [data-start-button] {
+  a[data-start-button] {
     width: 50%;
     font-size: 1.5em;
+  }
+  ul {
+    list-style: inside disc;
   }
 }
 
@@ -73,8 +88,8 @@ body {
   .buttons;
   font-size: 3em;
   line-height: 1.5em;
-  [data-next-button] {
-    text-align: center;
+  a[type=button] {
+    margin-right: 10px;
     width: 40%;
     max-width: 4em;
     min-width: 2em;
@@ -82,14 +97,15 @@ body {
   .muted {
     color: gray;
   }
+  [data-flash-message] {
+    cursor: pointer;
+  }
 }
 
 #account-form, #item-form, #item-detail-form, #results {
   .buttons;
   font-size: 3em;
   line-height: 1.5em;
-  width: 100%;
-  display: inline-block;
   vertical-align: top;
 
   input {
@@ -100,13 +116,8 @@ body {
     border: 0;
   }
 
-  [data-remove-button], [data-add-button] {
-    width: 15%;
-    max-width: 2em;
-    right: 0;
-    color: white;
-    text-align: center;
-    background-color: limegreen;
+  a[data-remove-button]:hover {
+    background-color: @danger-color;
   }
 
 }
@@ -114,22 +125,18 @@ body {
 #account-form {
   input, a[data-link] {
     display: inline-block;
-    width: 70%;
   }
 }
 
 #item-form {
   a[data-link] {
     display: inline-block;
-    width: 70%;
   }
   [data-input=name] {
     display: inline-block;
-    width: 50%;
   }
   [data-input=amount] {
     display: inline-block;
-    width: 20%;
     text-align: right;
   }
   span {
@@ -139,25 +146,10 @@ body {
 
 #item-detail-form {
   [data-nothing-drop-zone], [data-pay-drop-zone], 
-  [data-use-drop-zone], [data-both-drop-zone],
-  [data-account] {
-    line-height: 1.5em;
-    margin-bottom: 0.5em;
+  [data-use-drop-zone], [data-both-drop-zone], {
+    margin: 0 20px 20px 0;
   }
-  [data-nothing-drop-zone], [data-pay-drop-zone], 
-  [data-use-drop-zone], [data-both-drop-zone] {
-    background-color: darken(#aea, 10%);
-    cursor: pointer;
-    ul {
-      line-height: 1em;
-    }
+  [data-story-item] {
+    display: inline-block;
   }
-  [data-account] {
-    cursor: move;
-    background-color: lighten(#aea, 10%);
-    &:hover:after {
-      // content: ' (drag me)';
-    }
-  }
-
 }

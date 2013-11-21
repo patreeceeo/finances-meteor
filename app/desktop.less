@@ -1,0 +1,36 @@
+@media (min-width: 769px) {
+
+  @page-width: 800px;
+  @button-width: @page-width * 0.1;
+
+  .page {
+    width: @page-width;
+  }
+
+  [data-remove-button], [data-add-button] {
+    width: @button-width;
+  }
+
+  #account-form, #item-form {
+    input, a[data-link] {
+      width: @page-width - @button-width;
+    }
+  }
+
+  #item-form {
+    [data-input=name] {
+      width: (@page-width - @button-width) * 0.7;
+    }
+    [data-input=amount] {
+      width: (@page-width - @button-width) * 0.3;
+    }
+  }
+
+  #item-detail-form {
+    [data-story-item] {
+      width: @page-width - @button-width;
+    }
+  }
+
+
+}

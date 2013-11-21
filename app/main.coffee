@@ -9,14 +9,12 @@ Router.map ->
   @route 'account-form',
     path: '/accounts'
     data:
-      stepNumber: 1
       page: 'account-form'
       nextPage: 'item-form'
 
   @route 'item-form',
     path: '/items'
     data:
-      stepNumber: 2
       page: 'item-form'
       nextPage: 'results'
 
@@ -24,15 +22,11 @@ Router.map ->
     path: '/item/:name'
     data: ->
       itemName: @params.name
-      stepNumber: 2
       page: 'item-detail-form'
       upPage: 'item-form'
       nextPage: 'results'
 
   @route 'results',
     path: '/results'
-    before: ->
-    data: ->
-      stepNumber: 3
 
 

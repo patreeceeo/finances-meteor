@@ -4,6 +4,8 @@ Template['item-form'].preserve ['input[type=text]', 'input[type=number]']
 _.extend Template['item-form'],
   items: -> ItemCollection.find()
   message: -> Session.get 'message'
+  created: ->
+    Session.set 'message', ''
   events: do ->
     item = {}
     addItem = (e) ->
@@ -15,6 +17,8 @@ _.extend Template['item-form'],
           parent.find('input').val ''
           parent.find('input[type=text]').focus()
         item = {}
+      else
+        Session.set 'message', 'Note: enter name and price'
     removeItem = (e) ->
       ItemCollection.remove name: e.target.dataset.item
     trackChange = (e) ->

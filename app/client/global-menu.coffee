@@ -3,7 +3,6 @@ _.extend Template['global-menu'], do ->
   page = -> Router.getData().page
   nextPage = -> Router.getData().nextPage
   upPage = -> Router.getData().upPage
-  stepNumber = -> Router.getData().stepNumber
 
   nextButtonDisabled = ->
     not nextPage()? or
@@ -15,7 +14,7 @@ _.extend Template['global-menu'], do ->
   upButtonDisabled = -> not upPage()?
   nextButtonDisabled: nextButtonDisabled
   upButtonDisabled: upButtonDisabled
-  stepNumber: -> stepNumber()
+  message: -> Session.get 'message'
   events:
     'click [data-next-button]': ->
       if not nextButtonDisabled()
@@ -25,4 +24,7 @@ _.extend Template['global-menu'], do ->
         Router.go upPage()
     'click [data-reset-button]': ->
       Meteor.call 'reset'
+      Router.go 'account-form'
+    'click [data-flash-message]': ->
+      Session.set 'message', ''
 

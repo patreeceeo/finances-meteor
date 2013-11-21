@@ -1,5 +1,6 @@
 <head>
   <title>finances-meteor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 </head>
 
 <body>
@@ -8,19 +9,17 @@
 <template name='home'>
   <div id='home' class='center page'>
     <p>
-      Need to settle debts among friends (or co-workers, roommates, random strangers, anyone really) without unnecessary transactions (read pain and hassle)? Simply indicate:
+      Welcome! Are you
     </p>
-    <ol>
-      <li>&#x2714; names of people/parties involved</li>
-      <li>&#x2714; names of items purchased and their amount</li>
-      <li>&#x2714; who paid for and/or used what</li>
-    </ol>
-    <p>
-      And receive the shortest possible list of steps to get everyone what they're owed.
-    </p>
-
-    </ol>
-    <div class='call-to-action'>
+    <ul>
+      <li>Owed money?</li>
+      <li>Owing money?</li>
+      <li>All the above?</li>
+    </ul>
+    <p>And wanting to end this situation as quickly and painlessly as possible?</p>
+    <p>While this app won't make money magically appear in people's bank accounts (slated for version 2.0), it will tell you the simplest way to transfer funds so that everyone gets what they're owed. Or it can be used to make sure you did if fairly if you've already done the divvying.</p> 
+    <p>Did I mention it's easy and free?</p>
+    <div class='call-to-action-row'>
       <a data-start-button type=button class='center' href='/accounts'>Get Started!</a>
     </div>
   </div>
@@ -28,25 +27,25 @@
 
 <template name='global-menu'>
   <div id='global-menu' class='clearfix'>
-      <a data-next-button type=button class='pull-right {{#if nextButtonDisabled}}disabled{{/if}}'>next &rarr;</a>
-      <a data-up-button type=button class='pull-right {{#if upButtonDisabled}}disabled{{/if}}'>up &uarr;</a>
-      <a data-reset-button type=button class='pull-right'>reset</a>
-      <span class='muted'>Step {{stepNumber}}/3</span>
+      <a data-reset-button type=button class="pull-left" title='Clear all data and start over'>reset &times;</a>
+      <p data-flash-message class='pull-left'>{{message}}</p>
+      <a data-next-button type=button class='pull-right {{#if nextButtonDisabled}}disabled{{/if}}'>next &gt;</a>
+      <a data-up-button type=button class='pull-right {{#if upButtonDisabled}}disabled{{/if}}'>up ^</a>
     </div>
   </div> 
 </template>
 
 <template name="account-form">
   {{> global-menu}}
-  <form id='account-form'>
-    <h1>List accounts (peeps)</h1>
+  <form id='account-form' class='center page'>
+    <h1>Who's involved?</h1>
     <ul>
       <li>
-        <input type='text' placeholder='Name' value="{{name}}" data-account-name-input tabindex=0>
+        <input type='text' placeholder='Name' value="{{name}}" data-input=account tabindex=0><a type='button' data-add-button data-item='{{name}}'>&check;</a>
       </li>
     {{#each accounts}}
     <li>
-      <a data-link data-account='{{name}}'>{{name}}</a><a type='button' data-remove-button data-account='{{name}}'>&#x2718;</a>
+      <a data-link data-account='{{name}}'>{{name}}</a><a type='button' data-remove-button data-account='{{name}}'>&times;</a>
     </li>
     {{/each}}
     </ul>
@@ -55,16 +54,15 @@
 
 <template name="item-form">
   {{> global-menu}}
-  <form id='item-form'>
-    <p class='flash'>{{message}}</p>
-    <h1>List shared items</h1>
+  <form id='item-form' class='center page'>
+    <h1>What's involved?</h1>
     <ul>
       <li>
-      <input type='text' placeholder='Name' value="{{name}}" data-input=name tabindex=2><input type='number' placeholder='$$$' value="{{amount}}" data-input=amount min=0 tabindex=3><a type='button' data-add-button data-item='{{name}}'>&#x2714;</a>
+      <input type='text' placeholder='Name' value="{{name}}" data-input=name tabindex=2><input type='number' placeholder='$$$' value="{{amount}}" data-input=amount min=0 tabindex=3><a type='button' data-add-button data-item='{{name}}'>&check;</a>
       </li>
     {{#each items}}
     <li>
-    <a data-link data-item='{{name}}' href='#'>{{name}}<span class='pull-right'>${{amount}}</span></a></a><a type='button' data-remove-button data-item='{{name}}' href='#'>✘</a>
+    <a data-link data-item='{{name}}' href='#'>{{name}}<span class='pull-right'>${{amount}}</span></a></a><a type='button' data-remove-button data-item='{{name}}' href='#'>&times;</a>
     </li>
     {{/each}}
     </ul>
@@ -73,40 +71,30 @@
 
 <template name='item-detail-form'>
   {{> global-menu}}
-  <form id='item-detail-form'>
-    <div class='flash'>Click actions that apply</div>
+  <form id='item-detail-form' class='center page'>
     {{#if account}}
-    <h1>Who did what with the {{item.name}}?</h1>
-    <div data-account='{{account.name}}'>{{account.name}}</div>
+    <h1>Fill in the blank. {{account.name}} _____ {{item.name}}.</h1>
     {{/if}}
     {{#unless account}}
-    <h1>Looks like we're done here! (click up)</h1>
+    <h1>Looks like we're done here!</h1>
     {{/unless}}
-    <div data-use-drop-zone>
-      Used {{item.name}}:
-      <ul>
-        {{#each users}}
-        <li>{{name}}</li>
-        {{/each}}
-      </ul>
-    </div>
-    <div data-pay-drop-zone>
-      Paid for {{item.name}}:
-      <ul>
-        {{#each payers}}
-        <li>{{name}}</li>
-        {{/each}}
-      </ul>
-    </div>
-    <div data-nothing-drop-zone>
-      None of the above
-    </div>
+    <a data-use-drop-zone type=button>used</a><a data-pay-drop-zone type=button>used &amp; paid for</a><a data-pay-drop-zone type=button>paid for</a><a data-pay-drop-zone type=button>had nothing to do with</a>
+    <h1>The story of {{item.name}}:</h1>
+    <ul data-story>
+      {{#each users}}
+      <li><a data-story-item data-link>{{name}} used {{item.name}}</a><a data-remove-button type=button>&times;</a></li>
+      {{/each}}
+      {{#each payers}}
+      <li><a data-story-item data-link>{{name}} paid for {{item.name}}</a><a data-remove-button type=button>&times;</a></li>
+      {{/each}}
+    </ul>
   </form>
 </template>
 
 <template name='results'>
   {{> global-menu }}
-  <div id='results'>
+  <div id='results' class='center page'>
+    <h1>...And, done!</h1>
     <h1>What happened:</h1>
     <ol>
       {{#each externalPayments}}
@@ -125,6 +113,5 @@
       <li>Nothing! You're already even!</li>
       {{/unless}}
     </ol>
-    <h1>...And, that's it!</h1>
   </div>
 </template>

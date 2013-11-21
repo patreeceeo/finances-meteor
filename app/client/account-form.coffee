@@ -2,6 +2,8 @@
 _.extend Template['account-form'],
   accounts: -> AccountCollection.find()
   message: -> Session.get 'message'
+  created: ->
+    Session.set 'message', ''
   events: do ->
     addAccount = (e) ->
       if e.target.value > ''

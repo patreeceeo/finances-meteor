@@ -17,6 +17,8 @@ _.extend Template['item-detail-form'], do ->
 
   created: ->
     accountIndex = 0
+    Session.set 'message', ""
+  message: -> Session.get 'message'
   item: item
   users: users
   payers: payers
