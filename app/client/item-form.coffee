@@ -2,13 +2,13 @@
 Template['item-form'].preserve ['input[type=text]', 'input[type=number]']
 
 _.extend Template['item-form'],
-  items: -> ItemCollection.find({}).fetch()
+  items: -> ItemCollection.find()
   message: -> Session.get 'message'
   events: do ->
     item = {}
     addItem = (e) ->
       if item.amount > 0 and item.name isnt ''
-        AccountCollection.insert item
+        ItemCollection.insert item
         Session.set 'message', 'Note: click an item to add people'
         do ->
           parent = $(e.target).parent()

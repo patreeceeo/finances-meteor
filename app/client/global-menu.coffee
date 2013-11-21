@@ -23,4 +23,6 @@ _.extend Template['global-menu'], do ->
     'click [data-up-button]': ->
       if not upButtonDisabled()
         Router.go upPage()
+    'click [data-reset-button]': ->
+      Meteor.call 'reset'
 

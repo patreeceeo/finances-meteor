@@ -1,11 +1,16 @@
 
 _.extend Template['results'],
+  created: ->
+    Meteor.call 'removeUnsettledPayments'
+    currentScenario.createInternalPayments()
+    currentScenario.simplifyPayments()
   externalPayments: ->
-    AccountCollection.find(
-      settled: true
-      toAccount: undefined
-    ).fetch()
+    all = PaymentCollection.find().fetch()
+    _(all).filter (p) -> not p.toAccount?
   unsettledPayments: ->
-    AccountCollection.find(settled: false).fetch()
-  accounts: -> fetchAccounts()
+    PaymentCollection.find(settled: false)
+  usages: ->
+    UsageCollection.find()
+  accounts: -> 
+    AccountCollection.find()
       

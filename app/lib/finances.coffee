@@ -1,7 +1,7 @@
 
 log =
   write: ->
-    # console.debug.apply console, arguments
+    console.debug.apply console, arguments
 
 #
 # dinner:
@@ -14,86 +14,67 @@ log =
 if not _?
   _ = Package?.underscore._
 
-
-class Item
-  constructor: (@attributes) ->
-    @name = @attributes.name
-    @amount = @attributes.amount
-    @scenario = @attributes.scenario
-    _id = @attributes._id
-    unless @scenario.byId[_id]? and _id?
-      @scenario.items.push this
-      @scenario.byId[_id] = this
-  clone: (name = @name) ->
-    attributes = _.clone(@attributes)
-    attributes.name = name
-    new Item(attributes)
+class Base
+  constructor: (doc) ->
+    _.extend this, doc
   toJSON: ->
-    _(@attributes).clone()
+    _(this).omit 'scenario'
 
-class Account
-  constructor: (@attributes) ->
-    @name = @attributes.name
-    @usesItems = @attributes.usesItems or []
-    @sendsPayments = []
-    @receivesPayments = []
-    @scenario = @attributes.scenario
-    _id = @attributes._id
-    unless @scenario.byId[_id]? and _id?
-      @scenario.accounts.push this
-      @scenario.byId[_id] = this
+class Item extends Base
+  # constructor: (doc) ->
+  #   _.extend this, doc
+    # @name = @attributes.name
+    # @amount = @attributes.amount
+    # @scenario = @attributes.scenario
+    # _id = @attributes._id
+    # unless @scenario.byId[_id]? and _id?
+    #   @scenario.items.push this
+    #   @scenario.byId[_id] = this
+  toJSON: ->
+    name: @name
+    amount: @amount
+  clone: (name) ->
+    @scenario.createItem name: name, amount: @amount
+
+class Account extends Base
+  # constructor: (doc) ->
+  #   _.extend this, doc
+    # @name = @attributes.name
+    # @usesItems = @attributes.usesItems or []
+    # @sendsPayments = []
+    # @receivesPayments = []
+    # @scenario = @attributes.scenario
+    # _id = @attributes._id
+    # unless @scenario.byId[_id]? and _id?
+    #   @scenario.accounts.push this
+    #   @scenario.byId[_id] = this
   pays: (item, percent = 100) ->
-    new Payment
-      item: item
+    @scenario.createPayment
+      item: item.toJSON()
       percent: percent
-      fromAccount: this
-      scenario: @scenario
+      fromAccount: @toJSON()
   uses: (item) ->
-    @usesItems.push item
+    @scenario.createUsage
+      item: item.toJSON()
+      fromAccount: @toJSON()
   paysAndUses: (item, percent = 100) ->
     @pays(item, percent)
     @uses(item)
-  owes: ->
+  crunch: ->
     total = 0
-    for p in @sendsPayments when not p.settled
+    for p in @scenario.findPayments(fromAccount: { name: @name }, settled: false)
       log.write "include in total #{p.toString()}"
       total += p.amount
     total: total
   toJSON: ->
-    _(@attributes).omit(
-      'sendsPayments'
-      'receivesPayments'
-    )
+    name: @name
 
-class Payment
-  constructor: (@attributes) ->
-    @item = @attributes.item
-    @percent = @attributes.percent or 100
-    @scenario = @attributes.scenario
+class Payment extends Base
+  constructor: (doc) ->
+    super
 
-    @scenario.payments.push this
-    @amount =
-    if @item?
-      @item.amount *
-      if @percent
-        100 / @percent
-      else
-        1 / @scenario.getUsers(@item).length
-    else
-      @attributes.amount or 0
-      
-    @settled = if @attributes.settled? then @attributes.settled else true
-    @fromAccount = @attributes.fromAccount
-    @toAccount = @attributes.toAccount
-
-    _id = @attributes._id
-    unless @scenario.byId[_id]? and _id?
-      if @item?
-        @scenario.getPaymentsForItem(@item).push this
-      @fromAccount?.sendsPayments.push this
-      @toAccount?.receivesPayments.push this
-    log.write "create #{@toString()}"
-
+    @amount = doc.amount or doc.item.amount
+    @settled = if doc.settled? then doc.settled else true
   isInternal: ->
     @fromAccount? and @toAccount?
   toString: ->
@@ -112,59 +93,68 @@ class Payment
       @amount
     })"""
   toJSON: ->
-    _(@attributes).clone()
+    _id: @_id
+    amount: @amount
+    settled: @settled
+    fromAccount: @fromAccount
+    toAccount: @toAccount
+
+class Usage extends Base
 
 class Scenario
-  constructor: (@attributes) ->
-    @accounts = []
-    @items = []
-    @payments = []
-    @byId = {}
+  constructor: (opts) ->
+    _.extend this, opts
   createAccount: (doc) ->
-    new Account _.extend doc, scenario: this
   createItem: (doc) ->
-    new Item _.extend doc, scenario: this
   createPayment: (doc) ->
-    new Payment _.extend doc, scenario: this
-  getPaymentsForItem: (item) ->
-    _(@payments).filter (p) ->
-      p.item is item
-  getUsers: (item) ->
-    _(@accounts).filter (a) ->
-      _(a.usesItems).contains item
+  createUsage: (doc) ->
+  findAccounts: (sel) ->
+  findItems: (sel) ->
+  findPayments: (sel) ->
+  findUsages: (sel) ->
+  findAccount: (sel) ->
+  findItem: (sel) ->
+  findPayment: (sel) ->
+  findUsage: (sel) ->
+  findUsers: (item) ->
+    usages = @findUsages item: item
+    @findAccount(usage.fromAccount) for usage in usages
       
-  deletePayment: (deleteMe) ->
-    log.write "delete #{deleteMe.toString()}"
-    deleteFrom = (propName) ->
-      in: (object) ->
-        object[propName] =
-        _(object[propName]).reject (o) ->
-          o is deleteMe
+  deletePayment: (sel) ->
+    # log.write "delete #{deleteMe.toString()}"
+    # deleteFrom = (propName) ->
+    #   in: (object) ->
+    #     object[propName] =
+    #     _(object[propName]).reject (o) ->
+    #       o is deleteMe
 
-    deleteFrom('sendsPayments').in(deleteMe.fromAccount)
-    deleteFrom('receivesPayments').in(deleteMe.toAccount)
+    # deleteFrom('sendsPayments').in(deleteMe.fromAccount)
+    # deleteFrom('receivesPayments').in(deleteMe.toAccount)
 
     # TODO: should a payment actually be made settled after
     #       it's deleted?
-    deleteMe.settled = true
+    # deleteMe.settled = true
   createOrIncreasePayment: (attributes) ->
-    payments = _(@payments).filter (p) ->
-      p.fromAccount is attributes.fromAccount and
-        p.toAccount is attributes.toAccount
-    if payments[0]
-      log.write "increase #{payments[0].toString()} by $#{attributes.amount}"
-      payments[0].amount += attributes.amount
-      payments[0]
+    payment = @findPayment 
+      fromAccount: attributes.fromAccount
+      toAccount: attributes.toAccount
+
+    if payment
+      log.write "increase #{payment.toString()} by $#{attributes.amount}"
+      payment.amount += attributes.amount
+      @savePayment payment
+      payment
     else
       @createPayment attributes
   createInternalPayments: ->
-    for item in @items
-      for p in @getPaymentsForItem(item) when p.settled
-        for user in @getUsers(item) when user isnt p.fromAccount
+    for item in @findItems({})
+      for p in @findPayments({item: item.toJSON()}) when p.settled
+        users = @findUsers(item.toJSON())
+        for user in users when user.name isnt p.fromAccount.name
           @createOrIncreasePayment
-            amount: item.amount / @getUsers(item).length
+            amount: item.amount / users.length
             toAccount: p.fromAccount
-            fromAccount: user
+            fromAccount: user.toJSON()
             settled: false
     undefined
   simplifyPayments: ->
@@ -194,12 +184,9 @@ class Scenario
 
     # Implemenation:
 
-    payments = _(@payments)
-      .sortBy('amount')
-      .filter (p) -> not p.settled and p.isInternal()
-
+    payments = _(@findPayments({settled: false})).sortBy('amount')
     for p in payments
-      for p2 in payments when p.toAccount is p2.fromAccount and
+      for p2 in payments when p.toAccount.name is p2.fromAccount.name and
           not (p.settled or p2.settled)
         log.write """#{
           p.fromAccount.name
@@ -216,36 +203,45 @@ class Scenario
         }"""
 
         if p.amount is p2.amount
-          if p.fromAccount isnt p2.toAccount
+          if p.fromAccount.name isnt p2.toAccount.name
             log.write "redirect #{p.toString()} to #{p2.toAccount.name}"
             p.toAccount = p2.toAccount
+            @savePayment p.toJSON()
           else
-            @deletePayment(p)
-          @deletePayment(p2)
+            log.write "delete #{p.toString()}"
+            @deletePayment(p.toJSON())
+            p.settled = true
+          log.write "delete #{p2.toString()}"
+          @deletePayment(p2.toJSON())
+          p2.settled = true
         else
           minflow = Math.min(p.amount, p2.amount)
 
-          if p.fromAccount isnt p2.toAccount
+          if p.fromAccount.name isnt p2.toAccount.name
             payments.push newp = @createOrIncreasePayment
               fromAccount: p.fromAccount
               toAccount: p2.toAccount
               amount: minflow
               settled: false
-              
+          
           if p.amount > p2.amount
-            log.write "decrease #{p.toString()} by $#{minflow}"
-            if p.amount > minflow
-              p.amount -= minflow
-            else
-              @deletePayment(p)
-            @deletePayment(p2)
+            larger = p
+            smaller = p2
           else
-            log.write "decrease #{p2.toString()} by $#{minflow}"
-            if p2.amount > minflow
-              p2.amount -= minflow
-            else
-              @deletePayment(p2)
-            @deletePayment(p)
+            larger = p2
+            smaller = p
+
+          if larger.amount > minflow
+            log.write "decrease #{larger.toString()} by $#{minflow}"
+            larger.amount -= minflow
+            @savePayment larger.toJSON()
+          else
+            log.write "delete #{larger.toString()}"
+            @deletePayment(larger.toJSON())
+            larger.settled = true
+          log.write "delete #{smaller.toString()}"
+          @deletePayment(smaller.toJSON())
+          smaller.settled = true
 
     undefined
 
@@ -255,14 +251,13 @@ class Scenario
   Account: Account
   Payment: Payment
   Scenario: Scenario
+  Usage: Usage
   getPRNG: (seed) ->
     (min, max) ->
       x = Math.sin(seed++) * 10000
       r = x - Math.floor(x)
       Math.round r * (max - min) + min
-  testScenario: (seed) ->
-    scenario = new Scenario
-
+  testScenario: (seed, scenario) ->
     random = @getPRNG(seed)
     totalPayments = 0
 
@@ -283,10 +278,14 @@ class Scenario
           name: "item #{i}"
           amount: random(2, 100)
 
+    payments = []
     for index, item of items
-      accounts[index % nPayers].pays item
+      payments.push accounts[index % nPayers].pays item
       accounts[accounts.length - 1 - index % nUsers].uses item
       totalPayments += item.amount
     
-    scenario.totalPayments = totalPayments
-    scenario
+
+    totalPayments: totalPayments
+    accounts: accounts
+    items: items
+    payments: payments

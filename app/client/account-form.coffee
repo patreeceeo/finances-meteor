@@ -1,6 +1,6 @@
 
 _.extend Template['account-form'],
-  accounts: -> AccountCollection.find({}).fetch()
+  accounts: -> AccountCollection.find()
   message: -> Session.get 'message'
   events: do ->
     addAccount = (e) ->

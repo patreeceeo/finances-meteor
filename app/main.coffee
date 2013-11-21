@@ -1,7 +1,7 @@
 
 
-Meteor.startup ->
-  do prepareTestData
+# Meteor.startup ->
+#   do prepareTestData
 
 Router.map ->
   @route 'home',
@@ -32,8 +32,6 @@ Router.map ->
   @route 'results',
     path: '/results'
     before: ->
-      currentScenario.createInternalPayments()
-      currentScenario.simplifyPayments()
     data: ->
       stepNumber: 3
 
