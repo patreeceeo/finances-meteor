@@ -1,4 +1,8 @@
 .*.sw*
 build/
-spec/*.js
+spec/**/*.js
+app/**/*.js
 src/
+
+
+

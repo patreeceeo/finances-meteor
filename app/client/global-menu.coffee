@@ -8,9 +8,11 @@ _.extend Template['global-menu'], do ->
     not nextPage()? or
     switch page()
       when 'item-form'
-        ItemCollection.find({}).count() < 2
+        currentScenario?._items().count() < 1
+      when 'item-detail-form'
+        currentScenario?._items().count() < 1
       when 'account-form'
-        AccountCollection.find({}).count() < 2
+        currentScenario?._accounts().count() < 2
   upButtonDisabled = -> not upPage()?
   nextButtonDisabled: nextButtonDisabled
   upButtonDisabled: upButtonDisabled
@@ -18,13 +20,13 @@ _.extend Template['global-menu'], do ->
   events:
     'click [data-next-button]': ->
       if not nextButtonDisabled()
-        Router.go nextPage()
+        Router.go nextPage(), scenario: currentScenario._id
     'click [data-up-button]': ->
       if not upButtonDisabled()
-        Router.go upPage()
+        Router.go upPage(), scenario: currentScenario._id
     'click [data-reset-button]': ->
       Meteor.call 'reset'
-      Router.go 'account-form'
+      Router.go 'account-form', scenario: currentScenario._id
     'click [data-flash-message]': ->
       Session.set 'message', ''
 

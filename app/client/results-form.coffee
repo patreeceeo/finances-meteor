@@ -2,17 +2,21 @@
 _.extend Template['results'],
   created: ->
     Session.set 'message', ''
-    Meteor.call 'removeUnsettledPayments'
-    currentScenario.createInternalPayments()
+    currentScenario.addInternalPayments()
     currentScenario.simplifyPayments() 
   message: -> Session.get 'message'
   externalPayments: ->
-    all = PaymentCollection.find().fetch()
-    _(all).filter (p) -> not p.toAccount?
+    for payment in currentScenario._payments(settled: true).fetch()
+      payment = new finances.Payment payment
+      payment.vivifyAssociates()
   unsettledPayments: ->
-    PaymentCollection.find(settled: false)
+    for payment in currentScenario._payments(settled: false).fetch()
+      payment = new finances.Payment payment
+      payment.vivifyAssociates()
   usages: ->
-    UsageCollection.find()
+    for usage in currentScenario._usages().fetch()
+      usage = new finances.Usage usage
+      usage.vivifyAssociates()
   accounts: -> 
-    AccountCollection.find()
+    currentScenario._accounts()
       

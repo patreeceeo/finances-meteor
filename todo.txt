@@ -1,0 +1,15 @@
+ideas:
+
+on item detail page, also loop through items
+after item page go back to account page and each account link goes to an detail page analogous to the item detail page
+allow associating accounts with google/facebook accounts
+each scenario must have only one owner account, when another account wants to modify a copy is created behind the scenes
+
+issues:
+
+can't delete from UI
+mobile responsive layout
+
+tech debt:
+
+need more test coverage!

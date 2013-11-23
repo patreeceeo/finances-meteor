@@ -1,8 +1,3 @@
-
-log =
-  write: ->
-    console.debug.apply console, arguments
-
 #
 # dinner:
 #   sugardaddy: Fred
@@ -11,115 +6,107 @@ log =
 #   sugermomma: Thelma
 #   moochers: Fred Shaggy Scooby
 
+log =
+  write: ->
+    console.debug.apply console, arguments
+
+@finances ?= {}
+
 if not _?
   _ = Package?.underscore._
 
-class Base
+class finances.Base
   constructor: (doc) ->
-    _.extend this, doc
+    _.extend this, doc 
+  findOne: (Collection, selector) ->
+    Collection.findOne selector
+  find: (Collection, selector = {}, options = {}) ->
+    extendedSelector = _.extend _(selector).clone(),
+      scenario: @scenario or @_id
+    Collection.find(extendedSelector, options)
+  _scenario: (selector = @scenario) ->
+    @findOne ScenarioCollection, selector
+  _account: (selector = @account) ->
+    @findOne AccountCollection, selector
+  _accounts: (selector, options = {}) ->
+    @find AccountCollection, selector
+  _item: (selector = @item) ->
+    @findOne ItemCollection, selector
+  _items: (selector, options = {}) ->
+    @find ItemCollection, selector
+  _payment: (selector = @payments) ->
+    @findOne PaymentCollection, selector
+  _payments: (selector, options = {}) ->
+    @find PaymentCollection, selector
+  _usage: (selector = @usage) ->
+    @findOne UsageCollection, selector
+  _usages: (selector, options = {}) ->
+    @find UsageCollection, selector
+  add: (Collection, document) ->
+    extendedDocument = _.extend _(document).clone(), 
+      scenario: @scenario or @_id
+    _id = Collection.insert extendedDocument
+    extendedDocument._id = _id
+    @findOne(Collection, _id) 
+  update: (Collection, document, _id = document._id) ->
+    throw new Error("Trying to update '#{@constructor.name}' without `_id`") unless _id?
+    Collection.update _id, _(document).omit '_id'
+  remove: (Collection, _id) ->
+    Collection.remove(_id)
+  _fromAccount: ->
+    @_account @fromAccount
+  _toAccount: ->
+    @_account @toAccount
 
-class Item extends Base
-  toJSON: ->
-    name: @name
-    amount: @amount
-  clone: (name) ->
-    @scenario.createItem name: name, amount: @amount
-
-class Account extends Base
-  pays: (item, percent = 100) ->
-    @scenario.createPayment
-      item: item.toJSON()
-      percent: percent
-      fromAccount: @toJSON()
-  uses: (item) ->
-    @scenario.createUsage
-      item: item.toJSON()
-      fromAccount: @toJSON()
-  paysAndUses: (item, percent = 100) ->
-    @pays(item, percent)
-    @uses(item)
-  crunch: ->
-    total = 0
-    for p in @scenario.findPayments(fromAccount: { name: @name }, settled: false)
-      log.write "include in total #{p.toString()}"
-      total += p.amount
-    total: total
-  toJSON: ->
-    name: @name
-
-class Payment extends Base
-  constructor: (doc) ->
-    super
-
-    @amount = doc.amount or doc.item.amount
-    @settled = if doc.settled? then doc.settled else true
-  isInternal: ->
-    @fromAccount? and @toAccount?
-  toString: ->
-    """#{
-    if @settled
-      ''
-    else
-      'unsettled '
-    }payment from #{
-      @fromAccount.name
-    } to #{
-      @toAccount?.name
-    } for #{
-      @item?.name
-    } ($#{
-      @amount
-    })"""
-  toJSON: ->
-    _id: @_id
-    amount: @amount
-    settled: @settled
-    fromAccount: @fromAccount
-    toAccount: @toAccount
-
-class Usage extends Base
-
-class Scenario
-  constructor: (opts) ->
-    _.extend this, opts
-  createAccount: (doc) ->
-  createItem: (doc) ->
-  createPayment: (doc) ->
-  createUsage: (doc) ->
-  findAccounts: (sel) ->
-  findItems: (sel) ->
-  findPayments: (sel) ->
-  findUsages: (sel) ->
-  findAccount: (sel) ->
-  findItem: (sel) ->
-  findPayment: (sel) ->
-  findUsage: (sel) ->
-  findUsers: (item) ->
-    usages = @findUsages item: item
-    @findAccount(usage.fromAccount) for usage in usages
-      
-  deletePayment: (sel) ->
-  createOrIncreasePayment: (attributes) ->
-    payment = @findPayment 
+class finances.Scenario extends finances.Base
+  addAccount: (document) ->
+    new finances.Account @add AccountCollection, document
+  addItem: (document) ->
+    new finances.Item @add ItemCollection, document
+  addPayment: (document) ->
+    new finances.Payment @add PaymentCollection, document
+  addUsage: (document) ->
+    new finances.Usage @add UsageCollection, document
+  updateAccount: (document) ->
+    @update AccountCollection, document
+  updateItem: (document) ->
+    @update ItemCollection, document
+  updatePayment: (document) ->
+    @update PaymentCollection, document
+  updateUsage: (document) ->
+    @update UsageCollection, document
+  removeAccount: (_id) ->
+    @remove AccountCollection, _id
+  removeItem: (_id) ->
+    @remove ItemCollection, _id
+  removePayment: (_id) ->
+    @remove PaymentCollection, _id
+  removeUsage: (_id) ->
+    @remove UsageCollection, _id 
+  addOrIncreasePayment: (attributes) ->
+    payment = @_payment 
       fromAccount: attributes.fromAccount
       toAccount: attributes.toAccount
 
     if payment
-      log.write "increase #{payment.toString()} by $#{attributes.amount}"
+      log.write "increase #{(new Payment payment).toString()} by $#{attributes.amount}"
       payment.amount += attributes.amount
-      @savePayment payment
+      @updatePayment payment
       payment
     else
-      @createPayment attributes
-  createInternalPayments: ->
-    for item in @findItems({})
-      for p in @findPayments({item: item.toJSON()}) when p.settled
-        users = @findUsers(item.toJSON())
-        for user in users when user.name isnt p.fromAccount.name
-          @createOrIncreasePayment
+      @addPayment attributes
+  addInternalPayments: ->
+    @_items().forEach (item) =>
+      users = []
+      @_usages(item: item._id).forEach (usage) =>
+        user = @_account(usage.fromAccount)
+        users.push(user) if user?
+      @_payments(item: item._id, settled: true).forEach (p) =>
+        for user in users when user._id isnt p.fromAccount
+          @addOrIncreasePayment
             amount: item.amount / users.length
             toAccount: p.fromAccount
-            fromAccount: user.toJSON()
+            fromAccount: user._id
             settled: false
     undefined
   simplifyPayments: ->
@@ -149,41 +136,39 @@ class Scenario
 
     # Implemenation:
 
-    payments = _(@findPayments({settled: false})).sortBy('amount')
-    for p in payments
-      for p2 in payments when p.toAccount.name is p2.fromAccount.name and
-          not (p.settled or p2.settled)
+    @_payments(settled: false, {sort: amount: 1}).forEach (p) =>
+      @_payments(settled: false, fromAccount: p.toAccount).forEach (p2) =>
         log.write """#{
-          p.fromAccount.name
+          @_account(p.fromAccount).name
         } owes $#{
           p.amount
         } to #{
-          p.toAccount.name
+          @_account(p.toAccount).name
         } and #{
-          p2.fromAccount.name
+          @_account(p2.fromAccount).name
         } owes $#{
           p2.amount
         } to #{
-          p2.toAccount.name
+          @_account(p2.toAccount).name
         }"""
 
         if p.amount is p2.amount
-          if p.fromAccount.name isnt p2.toAccount.name
-            log.write "redirect #{p.toString()} to #{p2.toAccount.name}"
+          if p.fromAccount isnt p2.toAccount
+            log.write "redirect #{(new Payment p).toString()} to #{@_account(p2.toAccount).name}"
             p.toAccount = p2.toAccount
-            @savePayment p.toJSON()
+            @updatePayment p
           else
-            log.write "delete #{p.toString()}"
-            @deletePayment(p.toJSON())
+            log.write "delete #{(new Payment p).toString()}"
+            @removePayment p._id
             p.settled = true
-          log.write "delete #{p2.toString()}"
-          @deletePayment(p2.toJSON())
+          log.write "delete #{(new Payment p).toString()}"
+          @removePayment p2._id
           p2.settled = true
         else
           minflow = Math.min(p.amount, p2.amount)
 
-          if p.fromAccount.name isnt p2.toAccount.name
-            payments.push newp = @createOrIncreasePayment
+          if p.fromAccount isnt p2.toAccount
+            newp = @addOrIncreasePayment
               fromAccount: p.fromAccount
               toAccount: p2.toAccount
               amount: minflow
@@ -197,26 +182,79 @@ class Scenario
             smaller = p
 
           if larger.amount > minflow
-            log.write "decrease #{larger.toString()} by $#{minflow}"
+            log.write "decrease #{(new Payment larger).toString()} by $#{minflow}"
             larger.amount -= minflow
-            @savePayment larger.toJSON()
+            @updatePayment larger
           else
-            log.write "delete #{larger.toString()}"
-            @deletePayment(larger.toJSON())
+            log.write "delete #{(new Payment larger).toString()}"
+            @removePayment larger._id
             larger.settled = true
-          log.write "delete #{smaller.toString()}"
-          @deletePayment(smaller.toJSON())
+          log.write "delete #{(new Payment smaller).toString()}"
+          @removePayment smaller._id
           smaller.settled = true
 
     undefined
 
+class finances.Item extends finances.Base
+  clone: (name) ->
+    @add ItemCollection, name: name, amount: @amount
 
-@finances =
-  Item: Item
-  Account: Account
-  Payment: Payment
-  Scenario: Scenario
-  Usage: Usage
+class finances.Account extends finances.Base
+  addPayment: (document) ->
+    new finances.Payment @add PaymentCollection, document
+  addUsage: (document) ->
+    new finances.Usage @add UsageCollection, document
+  pays: (item, percent = 100) ->
+    @addPayment
+      item: item._id
+      percent: percent
+      fromAccount: @_id
+      settled: true
+      amount: @_item(item).amount
+  uses: (item) ->
+    @addUsage
+      item: item._id
+      fromAccount: @_id
+  paysAndUses: (item, percent = 100) ->
+    @pays(item, percent)
+    @uses(item)
+  crunch: ->
+    total = 0
+    @_payments(fromAccount: @_id, settled: false).forEach (p) ->
+      log.write "include in total #{(new Payment p).toString()}"
+      total += p.amount
+    total: total
+
+Payment =
+class finances.Payment extends finances.Base
+  vivifyAssociates: ->
+    @fromAccount = @_account @fromAccount
+    @toAccount = @_account @toAccount
+    @item = @_item @item
+    this
+  toString: ->
+    """#{
+    if @settled
+      ''
+    else
+      'unsettled '
+    }payment from #{
+      @_fromAccount().name
+    } to #{
+      @_toAccount()?.name
+    } for #{
+      @_item()?.name
+    } ($#{
+      @amount
+    })"""
+
+class finances.Usage extends finances.Base
+  vivifyAssociates: ->
+    @fromAccount = @_account @fromAccount
+    @item = @_item @item
+    this
+
+_.extend finances,
   getPRNG: (seed) ->
     (min, max) ->
       x = Math.sin(seed++) * 10000
@@ -236,10 +274,10 @@ class Scenario
 
     accounts =
       for i in [1..nAccounts]
-        scenario.createAccount name: "account #{i}"
+        scenario.addAccount name: "account #{i}"
     items =
       for i in [1..nItems]
-        scenario.createItem
+        scenario.addItem
           name: "item #{i}"
           amount: random(2, 100)
 
