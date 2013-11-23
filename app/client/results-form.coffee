@@ -2,6 +2,7 @@
 _.extend Template['results'],
   created: ->
     Session.set 'message', ''
+    Meteor.call 'removePayments', settled: false, scenario: currentScenario._id
     currentScenario.addInternalPayments()
     currentScenario.simplifyPayments() 
   message: -> Session.get 'message'

@@ -35,5 +35,5 @@ if Meteor.isServer
         AccountCollection.remove(_id)
       removeItem: (_id) ->
         UsageCollection.remove(item: _id)
-        PaymentCollection.remove(item: _id)
+        PaymentCollection.remove(items: _id)
         ItemCollection.remove(_id)
