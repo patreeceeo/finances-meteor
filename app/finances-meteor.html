@@ -81,7 +81,7 @@
     {{#unless account}}
     <h1>Looks like we're done here!</h1>
     {{/unless}}
-    <a data-use-drop-zone type=button>used</a><a data-pay-drop-zone type=button>used &amp; paid for</a><a data-pay-drop-zone type=button>paid for</a><a data-pay-drop-zone type=button>had nothing to do with</a>
+    <a data-use-drop-zone type=button>used</a><a data-both-drop-zone type=button>used &amp; paid for</a><a data-pay-drop-zone type=button>paid for</a><a data-pay-drop-zone type=button>had nothing to do with</a>
     <h1>The story of {{item.name}}:</h1>
     <ul data-story>
       {{#each users}}
@@ -101,7 +101,9 @@
     <h1>What happened:</h1>
     <ol>
       {{#each externalPayments}}
-      <li>{{fromAccount.name}} paid ${{amount}} for {{item.name}}</li>
+      <li>
+      {{fromAccount.name}} paid ${{amount}} for {{#each items}}{{name}} {{/each}}
+      </li>
       {{/each}}
       {{#each usages}}
       <li>{{fromAccount.name}} used {{item.name}}</li>
