@@ -1,16 +1,16 @@
 
 _.extend Template['account-form'],
-  accounts: -> AccountCollection.find()
+  accounts: -> currentScenario._accounts()
   message: -> Session.get 'message'
   created: ->
     Session.set 'message', ''
   events: do ->
     addAccount = (e) ->
       if e.target.value > ''
-        AccountCollection.insert name: e.target.value
+        currentScenario.addAccount name: e.target.value
         e.target.value = ''
     removeAccount = (e) ->
-      AccountCollection.remove name: e.target.dataset.account
+      Meteor.call 'removeAccount', e.target.dataset.account
 
     'change input': addAccount
     'focusout input': addAccount
