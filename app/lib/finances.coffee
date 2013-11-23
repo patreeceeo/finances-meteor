@@ -90,7 +90,10 @@ class finances.Scenario extends finances.Base
 
     if payment
       log.write "increase #{(new Payment payment).toString()} by $#{attributes.amount}"
-      payment.amount += attributes.amount
+      if attributes.amount
+        payment.amount += attributes.amount
+      if attributes.items?
+        payment.items.concat attributes.items
       @updatePayment payment
       payment
     else
@@ -101,13 +104,17 @@ class finances.Scenario extends finances.Base
       @_usages(item: item._id).forEach (usage) =>
         user = @_account(usage.fromAccount)
         users.push(user) if user?
-      @_payments(item: item._id, settled: true).forEach (p) =>
+        undefined
+      @_payments(items: item._id, settled: true).forEach (p) =>
         for user in users when user._id isnt p.fromAccount
           @addOrIncreasePayment
             amount: item.amount / users.length
+            items: [item._id]
             toAccount: p.fromAccount
             fromAccount: user._id
             settled: false
+        undefined
+      undefined
     undefined
   simplifyPayments: ->
     # Simplify the payment graph as much as
@@ -206,7 +213,7 @@ class finances.Account extends finances.Base
     new finances.Usage @add UsageCollection, document
   pays: (item, percent = 100) ->
     @addPayment
-      item: item._id
+      items: [item._id]
       percent: percent
       fromAccount: @_id
       settled: true
@@ -230,8 +237,13 @@ class finances.Payment extends finances.Base
   vivifyAssociates: ->
     @fromAccount = @_account @fromAccount
     @toAccount = @_account @toAccount
-    @item = @_item @item
+    @items = 
+    for item in @items
+      @_item item
     this
+  addItem: (document) ->
+    @amount += document.amount
+    @items.push document._id
   toString: ->
     """#{
     if @settled

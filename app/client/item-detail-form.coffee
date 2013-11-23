@@ -14,7 +14,7 @@ _.extend Template['item-detail-form'], do ->
     users
   payers = ->
     accounts = []
-    currentScenario._payments(item: itemId()).forEach (payment) ->
+    currentScenario._payments(items: itemId()).forEach (payment) ->
       account = currentScenario._account(payment.fromAccount)
       accounts.push(account) if account?
     accounts 
@@ -47,7 +47,10 @@ _.extend Template['item-detail-form'], do ->
           fromAccount: account()._id)?
         account()?.uses item()
     'click [data-pay-drop-zone]': accountEvent ->
-      if not currentScenario._payment(item: itemId())?
+      if not currentScenario._payment(items: itemId())?
         account()?.pays item()
+    'click [data-both-drop-zone]': accountEvent ->
+      if not currentScenario._payment(items: itemId())?
+        account()?.paysAndUses item()
     'click [data-nothing-drop-zone]': accountEvent ->
       

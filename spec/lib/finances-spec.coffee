@@ -37,8 +37,8 @@ describe "finances", ->
   it 'should track payments', ->
     a1.pays i1, 50
     a2.pays i1, 50
-    expect(s._payment(item: i1._id, fromAccount: a1._id)).toBeDefined()
-    expect(s._payment(item: i1._id, fromAccount: a2._id)).toBeDefined()
+    expect(s._payment(items: i1._id, fromAccount: a1._id)).toBeDefined()
+    expect(s._payment(items: i1._id, fromAccount: a2._id)).toBeDefined()
 
   describe 'when settling debts', ->
 
@@ -87,7 +87,6 @@ describe "finances", ->
       a2.uses i1
       a2.paysAndUses i2
       a3.uses i2
-
       s.addInternalPayments()
       s.simplifyPayments()
 
@@ -170,7 +169,7 @@ describe "finances", ->
         expect(result.payments.length >= result.items.length).toBeTruthy()
         for i in result.items
           expect(findSum(
-            p.amount for p in s.findPayments item: i._id
+            p.amount for p in s.findPayments items: i._id
           )).toBe i.amount
         
     it 'should have every account at least either a payer or a user', ->
