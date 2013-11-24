@@ -2,7 +2,9 @@
 Template['item-form'].preserve ['input[type=text]', 'input[type=number]']
 
 _.extend Template['item-form'],
-  items: -> currentScenario._items()
+  items: -> 
+    scenarioDep.depend()
+    currentScenario._items()
   message: -> Session.get 'message'
   created: ->
     Session.set 'message', ''
