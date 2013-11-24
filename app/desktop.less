@@ -1,7 +1,7 @@
 @media (min-width: 400px) {
 
   @page-width: 800px;
-  @button-width: @page-width * 0.1;
+  @button-width: @page-width * 0.11;
   @shadow-offset: 10px;
 
   .page {
@@ -34,7 +34,8 @@
 
   #item-form {
     [data-input=name] {
-      width: (@page-width - @button-width) * 0.7;
+      width: (@page-width - @button-width) * 0.7 - 10;
+      margin-right: 10px;
     }
     [data-input=amount] {
       width: (@page-width - @button-width) * 0.3;

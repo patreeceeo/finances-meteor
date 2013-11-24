@@ -10,6 +10,7 @@ body, input {
 
 body {
   background-color: #aea;
+  font-size: 18px !important;
 }
 
 .pull-right {
@@ -84,10 +85,16 @@ body {
   font-size: 3em;
   line-height: 1.5em;
   a[type=button] {
-    // margin-right: 10px;
     width: 40%;
     max-width: 4em;
     min-width: 2em;
+  }
+  p[data-flash-message] {
+    position: fixed;
+    top: 0;
+    background-color: #aea;
+    margin: 0;
+    width: 100%;
   }
   .muted {
     color: gray;
