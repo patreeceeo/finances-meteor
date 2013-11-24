@@ -2,7 +2,9 @@
 Template['item-form'].preserve ['input[type=text]', 'input[type=number]']
 
 _.extend Template['item-form'],
-  items: -> ItemCollection.find()
+  items: -> 
+    scenarioDep.depend()
+    currentScenario._items()
   message: -> Session.get 'message'
   created: ->
     Session.set 'message', ''
@@ -10,7 +12,7 @@ _.extend Template['item-form'],
     item = {}
     addItem = (e) ->
       if item.amount > 0 and item.name isnt ''
-        ItemCollection.insert item
+        currentScenario.addItem item
         Session.set 'message', 'Note: click an item to add people'
         do ->
           parent = $(e.target).parent()
@@ -20,7 +22,8 @@ _.extend Template['item-form'],
       else
         Session.set 'message', 'Note: enter name and price'
     removeItem = (e) ->
-      ItemCollection.remove name: e.target.dataset.item
+      Meteor.call 'removeItem', e.target.dataset.item
+      e.stopImmediatePropagation()
     trackChange = (e) ->
       key = e.target.dataset.input
       value = e.target.value
@@ -36,4 +39,6 @@ _.extend Template['item-form'],
         addItem e
     'click [data-remove-button]': removeItem
     'click [data-item]': (e) ->
-      Router.go 'item-detail-form', name: e.target.dataset.item
+      Router.go 'item-detail-form', 
+        id: e.target.dataset.item
+        scenario: currentScenario._id
