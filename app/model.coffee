@@ -8,9 +8,13 @@ if Meteor.isClient
     root.UsageCollection = new Meteor.Collection 'usages'
     scenarioId = Router.getData().scenarioId
     root.currentScenario = new finances.Scenario
-    scenarioDoc = ScenarioCollection.find().observe
+    root.currentScenario._id ?= Router.getData().scenarioId
+    root.scenarioDep = new Deps.Dependency
+    ScenarioCollection.find().observe
       added: (document) ->
         _.extend root.currentScenario, document
+        if document._id?
+          scenarioDep.changed()
 
 if Meteor.isServer
   Meteor.startup ->
