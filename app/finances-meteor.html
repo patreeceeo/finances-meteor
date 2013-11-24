@@ -85,10 +85,10 @@
     <h1>The story of {{item.name}}:</h1>
     <ul data-story>
       {{#each users}}
-      <li><a data-story-item data-link>{{name}} used {{item.name}}</a><a data-remove-button type=button>&times;</a></li>
+      <li><a data-story-item data-link>{{name}} used {{item.name}}</a><a data-usage='{{usage}}' data-remove-button type=button>&times;</a></li>
       {{/each}}
       {{#each payers}}
-      <li><a data-story-item data-link>{{name}} paid for {{item.name}}</a><a data-remove-button type=button>&times;</a></li>
+      <li><a data-story-item data-link>{{name}} paid for {{item.name}}</a><a data-payment='{{payment}}' data-remove-button type=button>&times;</a></li>
       {{/each}}
     </ul>
   </form>

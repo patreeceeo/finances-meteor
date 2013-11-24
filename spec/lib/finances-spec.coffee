@@ -55,6 +55,20 @@ describe "finances", ->
       expect(a1.crunch().total).toBe 0
       expect(a2.crunch().total).toBe 0
 
+    it 'should properly handle this scenario', ->
+      i1 = s.addItem amount: 6, name: 'i1'
+      i2 = s.addItem amount: 12, name: 'i2'
+      a1.paysAndUses i1
+      a2.uses i1
+      a1.uses i2
+      a2.paysAndUses i2
+
+      s.addInternalPayments()
+      s.simplifyPayments()
+
+      expect(a1.crunch().total).toBe 12 / 2 - 6 / 2
+      expect(a2.crunch().total).toBe 0
+
     it 'should ignore debts to and from the same Account', ->
       a1.paysAndUses i1
 
@@ -87,6 +101,7 @@ describe "finances", ->
       a2.uses i1
       a2.paysAndUses i2
       a3.uses i2
+
       s.addInternalPayments()
       s.simplifyPayments()
 
