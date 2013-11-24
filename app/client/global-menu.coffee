@@ -25,8 +25,10 @@ _.extend Template['global-menu'], do ->
       if not upButtonDisabled()
         Router.go upPage(), scenario: currentScenario._id
     'click [data-reset-button]': ->
-      Meteor.call 'reset'
-      Router.go 'account-form', scenario: currentScenario._id
+      Meteor.call 'reset', 
+        scenario: currentScenario._id, 
+        (error, result) ->
+          Router.go 'account-form', scenario: currentScenario._id
     'click [data-flash-message]': ->
       Session.set 'message', ''
 

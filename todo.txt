@@ -5,6 +5,7 @@ after item page go back to account page and each account link goes to an detail 
 allow associating accounts with google/facebook accounts
 each scenario must have only one owner account, when another account wants to modify a copy is created behind the scenes
 merge mobile design with desktop design
+keyboard shortcurts
 
 issues:
 

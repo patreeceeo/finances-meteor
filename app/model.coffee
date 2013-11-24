@@ -10,6 +10,8 @@ if Meteor.isClient
     root.currentScenario = new finances.Scenario
     root.currentScenario._id ?= Router.getData().scenarioId
     root.scenarioDep = new Deps.Dependency
+    # unless ScenarioCollection.findOne()?
+    #   ScenarioCollection.insert name: 'Untitled Scenario'
     ScenarioCollection.find().observe
       added: (document) ->
         _.extend root.currentScenario, document
@@ -25,11 +27,12 @@ if Meteor.isServer
     UsageCollection = new Meteor.Collection 'usages'
 
     Meteor.methods
-      reset: ->
-        AccountCollection.remove({})
-        PaymentCollection.remove({})
-        ItemCollection.remove({})
-        UsageCollection.remove({})
+      reset: (selector) ->
+        console.log 'reseting by',selector
+        AccountCollection.remove selector
+        PaymentCollection.remove selector
+        ItemCollection.remove selector
+        UsageCollection.remove selector
       removePayments: (selector) ->
         PaymentCollection.remove(selector)
       removeAccount: (_id) ->
@@ -41,3 +44,5 @@ if Meteor.isServer
         UsageCollection.remove(item: _id)
         PaymentCollection.remove(items: _id)
         ItemCollection.remove(_id)
+      getAdminCreds: ->
+        password: 'abc'

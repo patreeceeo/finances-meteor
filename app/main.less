@@ -20,6 +20,10 @@ body {
   float: left;
 }
 
+.hide {
+  display: none !important;
+}
+
 .flash {
   color: gray;
   background-color: lighten(#aea, 10%)
@@ -59,14 +63,30 @@ body {
 
 .page {
   box-sizing: border-box;
+  font-size: 3em;
+  line-height: 1.5em;
+  vertical-align: top;
+  .buttons;
+
   p, ul, ol {
     display: block;
     margin-bottom: 1em;
   }
+
+  input {
+    font-size: 1em;
+    height: 1.5em;
+    -webkit-appearance: none;
+    padding: 0;
+    border: 0;
+  }
+
+  a[data-remove-button]:hover {
+    background-color: @danger-color;
+  }
 }
 
 #home {
-  .buttons;
   .call-to-action-row {
     text-align: center;
   }
@@ -95,33 +115,8 @@ body {
     background-color: #aea;
     margin: 0;
     width: 100%;
-  }
-  .muted {
-    color: gray;
-  }
-  [data-flash-message] {
     cursor: pointer;
   }
-}
-
-#account-form, #item-form, #item-detail-form, #results {
-  .buttons;
-  font-size: 3em;
-  line-height: 1.5em;
-  vertical-align: top;
-
-  input {
-    font-size: 1em;
-    height: 1.5em;
-    -webkit-appearance: none;
-    padding: 0;
-    border: 0;
-  }
-
-  a[data-remove-button]:hover {
-    background-color: @danger-color;
-  }
-
 }
 
 #account-form {
@@ -153,5 +148,33 @@ body {
   }
   [data-story-item] {
     display: inline-block;
+  }
+}
+
+#admin, #admin-login, #admin-global-menu {
+  font-size: 0.75em;
+  table {
+    width: 100%;
+    tbody > tr > td {
+      vertical-align: middle;
+    }
+  }
+  th {
+    text-align: left;
+  }
+  tr:nth-child(2n-1) td {
+    background-color: darken(#aea, 5%);
+  }
+  [data-remove-button], [data-add-button] {
+    width: 2em;
+  }
+}
+
+#admin-global-menu {
+  .buttons;
+  a[type=button] {
+    width: 40%;
+    max-width: 4em;
+    min-width: 2em;
   }
 }

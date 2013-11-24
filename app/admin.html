@@ -1,0 +1,176 @@
+
+<template name='admin-login'>
+  <div id='admin-login' class='center page'>
+    Hi <input name='password' type=text>
+  </div>
+</template>
+
+<template name='admin-global-menu'>
+  <div id='admin-global-menu'>
+    <a data-logout-button type=button>Log Out</a>
+  </div>
+</template>
+
+<template name='admin'>
+  {{>admin-global-menu}}
+  <div id='admin' class='center page'>
+    <table>
+      <caption>Scenarios</caption>
+      <thead>
+        <tr>
+          <th>_id</th>
+          <th>name</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each scenarios}}
+        <tr>
+          <td>
+            {{_id}}
+          </td>
+          <td>
+            {{name}}
+          </td>
+          <td>
+            <a type=button data-remove-button data-scenario='{{_id}}' class='pull-right'>&times;</a>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <br>
+    <table>
+      <caption>Accounts</caption>
+      <thead>
+        <tr>
+          <th>_id</th>
+          <th>name</th>
+          <th>scenario</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each accounts}}
+        <tr>
+          <td>
+            {{_id}}
+          </td>
+          <td>
+            {{name}}
+          </td>
+          <td>
+            {{scenario}}
+          </td>
+          <td>
+            <a type=button data-remove-button data-account='{{_id}}' class='pull-right'>&times;</a>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <br>
+    <table>
+      <caption>Items</caption>
+      <thead>
+        <tr>
+          <th>_id</th>
+          <th>name</th>
+          <th>amount</th>
+          <th>scenario</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each items}}
+        <tr>
+          <td>
+            {{_id}}
+          </td>
+          <td>
+            {{name}}
+          </td>
+          <td>
+            ${{amount}}
+          </td>
+          <td>
+            {{scenario}}
+          </td>
+          <td>
+            <a type=button data-remove-button data-item='{{_id}}' class='pull-right'>&times;</a>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <br>
+    <table>
+      <caption>Payments</caption>
+      <thead>
+        <tr>
+          <th>_id</th>
+          <th>amount</th>
+          <th>from account</th>
+          <th>to account</th>
+          <th>scenario</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each payments}}
+        <tr>
+          <td>
+            {{_id}}
+          </td>
+          <td>
+            ${{amount}}
+          </td>
+          <td>
+            {{fromAccount}}
+          </td>
+          <td>
+            {{toAccount}}
+          </td>
+          <td>
+            {{scenario}}
+          </td>
+          <td>
+            <a type=button data-remove-button data-payment='{{_id}}' class='pull-right'>&times;</a>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <br>
+    <table>
+      <caption>Usages</caption>
+      <thead>
+        <tr>
+          <th>_id</th>
+          <th>from account</th>
+          <th>to account</th>
+          <th>scenario</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each usages}}
+        <tr>
+          <td>
+            {{_id}}
+          </td>
+          <td>
+            {{fromAccount}}
+          </td>
+          <td>
+            {{toAccount}}
+          </td>
+          <td>
+            {{scenario}}
+          </td>
+          <td>
+            <a type=button data-remove-button data-usage='{{_id}}' class='pull-right'>&times;</a>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+
+  </div>
+</template>
+
