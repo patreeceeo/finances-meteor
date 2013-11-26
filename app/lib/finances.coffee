@@ -62,6 +62,7 @@ class finances.Scenario extends finances.Base
   addAccount: (document) ->
     new finances.Account @add AccountCollection, document
   addItem: (document) ->
+    document.amount = parseInt document.amount
     new finances.Item @add ItemCollection, document
   addPayment: (document) ->
     new finances.Payment @add PaymentCollection, document
@@ -143,7 +144,7 @@ class finances.Scenario extends finances.Base
 
     # Implemenation:
 
-    @_payments(settled: false, {sort: amount: 1}).forEach (p) =>
+    @_payments(settled: false, {sort: ['amount', 'asc']}).forEach (p) =>
       @_payments(settled: false, fromAccount: p.toAccount).forEach (p2) =>
         log.write """#{
           @_account(p.fromAccount).name
