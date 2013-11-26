@@ -23,8 +23,7 @@ _.extend Template['item-detail-form'], do ->
   account = ->
     accountIndexDep.depend()
     accounts = currentScenario._accounts().fetch()
-    if accounts[accountIndex]?
-      new finances.Account accounts[accountIndex]
+    new finances.Account accounts[accountIndex]
 
   created: ->
     accountIndex = 0
@@ -39,9 +38,19 @@ _.extend Template['item-detail-form'], do ->
       (e) ->
         e.stopPropagation?()
         fn.call(this)
-        if accountIndex < currentScenario._accounts().count()
-          accountIndex++
-          accountIndexDep.changed()
+        accountIndex++
+        if accountIndex >= currentScenario._accounts().count()
+          accountIndex = 0
+          itemIds = currentScenario._items().map (item) ->
+            item._id
+          index = _(itemIds).indexOf(itemId()) + 1
+          if index >= itemIds.length
+            index = 0
+          Router.go 'item-detail-form', 
+            id: itemIds[index]
+            scenario: currentScenario._id
+        accountIndexDep.changed()
+
 
     'click [data-use-drop-zone]': accountEvent ->
       if not currentScenario._usage(

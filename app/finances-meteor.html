@@ -138,7 +138,8 @@
   {{> global-menu}}
   <form id='item-detail-form' class='center page'>
     {{#if account}}
-    <h1>Fill in the blank. {{account.name}} _____ {{item.name}}.</h1>
+    <h1>Fill in the blank:</h1>
+    <h1>{{account.name}} _____ {{item.name}}.</h1>
     <a data-use-drop-zone type=button>used</a>{{#unless payers}}<a data-both-drop-zone type=button>used &amp; paid for</a><a data-pay-drop-zone type=button>paid for</a>{{/unless}}<a data-pay-drop-zone type=button>did nothing with</a>
     {{/if}}
     {{#unless account}}

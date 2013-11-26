@@ -1,14 +1,14 @@
 ideas:
 
-On item detail page, also loop through items
+each scenario must have at least one editor account, create screen for adding another editor
 after item page go back to account page and each account link goes to an detail page analogous to the item detail page
 allow associating accounts with google/facebook accounts
-each scenario must have only one owner account, when another account wants to modify a copy is created behind the scenes
 merge mobile design with desktop design
 keyboard shortcuts
-move login/create-account to back of flow
 beta access codes?
 added/modified/removed meta-data
+move login/create-account to back of flow
+create (more) detailed report on how the answers were arrived at, both in narrative and graphical form
 
 issues:
 

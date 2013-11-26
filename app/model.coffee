@@ -14,12 +14,9 @@ if Meteor.isServer
     ItemCollection = new Meteor.Collection 'items'
     PaymentCollection = new Meteor.Collection 'payments'
     UsageCollection = new Meteor.Collection 'usages'
-
-    adminPassword = null
-      
+ 
     Meteor.methods
       reset: (selector) ->
-        console.log 'reseting by',selector
         AccountCollection.remove selector
         PaymentCollection.remove selector
         ItemCollection.remove selector
