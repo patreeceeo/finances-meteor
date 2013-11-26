@@ -1,6 +1,6 @@
 ideas:
 
-each scenario must have at least one editor account, create screen for adding another editor
+create screen for adding another editor
 after item page go back to account page and each account link goes to an detail page analogous to the item detail page
 allow associating accounts with google/facebook accounts
 merge mobile design with desktop design

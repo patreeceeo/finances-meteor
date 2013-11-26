@@ -1,4 +1,7 @@
 root = this
+
+root.MAX_USERS = 100
+
 if Meteor.isClient
   Meteor.startup ->
     root.ScenarioCollection = new Meteor.Collection 'scenarios'

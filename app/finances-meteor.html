@@ -39,6 +39,7 @@
     <p data-flash-message class='pull-left'>{{message}}</p>
   </div>
   <div id='create-account' class='center page'>
+    {{#unless disabled}}
     <h1>Create Divvy Account</h1>
     User Name:
     <input type=text name='username'>
@@ -50,6 +51,12 @@
     <a type=button data-create-account-button class='pull-right'>Create Account</a>
     <h1>Or:</h1>
     <a type=button data-login-button class='pull-right'>Log In</a>
+    {{/unless}}
+    {{#if disabled}}
+    <h1>Consolations, account creation is disabled at this time.</h1>
+    <br>
+    <h1>Check back with us soon.</h1>
+    {{/if}}
   </div>
 </template>
 

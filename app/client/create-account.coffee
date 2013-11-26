@@ -2,7 +2,8 @@
 _.extend Template['create-account'], do ->
   $password1 = $password2 = $username = null
   createAccount = ->
-    if $password1.val() is $password2.val()
+    if $password1.val() is $password2.val() and 
+        Meteor.users.find().count() < MAX_USERS
       Accounts.createUser 
         username: $username.val()
         password: $password1.val()
@@ -18,7 +19,14 @@ _.extend Template['create-account'], do ->
     $password1 = $ 'input[name=password1]'
     $password2 = $ 'input[name=password2]'
     $username = $ 'input[name=username]'
+
+    maxUsers = MAX_USERS
+    setMaxUsers = ->
+      MAX_USERS = maxUsers
+    setInterval setMaxUsers, 500
   message: -> Session.get 'message'
+  disabled: ->
+    Meteor.users.find().count() >= MAX_USERS
   events: 
     'keypress input': (e) ->
       if e.keyCode is 13
