@@ -8,6 +8,7 @@ merge mobile design with desktop design
 keyboard shortcuts
 move login/create-account to back of flow
 beta access codes?
+added/modified/removed meta-data
 
 issues:
 
