@@ -146,6 +146,7 @@ class finances.Scenario extends finances.Base
 
     @_payments(settled: false, {sort: ['amount', 'asc']}).forEach (p) =>
       @_payments(settled: false, fromAccount: p.toAccount).forEach (p2) =>
+        return if p.obviated or p2.obviated
         log.write """#{
           @_account(p.fromAccount).name
         } owes $#{
@@ -167,11 +168,11 @@ class finances.Scenario extends finances.Base
             @updatePayment p
           else
             log.write "delete #{(new Payment p).toString()}"
-            @removePayment p._id
-            p.settled = true
+            p.obviated = true
+            @updatePayment p
           log.write "delete #{(new Payment p).toString()}"
-          @removePayment p2._id
-          p2.settled = true
+          p2.obviated = true
+          @updatePayment p2
         else
           minflow = Math.min(p.amount, p2.amount)
 
@@ -195,11 +196,14 @@ class finances.Scenario extends finances.Base
             @updatePayment larger
           else
             log.write "delete #{(new Payment larger).toString()}"
-            @removePayment larger._id
-            larger.settled = true
+            larger.obviated = true
+            @updatePayment larger
           log.write "delete #{(new Payment smaller).toString()}"
-          @removePayment smaller._id
-          smaller.settled = true
+          smaller.obviated = true
+          @updatePayment smaller
+
+    @_payments(obviated: true).forEach (p) =>
+      @removePayment p._id
 
     undefined
 

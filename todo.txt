@@ -12,8 +12,6 @@ added/modified/removed meta-data
 
 issues:
 
-5 <-> 4 bug
-
 tech debt:
 
 need more test coverage!
