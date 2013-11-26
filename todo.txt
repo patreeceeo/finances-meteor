@@ -8,7 +8,6 @@ merge mobile design with desktop design
 keyboard shortcuts
 move login/create-account to back of flow
 beta access codes?
-Automatically create finances account for current user
 
 issues:
 
