@@ -1,5 +1,5 @@
 <head>
-  <title>finances-meteor</title>
+  <title>Divvy</title>
   <!-- <meta name="viewport" content="user-scalable=no, initial-scale=1.0" /> -->
   <meta name="viewport" content="user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -8,6 +8,12 @@
 
 <body>
 </body>
+
+<template name='loading'>
+  <div id='loading' class='center page'>
+    Loading...
+  </div>
+</template>
 
 <template name='home'>
   <div id='home' class='center page'>
@@ -28,13 +34,70 @@
   </div>
 </template>
 
+<template name='create-account'>
+  <div id='global-menu' class='clearfix'>
+    <p data-flash-message class='pull-left'>{{message}}</p>
+  </div>
+  <div id='create-account' class='center page'>
+    <h1>Create Divvy Account</h1>
+    User Name:
+    <input type=text name='username'>
+    Password:
+    <input type=password name='password1'>
+    Password (again):
+    <input type=password name='password2'>
+    <br>
+    <a type=button data-create-account-button class='pull-right'>Create Account</a>
+    <h1>Or:</h1>
+    <a type=button data-login-button class='pull-right'>Log In</a>
+  </div>
+</template>
+
+<template name='login'>
+  <div id='global-menu' class='clearfix'>
+    <p data-flash-message class='pull-left'>{{message}}</p>
+  </div>
+  <div id='login' class='center page'>
+    <h1>Log In to Divvy</h1>
+    User Name:
+    <input type=text name='username'>
+    Password:
+    <input type=password name='password'>
+    <br>
+    <a type=button data-login-button>Log In</a>
+    <h1>Or:</h1>
+    <a type=button data-create-account-button>Create Account</a>
+  </div>
+</template>
+
 <template name='global-menu'>
   <div id='global-menu' class='clearfix'>
+    {{#if user}}
+    <a data-logout-button type=button class="pull-left">log out</a>
+    {{/if}}
     <a data-reset-button type=button class="pull-left" title='Clear all data and start over'>reset &times;</a>
+    <h1>{{#if scenario}}#{{scenario.name}}{{/if}}{{#if user}} &lt;= @{{user.username}}{{/if}}</h1>
     <p data-flash-message class='pull-left'>{{message}}</p>
     <a data-next-button type=button class='pull-right {{#if nextButtonDisabled}}disabled{{/if}}'>next &gt;</a>
     <a data-up-button type=button class='pull-right {{#if upButtonDisabled}}disabled{{/if}}'>up ^</a>
   </div> 
+</template>
+
+<template name='scenario-form'>
+  {{> global-menu}}
+  <div id='scenario-form' class='center page'>
+    <h1>Create or choose a 'scenario'</h1>
+    <ul>
+      <li>
+        <input type='text' placeholder='Name' value="{{name}}" name='scenario-name'><a type='button' data-add-button data-item='{{name}}'>&check;</a>
+      </li>
+      {{#each scenarios}}
+      <li>
+        <a data-link data-scenario='{{_id}}'>{{name}}</a><a type='button' data-remove-button data-scenario='{{_id}}'>&times;</a>
+      </li>
+      {{/each}}
+    </ul>
+  </div>
 </template>
 
 <template name="account-form">

@@ -3,12 +3,10 @@ _.extend Template['item-detail-form'], do ->
   itemId = ->
     Router.getData().itemId
   item = ->
-    scenarioDep.depend()
     currentScenario._item itemId()
   accountIndexDep = new Deps.Dependency
 
   users = ->
-    scenarioDep.depend()
     users = []
     currentScenario._usages(item: itemId()).forEach (usage) =>
       user = currentScenario._account(usage.fromAccount)
@@ -16,7 +14,6 @@ _.extend Template['item-detail-form'], do ->
       users.push(user) if user?
     users
   payers = ->
-    scenarioDep.depend()
     accounts = []
     currentScenario._payments(items: itemId()).forEach (payment) ->
       account = currentScenario._account(payment.fromAccount)

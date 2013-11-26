@@ -1,12 +1,12 @@
 _.extend Template['admin-login'], do ->
-  password = null
+  pretzel = null
   $input = null
 
   rendered: ->
     $input = $ 'input[name=password]'
     $input.hide()
     Meteor.call 'getAdminCreds', (error, result) ->
-      password = result.password
+      pretzel = result.pretzel
       $input.show()
       $input.focus()
   events:
@@ -14,9 +14,11 @@ _.extend Template['admin-login'], do ->
       if e.keyCode is 13
         e.preventDefault()
         e.stopPropagation()
-        if $input.val() is password
-          Session.set 'adminUser', true
-          Router.go 'admin'
+        Meteor.call 'validateHash', pretzel, $input.val(), 
+          (error, result) ->
+            if result
+              Session.set 'adminUser', pretzel
+              Router.go 'admin'
 
 _.extend Template['admin-global-menu'],
   events:

@@ -1,7 +1,6 @@
-
+root = this
 _.extend Template['account-form'],
   accounts: -> 
-    scenarioDep.depend()
     currentScenario._accounts()
   message: -> Session.get 'message'
   created: ->

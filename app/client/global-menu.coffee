@@ -13,10 +13,20 @@ _.extend Template['global-menu'], do ->
         currentScenario?._items().count() < 1
       when 'account-form'
         currentScenario?._accounts().count() < 2
+      else 
+        false
   upButtonDisabled = -> not upPage()?
+  rendered: ->
+    if currentScenario?
+      $('head title').text "##{currentScenario.name} - Divvy"
   nextButtonDisabled: nextButtonDisabled
   upButtonDisabled: upButtonDisabled
   message: -> Session.get 'message'
+  scenario: ->
+    if currentScenario?
+      currentScenario
+  user: ->
+    Meteor.user()
   events:
     'click [data-next-button]': ->
       if not nextButtonDisabled()
@@ -31,4 +41,10 @@ _.extend Template['global-menu'], do ->
           Router.go 'account-form', scenario: currentScenario._id
     'click [data-flash-message]': ->
       Session.set 'message', ''
+    'click [data-logout-button]': ->
+      Meteor.logout (error) ->
+        unless error?
+          Router.go 'home'
+        else
+          Session.set 'message', error.message
 

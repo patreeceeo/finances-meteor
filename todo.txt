@@ -1,16 +1,26 @@
 ideas:
 
-on item detail page, also loop through items
+On item detail page, also loop through items
 after item page go back to account page and each account link goes to an detail page analogous to the item detail page
 allow associating accounts with google/facebook accounts
 each scenario must have only one owner account, when another account wants to modify a copy is created behind the scenes
 merge mobile design with desktop design
-keyboard shortcurts
+keyboard shortcuts
+move login/create-account to back of flow
+beta access codes?
+Automatically create finances account for current user
 
 issues:
 
 need to be able to create/find scenario from the UI
+(is/should) multiple payers (be) supported?
+5 <-> 4 bug
+make links more visually obvious
 
 tech debt:
 
 need more test coverage!
+
+
+
+
