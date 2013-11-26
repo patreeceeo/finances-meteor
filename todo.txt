@@ -11,12 +11,12 @@ beta access codes?
 
 issues:
 
-(is/should) multiple payers (be) supported?
 5 <-> 4 bug
 
 tech debt:
 
 need more test coverage!
+come up with more intuitive naming conventions in lib/finances.coffee
 
 
 

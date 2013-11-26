@@ -143,7 +143,7 @@
     {{#unless account}}
     <h1>Looks like we're done here!</h1>
     {{/unless}}
-    <a data-use-drop-zone type=button>used</a><a data-both-drop-zone type=button>used &amp; paid for</a><a data-pay-drop-zone type=button>paid for</a><a data-pay-drop-zone type=button>had nothing to do with</a>
+    <a data-use-drop-zone type=button>used</a>{{#unless payers}}<a data-both-drop-zone type=button>used &amp; paid for</a><a data-pay-drop-zone type=button>paid for</a>{{/unless}}<a data-pay-drop-zone type=button>had nothing to do with</a>
     <h1>The story of {{item.name}}:</h1>
     <ul data-story>
       {{#each users}}
