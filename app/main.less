@@ -57,6 +57,9 @@ body {
       cursor: default;
     }
   }
+  a[data-link] {
+    text-decoration: underline;
+  }
   a[data-reset-button]:hover {
     background-color: @danger-color;
   }
@@ -80,6 +83,11 @@ body {
     -webkit-appearance: none;
     padding: 0;
     border: 0;
+    box-sizing: border-box;
+    border-top: 3px solid darken(#aea, 30%);
+    border-left: 3px solid darken(#aea, 30%);
+    border-bottom: 3px solid lighten(#aea, 10%);
+    border-right: 3px solid lighten(#aea, 10%);
   }
 
   a[data-remove-button]:hover {

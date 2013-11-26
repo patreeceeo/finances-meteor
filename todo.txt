@@ -12,10 +12,8 @@ Automatically create finances account for current user
 
 issues:
 
-need to be able to create/find scenario from the UI
 (is/should) multiple payers (be) supported?
 5 <-> 4 bug
-make links more visually obvious
 
 tech debt:
 
