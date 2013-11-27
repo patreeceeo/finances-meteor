@@ -34,6 +34,13 @@ body {
   margin: 0 auto;
 }
 
+#more-button {
+  .center;
+  display: block;
+  width: 50%;
+  line-height: 2em;
+}
+
 .buttons {
   a[type=button] {
     text-align: center;
@@ -109,16 +116,6 @@ body {
   }
 }
 
-#create-account, #login {
-  input, a[type=button] {
-    width: 100%;
-    display: block;
-  }
-  h1 {
-    text-align: center;
-  }
-}
-
 #global-menu {
   .buttons;
   font-size: 3em;
@@ -141,6 +138,17 @@ body {
     margin-left: 10px;
   }
 }
+
+#create-account, #login {
+  input, a[type=button] {
+    width: 100%;
+    display: block;
+  }
+  h1 {
+    text-align: center;
+  }
+}
+
 
 #account-form {
   input, a[data-link] {
@@ -187,9 +195,6 @@ body {
   }
   tr:nth-child(2n-1) td {
     background-color: darken(#aea, 5%);
-  }
-  [data-remove-button], [data-add-button] {
-    width: 2em;
   }
 }
 

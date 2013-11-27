@@ -1,20 +1,21 @@
 ideas:
 
-create screen for adding another editor
 after item page go back to account page and each account link goes to an detail page analogous to the item detail page
 allow associating accounts with google/facebook accounts
-merge mobile design with desktop design
+create (more) detailed report on how the answers were arrived at, both in narrative and graphical form
 keyboard shortcuts
-beta access codes?
 added/modified/removed meta-data
 move login/create-account to back of flow
-create (more) detailed report on how the answers were arrived at, both in narrative and graphical form
+find search icon for find-scenario page
 
 issues:
 
 tech debt:
 
+merge mobile design with desktop design
+
 need more test coverage!
+
 come up with more intuitive naming conventions in lib/finances.coffee
 
 

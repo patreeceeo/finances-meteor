@@ -36,7 +36,7 @@ loadCurrentScenario = ->
 Router.configure
   loadingTemplate: 'loading'
 
-Router.before loadCurrentScenario, except: ['home', 'login', 'create-account', 'admin-login', 'admin', 'scenario-form']
+Router.before loadCurrentScenario, except: ['home', 'login', 'create-account', 'admin-login', 'admin', 'scenario-form', 'find-scenario']
 Router.before redirectAnonymous, except: ['home', 'login', 'create-account', 'admin-login', 'admin']
 
 Router.map ->
@@ -49,6 +49,9 @@ Router.map ->
 
   @route 'scenario-form',
     path: '/scenarios'
+
+  @route 'find-scenario',
+    path: '/find-scenario'
 
   @route 'account-form',
     path: '/:scenario/accounts'

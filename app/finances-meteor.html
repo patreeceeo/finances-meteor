@@ -82,8 +82,10 @@
     {{#if user}}
     <a data-logout-button type=button class="pull-left">log out</a>
     {{/if}}
+    {{#if scenario}}
     <a data-reset-button type=button class="pull-left" title='Clear all data and start over'>reset &times;</a>
-    <h1>{{#if scenario}}#{{scenario.name}}{{/if}}{{#if user}} &lt;= @{{user.username}}{{/if}}</h1>
+    {{/if}}
+    <h1>{{#if scenario}}#{{scenario.name}} &lt;= {{/if}}{{#if user}}@{{user.username}}{{/if}}</h1>
     <p data-flash-message class='pull-left'>{{message}}</p>
     <a data-next-button type=button class='pull-right {{#if nextButtonDisabled}}disabled{{/if}}'>next &gt;</a>
     <a data-up-button type=button class='pull-right {{#if upButtonDisabled}}disabled{{/if}}'>up ^</a>
@@ -102,6 +104,21 @@
       <li>
         <a data-link data-scenario='{{_id}}'>{{name}}</a><a type='button' data-remove-button data-scenario='{{_id}}'>&times;</a>
       </li>
+      {{/each}}
+    </ul>
+    <a type=button id='more-button' href='/find-scenario'>More &gt;</a>
+  </div>
+</template>
+
+<template name='find-scenario'>
+  {{> global-menu}}
+  <div id='find-scenario' class='center page'>
+    <h1>Find a 'scenario'</h1>
+    Enter the User Name of the person who created the scenario.
+    <input type=text placeholder='User Name' name='user-name'><a type='button' data-search-button data-item='{{name}}'>*</a>
+    <ul>
+      {{#each scenarios}}
+      <li><a data-link data-scenario='{{_id}}'>{{name}}</a></li>
       {{/each}}
     </ul>
   </div>

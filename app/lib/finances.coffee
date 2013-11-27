@@ -243,7 +243,7 @@ class finances.Payment extends finances.Base
     @fromAccount = @_account @fromAccount
     @toAccount = @_account @toAccount
     @items = 
-    for item in @items
+    for item in @items or []
       @_item item
     this
   addItem: (document) ->
