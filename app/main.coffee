@@ -1,5 +1,15 @@
 
 if Meteor.isClient
+
+  Handlebars.registerHelper 'round', (options) ->
+    number = parseFloat options.fn(this)
+    string = "#{Math.round(number * 100) / 100}"
+    pointPosition = _(string).indexOf('.')
+    if pointPosition isnt -1
+      if string.length - pointPosition is 2
+        string += '0'
+    string
+
   _.extend Session, do ->
     _set = Session.set
     _get = Session.get

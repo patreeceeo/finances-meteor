@@ -130,7 +130,7 @@
     <h1>Who's involved?</h1>
     <ul>
       <li>
-        <input type='text' placeholder='Name' value="{{name}}" data-input=account tabindex=0><a type='button' data-add-button data-item='{{name}}'>&check;</a>
+        <input type='text' placeholder='Name' value="{{name}}" data-input=account><a type='button' data-add-button data-item='{{name}}'>&check;</a>
       </li>
     {{#each accounts}}
     <li>
@@ -147,11 +147,11 @@
     <h1>What's involved?</h1>
     <ul>
       <li>
-      <input type='text' placeholder='Name' value="{{name}}" data-input=name tabindex=2><input type='number' placeholder='$$$' value="{{amount}}" data-input=amount min=0 tabindex=3><a type='button' data-add-button data-item='{{name}}'>&check;</a>
+      <input type='text' placeholder='Name' value="{{name}}" data-input=name><input type='number' placeholder='$$$' data-input=amount min=0><a type='button' data-add-button data-item='{{name}}'>&check;</a>
       </li>
     {{#each items}}
     <li>
-    <a data-link data-item='{{_id}}' href='#'>{{name}}<span class='pull-right'>${{amount}}</span></a></a><a type='button' data-remove-button data-item='{{_id}}' href='#'>&times;</a>
+    <a data-link data-item='{{_id}}' href='#'>{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></a><a type='button' data-remove-button data-item='{{_id}}' href='#'>&times;</a>
     </li>
     {{/each}}
     </ul>
@@ -189,7 +189,7 @@
     <ol>
       {{#each externalPayments}}
       <li>
-      {{fromAccount.name}} paid ${{amount}} for {{#each items}}{{name}} {{/each}}
+      {{fromAccount.name}} paid ${{#round}}{{amount}}{{/round}} for {{#each items}}{{name}} {{/each}}
       </li>
       {{/each}}
       {{#each usages}}
@@ -199,7 +199,7 @@
     <h1>What needs to happen:</h1>
     <ol>
       {{#each unsettledPayments}}
-      <li>{{fromAccount.name}} should pay ${{amount}} to {{toAccount.name}}</li>
+      <li>{{fromAccount.name}} should pay ${{#round}}{{amount}}{{/round}} to {{toAccount.name}}</li>
       {{/each}}
       {{#unless unsettledPayments}}
       <li>Nothing! You're already even!</li>
