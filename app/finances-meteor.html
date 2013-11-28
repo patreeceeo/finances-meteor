@@ -85,7 +85,7 @@
     {{#if scenario}}
     <a data-reset-button type=button class="pull-left" title='Clear all data and start over'>reset &times;</a>
     {{/if}}
-    <h1>{{#if scenario}}#{{scenario.name}} &lt;= {{/if}}{{#if user}}@{{user.username}}{{/if}}</h1>
+    <h1>{{#if scenario}}&ldquo;{{scenario.name}}&rdquo; by {{/if}}{{#if creator}}{{creator.username}}{{/if}}</h1>
     <p data-flash-message class='pull-left'>{{message}}</p>
     <a data-next-button type=button class='pull-right {{#if nextButtonDisabled}}disabled{{/if}}'>next &gt;</a>
     <a data-up-button type=button class='pull-right {{#if upButtonDisabled}}disabled{{/if}}'>up ^</a>
