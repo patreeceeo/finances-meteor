@@ -160,7 +160,7 @@ describe "finances", ->
       for i in [1..20]
         expect(sequence1[i]).toEqual sequence2[i]
   
-  xdescribe 'test scenarios', ->
+  describe 'test scenarios', ->
     # TODO: make a scenario class and move all the methods and
     #       properties of `finances` to `finances.Scenario`
     count = 10
@@ -169,37 +169,43 @@ describe "finances", ->
         a + b
       _.reduce list, add, 0
     scenarios = []
+    totalPayments = 0
     beforeEach ->
-      results =
-        for seed in [0..20]
-          finances.testScenario seed, s
+      scenarios =
+      for seed in [0..8]
+        s = finances.testScenario seed
+        s.totalPayments = findSum(
+          p.amount for p in s._payments().fetch()
+        )
+        s
 
     it 'should have payments', ->
-      for result in results
-        expect(result.totalPayments).toBeGreaterThan 0
+      for s in scenarios
+        expect(s.totalPayments).toBeGreaterThan 0
 
     it 'should have all items paid for', ->
-      for result in results
-        expect(result.totalPayments).toBe findSum (i.amount for i in result.items)
-        expect(result.payments.length >= result.items.length).toBeTruthy()
-        for i in result.items
-          expect(findSum(
-            p.amount for p in s.findPayments items: i._id
-          )).toBe i.amount
+      for s in scenarios
+        expect(s.totalPayments).toBe findSum (i.amount for i in s._items().fetch())
+        # expect(s.payments.length >= s.items.length).toBeTruthy()
+        # for i in s.items
+        #   expect(findSum(
+        #     p.amount for p in s._payments(items: i._id)
+        #   )).toBe i.amount
         
     it 'should have every account at least either a payer or a user', ->
-      for result in results
-        for a in s.accounts
-          expect(a.usesItems.length or a.sendsPayments.length).toBeGreaterThan 0
+      for s in scenarios
+        for a in s._accounts().fetch()
+          # expect(a.usesItems.length or a.sendsPayments.length).toBeGreaterThan 0
+          expect(s._usage(fromAccount: a._id) or s._payment(fromAccount: a._id)).toBeDefined()
 
     it """should transform to one in which the net amount
           that each account pays is equal""", ->
-      for result in results
+      for s in scenarios
         s.addInternalPayments()
         s.simplifyPayments()
-        fairShare = s.totalPayments / s.accounts.length
-        for a in s.accounts.length
-          share = findSum (p.amount for p in a.sendsPayments) -
-            findSum (p.amount for p in a.receivesPayments)
+        fairShare = s.totalPayments / s._accounts().count()
+        for a in s._accounts().count()
+          share = findSum (p.amount for p in s._payments(fromAccount: a._id).fetch()) -
+            findSum (p.amount for p in s._payments(toAccount: a._id))
 
           expect(share).toEqual fairShare

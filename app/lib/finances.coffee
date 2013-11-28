@@ -277,7 +277,10 @@ _.extend finances,
       x = Math.sin(seed++) * 10000
       r = x - Math.floor(x)
       Math.round r * (max - min) + min
-  testScenario: (seed, scenario) ->
+  testScenario: (seed) ->
+    scenario = new finances.Scenario 
+      name: "test ##{seed}"
+      _id: "#{seed}"
     random = @getPRNG(seed)
     totalPayments = 0
 
@@ -290,22 +293,19 @@ _.extend finances,
     nItems = random(Math.max(nUsers, nPayers), nAccounts * 3)
 
     accounts =
-      for i in [1..nAccounts]
-        scenario.addAccount name: "account #{i}"
+    for i in [1..nAccounts]
+      scenario.addAccount name: "account #{i}"
+
     items =
-      for i in [1..nItems]
-        scenario.addItem
-          name: "item #{i}"
-          amount: random(2, 100)
+    for i in [1..nItems]
+      scenario.addItem
+        name: "item #{i}"
+        amount: random(2, 100)
 
-    payments = []
-    for index, item of items
-      payments.push accounts[index % nPayers].pays item
+    for own index, item of items
+      payerIndex = index % nPayers
+      payer = accounts[payerIndex]
+      payer.pays item
       accounts[accounts.length - 1 - index % nUsers].uses item
-      totalPayments += item.amount
     
-
-    totalPayments: totalPayments
-    accounts: accounts
-    items: items
-    payments: payments
+    scenario
