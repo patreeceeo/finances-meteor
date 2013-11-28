@@ -1,17 +1,31 @@
 ideas:
 
+- on results page, show just the payments that need to happen, when one is clicked show a table illustrating how that payment helps balance out existing payments for associated item(s).
+rename results-form to report
+payment gateways integration.
+make it easy to make a charitable payment to a non-profit while using the app.
+add scenario detail page that shows the creator and collaborators, a reset button, and links to the scenario-form, items-form, accounts-form and report
+rework global-menu to show just a logout button and links to the scenario-detail, items-form, accounts-form and report
+somehow indicate who is currently signed in and possibly viewing/editing the current scenario
 after item page go back to account page and each account link goes to an detail page analogous to the item detail page
 allow associating accounts with google/facebook accounts
 create (more) detailed report on how the answers were arrived at, both in narrative and graphical form
-keyboard shortcuts
+keyboard shortcuts?
 added/modified/removed meta-data
 move login/create-account to back of flow?
 find search icon for find-scenario page
 
 issues:
 
+text is too large on desktop
+in older (mac os tiger) safari:
+  scenario links don't work
+  buttons after inputs are wrapped to next line
+  check mark escape sequence isn't recognized
+
 tech debt:
 
+use router helpers to generate links using `href` attribute rather than programmatically changing routes?
 merge mobile design with desktop design
 need more test coverage!
 come up with more intuitive naming conventions in lib/finances.coffee
