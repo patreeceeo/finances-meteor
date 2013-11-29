@@ -48,5 +48,19 @@
     }
   }
 
+  #report, #report-payment-detail {
+    a[data-link] {
+      width: @page-width;
+      &.highlight {
+        background-color: darken(#aea, 10%);
+        box-shadow: @shadow-offset @shadow-offset 0 0 darken(#aea, 20%);
+      }
+      &.highlight:hover, &.highlight:active {
+        background-color: white;
+        color: black;
+      }
+    }
+  }
+
 
 }

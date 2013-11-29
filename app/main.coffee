@@ -76,19 +76,25 @@ Router.map ->
     data: ->
       scenarioId: @params.scenario
       page: 'item-form'
-      nextPage: 'results'
+      nextPage: 'report'
 
   @route 'item-detail-form',
-    path: '/:scenario/item/:id'
+    path: '/:scenario/item/:_id'
     data: ->
       scenarioId: @params.scenario
-      itemId: @params.id
+      itemId: @params._id
       page: 'item-detail-form'
       upPage: 'item-form'
-      nextPage: 'results'
+      nextPage: 'report'
 
-  @route 'results',
-    path: '/:scenario/results'
+  @route 'report',
+    path: '/:scenario/report'
+
+  @route 'report-payment-detail',
+    path: '/:scenario/report/:_id'
+    data: ->
+      scenarioId: @params.scenario
+      paymentId: @params._id
 
   @route 'admin-login'
 

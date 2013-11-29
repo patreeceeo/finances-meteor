@@ -151,7 +151,7 @@
       </li>
     {{#each items}}
     <li>
-    <a data-link data-item='{{_id}}' href='#'>{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></a><a type='button' data-remove-button data-item='{{_id}}' href='#'>&times;</a>
+    <a data-link href='{{pathFor "item-detail-form"}}'>{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></a><a type='button' data-remove-button data-item='{{_id}}' href='#'>&times;</a>
     </li>
     {{/each}}
     </ul>
@@ -181,29 +181,69 @@
   </form>
 </template>
 
-<template name='results'>
+<template name='report'>
   {{> global-menu }}
-  <div id='results' class='center page'>
-    <h1>...And, done!</h1>
-    <h1>What happened:</h1>
-    <ol>
-      {{#each externalPayments}}
-      <li>
-      {{fromAccount.name}} paid ${{#round}}{{amount}}{{/round}} for {{#each items}}{{name}} {{/each}}
-      </li>
-      {{/each}}
-      {{#each usages}}
-      <li>{{fromAccount.name}} used {{item.name}}</li>
-      {{/each}}
-    </ol>
-    <h1>What needs to happen:</h1>
+  <div id='report' class='center page'>
+    <h1>Here's what should happen:</h1>
     <ol>
       {{#each unsettledPayments}}
-      <li>{{fromAccount.name}} should pay ${{#round}}{{amount}}{{/round}} to {{toAccount.name}}</li>
+      <li><a data-link href='{{pathFor "report-payment-detail"}}'>{{fromAccount.name}} pays ${{#round}}{{amount}}{{/round}} to {{toAccount.name}}</a></li>
       {{/each}}
       {{#unless unsettledPayments}}
       <li>Nothing! You're already even!</li>
       {{/unless}}
     </ol>
+    {{#each accounts}}
+    <br>
+    <h1>Breakdown for {{name}}:</h1>
+    <h2>Incoming:</h2>
+    <ul>
+      {{#each incomingPayments}}
+      <li><a data-link href='{{pathFor "report-payment-detail"}}' {{#unless settled}}class='highlight'{{/unless}}>{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></a></li>
+      {{/each}}
+      {{#unless incomingPayments}}
+      <li>Nothin'!</li>
+      {{/unless}}
+    </ul>
+    <p>total: <span class='pull-right'>${{#round}}{{incomingTotal}}{{/round}}</span></p>
+    <h2>Outgoing:</h2>
+    <ul>
+      {{#each outgoingPayments}}
+      <li><a data-link href='{{pathFor "report-payment-detail"}}' {{#unless settled}}class='highlight'{{/unless}}>{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></a></li>
+      {{/each}}
+      {{#unless outgoingPayments}}
+      <li>Zilch!</li>
+      {{/unless}}
+    </ul>
+    <p>total: <span class="pull-right">${{#round}}{{outgoingTotal}}{{/round}}</span></p>
+    <h2>net total: <span class='pull-right'>${{#round}}{{outgoingTotal}}{{/round}} - ${{#round}}{{incomingTotal}}{{/round}} = ${{#round}}{{netTotal}}{{/round}}</span></h2>
+    {{/each}}
   </div>
+</template>
+
+<template name='report-payment-detail'>
+  {{> global-menu }}
+  <div id='report-payment-detail' class='center page'>
+    <h1>${{#round}}{{payment.amount}}{{/round}} from {{fromAccount.name}}{{#if toAccount}} to {{toAccount.name}}{{/if}}</h1>
+    <h2>For:</h2>
+    <ul>
+      {{#each items}}
+      <li><a data-link href="{{pathFor 'item-detail-form'}}">{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></li>
+      {{/each}}
+    </ul>
+  </div>
+</template>
+
+<template name='dump'>
+  <h1>Report</h1>
+  <ol>
+    {{#each externalPayments}}
+    <li>
+    {{fromAccount.name}} paid ${{#round}}{{amount}}{{/round}} for {{#each items}}{{name}} {{/each}}
+    </li>
+    {{/each}}
+    {{#each usages}}
+    <li>{{fromAccount.name}} used {{item.name}}</li>
+    {{/each}}
+  </ol>
 </template>

@@ -28,7 +28,7 @@ _.extend Template['global-menu'], do ->
   user: ->
     Meteor.user()
   creator: ->
-    Meteor.users.findOne(currentScenario.user)
+    Meteor.users.findOne(currentScenario?.user)
   events:
     'click [data-next-button]': ->
       if not nextButtonDisabled()

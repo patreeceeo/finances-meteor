@@ -47,7 +47,7 @@ _.extend Template['item-detail-form'], do ->
           if index >= itemIds.length
             index = 0
           Router.go 'item-detail-form', 
-            id: itemIds[index]
+            _id: itemIds[index]
             scenario: currentScenario._id
         accountIndexDep.changed()
 

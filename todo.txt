@@ -22,6 +22,9 @@ in older (mac os tiger) safari:
   scenario links don't work
   buttons after inputs are wrapped to next line
   check mark escape sequence isn't recognized
+in FF:
+  can't dismiss flash message w/ click
+  buttons after inputs are wrapped to next line
 
 tech debt:
 
