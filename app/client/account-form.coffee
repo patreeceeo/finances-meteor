@@ -11,7 +11,7 @@ _.extend Template['account-form'],
         currentScenario.addAccount name: e.target.value
         e.target.value = ''
     removeAccount = (e) ->
-      Meteor.call 'removeAccount', e.target.dataset.account
+      Meteor.call 'removeAccount', $(e.target).data().account
 
     'change input': addAccount
     'focusout input': addAccount

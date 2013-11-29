@@ -17,7 +17,7 @@ _.extend Template['find-scenario'], do ->
     scenarios = null
   events:
     'click [data-link][data-scenario]': (e) ->
-      Router.go 'account-form', scenario: e.target.dataset.scenario
+      Router.go 'account-form', scenario: $(e.target).data().scenario
     'click [data-search-button]': ->
       search $('[name=user-name]').val()
     'keydown input': (e) ->

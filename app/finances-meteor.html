@@ -102,7 +102,7 @@
       </li>
       {{#each scenarios}}
       <li>
-        <a data-link data-scenario='{{_id}}'>{{name}}</a><a type='button' data-remove-button data-scenario='{{_id}}'>&times;</a>
+        <a data-link href='{{pathFor "scenario-detail"}}'>{{name}}</a><a type='button' data-remove-button data-scenario='{{_id}}'>&times;</a>
       </li>
       {{/each}}
     </ul>
@@ -118,7 +118,7 @@
     <input type=text placeholder='User Name' name='user-name'><a type='button' data-search-button data-item='{{name}}'>*</a>
     <ul>
       {{#each scenarios}}
-      <li><a data-link data-scenario='{{_id}}'>{{name}}</a></li>
+      <li><a data-link href='{{pathFor "account-form"}}'>{{name}}</a></li>
       {{/each}}
     </ul>
   </div>

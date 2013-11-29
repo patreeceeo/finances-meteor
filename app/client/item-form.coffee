@@ -21,10 +21,10 @@ _.extend Template['item-form'],
       else
         Session.set 'message', 'Note: enter name and price'
     removeItem = (e) ->
-      Meteor.call 'removeItem', e.target.dataset.item
+      Meteor.call 'removeItem', $(e.target).data().item
       e.stopImmediatePropagation()
     trackChange = (e) ->
-      key = e.target.dataset.input
+      key = $(e.target).data().input
       value = e.target.value
       item[key] = value
     handlers =
@@ -39,5 +39,5 @@ _.extend Template['item-form'],
     'click [data-remove-button]': removeItem
     'click [data-item]': (e) ->
       Router.go 'item-detail-form', 
-        id: e.target.dataset.item
+        id: $(e.target).data().item
         scenario: currentScenario._id

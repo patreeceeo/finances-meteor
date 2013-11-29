@@ -70,6 +70,14 @@ Router.map ->
       page: 'account-form'
       nextPage: 'item-form'
 
+  # todo: stop lying
+  @route 'scenario-detail',
+    path: '/:_id/accounts'
+    data: ->
+      scenarioId: @params._id
+      page: 'account-form'
+      nextPage: 'item-form'
+
 
   @route 'item-form',
     path: '/:scenario/items'

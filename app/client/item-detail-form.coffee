@@ -65,6 +65,6 @@ _.extend Template['item-detail-form'], do ->
         account()?.paysAndUses item()
     'click [data-nothing-drop-zone]': accountEvent ->
     'click [data-remove-button][data-usage]': (e) ->
-      currentScenario.removeUsage e.target.dataset.usage
+      currentScenario.removeUsage $(e.target).data().usage
     'click [data-remove-button][data-payment]': (e) ->
-      currentScenario.removePayment e.target.dataset.payment 
+      currentScenario.removePayment $(e.target).data().payment 

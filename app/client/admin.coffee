@@ -38,7 +38,7 @@ _.extend Template['admin'],
     UsageCollection.find()
   events:
     'click [data-remove-button]': (e) ->
-      data = e.target.dataset
+      data = $(e.target).data()
       if data.scenario
         ScenarioCollection.remove data.scenario
       if data.account

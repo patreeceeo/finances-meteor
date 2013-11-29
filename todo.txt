@@ -18,6 +18,8 @@ find search icon for find-scenario page
 issues:
 
 text is too large on desktop
+remove autopublish package, manually setup subscriptions
+remove insecure package
 in older (mac os tiger) safari:
   scenario links don't work
   buttons after inputs are wrapped to next line
@@ -25,6 +27,10 @@ in older (mac os tiger) safari:
 in FF:
   can't dismiss flash message w/ click
   buttons after inputs are wrapped to next line
+in IE 7:
+  SHOW-STOPPING ERROR: history.state.initial is null or not an object
+in IE 10:
+  scenario links don't work
 
 tech debt:
 
