@@ -1,3 +1,5 @@
+@import 'mixins';
+
 @media (min-width: 400px) {
 
   @page-width: 900px;
@@ -13,7 +15,7 @@
   }
 
   a[type=button] {
-    box-shadow: @shadow-offset @shadow-offset 0 0 darken(#aea, 20%);
+    .box-shadow(@shadow-offset @shadow-offset 0 0 darken(#aea, 20%));
   }
 
   [data-remove-button], [data-add-button], [data-search-button] {
@@ -53,7 +55,7 @@
       width: @page-width;
       &.highlight {
         background-color: darken(#aea, 10%);
-        box-shadow: @shadow-offset @shadow-offset 0 0 darken(#aea, 20%);
+        .box-shadow(@shadow-offset @shadow-offset 0 0 darken(#aea, 20%));
       }
       &.highlight:hover, &.highlight:active {
         background-color: white;
