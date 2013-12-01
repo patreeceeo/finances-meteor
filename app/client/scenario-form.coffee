@@ -20,8 +20,6 @@ _.extend Template['scenario-form'], do ->
         e.preventDefault()
         addScenario()
     'click [data-add-button]': addScenario
-    'click [data-link]': (e) ->
-      Router.go 'account-form', scenario: $(e.target).data().scenario
     'click [data-remove-button]': (e) ->
       ScenarioCollection.remove $(e.target).data().scenario
 

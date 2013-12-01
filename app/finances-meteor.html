@@ -4,6 +4,12 @@
   <meta name="viewport" content="user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <div id='unsupported' class='center page'>
+    <noscript>
+      <p>Do you have JavaScript disabled? You'll need to enable it to use this website</p>
+    </noscript>
+  </div>
 </head>
 
 <body>
@@ -102,7 +108,7 @@
       </li>
       {{#each scenarios}}
       <li>
-        <a data-link href='{{pathFor "scenario-detail"}}'>{{name}}</a><a type='button' data-remove-button data-scenario='{{_id}}'>&times;</a>
+        <a data-link href='{{urlFor "scenario-detail"}}'>{{name}}</a><a type='button' data-remove-button data-scenario='{{_id}}'>&times;</a>
       </li>
       {{/each}}
     </ul>
@@ -118,7 +124,7 @@
     <input type=text placeholder='User Name' name='user-name'><a type='button' data-search-button data-item='{{name}}'>*</a>
     <ul>
       {{#each scenarios}}
-      <li><a data-link href='{{pathFor "account-form"}}'>{{name}}</a></li>
+      <li><a data-link href='{{urlFor "scenario-detail"}}'>{{name}}</a></li>
       {{/each}}
     </ul>
   </div>
@@ -151,7 +157,7 @@
       </li>
     {{#each items}}
     <li>
-    <a data-link href='{{pathFor "item-detail-form"}}'>{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></a><a type='button' data-remove-button data-item='{{_id}}' href='#'>&times;</a>
+    <a data-link href='{{urlFor "item-detail-form"}}'>{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></a><a type='button' data-remove-button data-item='{{_id}}' href='#'>&times;</a>
     </li>
     {{/each}}
     </ul>
@@ -187,7 +193,7 @@
     <h1>Here's what should happen:</h1>
     <ol>
       {{#each unsettledPayments}}
-      <li><a data-link href='{{pathFor "report-payment-detail"}}'>{{fromAccount.name}} pays ${{#round}}{{amount}}{{/round}} to {{toAccount.name}}</a></li>
+      <li><a data-link href='{{urlFor "report-payment-detail"}}'>{{fromAccount.name}} pays ${{#round}}{{amount}}{{/round}} to {{toAccount.name}}</a></li>
       {{/each}}
       {{#unless unsettledPayments}}
       <li>Nothing! You're already even!</li>
@@ -199,7 +205,7 @@
     <h2>Incoming:</h2>
     <ul>
       {{#each incomingPayments}}
-      <li><a data-link href='{{pathFor "report-payment-detail"}}' {{#unless settled}}class='highlight'{{/unless}}>{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></a></li>
+      <li><a data-link href='{{urlFor "report-payment-detail"}}' {{#unless settled}}class='highlight'{{/unless}}>{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></a></li>
       {{/each}}
       {{#unless incomingPayments}}
       <li>Nothin'!</li>
@@ -209,7 +215,7 @@
     <h2>Outgoing:</h2>
     <ul>
       {{#each outgoingPayments}}
-      <li><a data-link href='{{pathFor "report-payment-detail"}}' {{#unless settled}}class='highlight'{{/unless}}>{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></a></li>
+      <li><a data-link href='{{urlFor "report-payment-detail"}}' {{#unless settled}}class='highlight'{{/unless}}>{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></a></li>
       {{/each}}
       {{#unless outgoingPayments}}
       <li>Zilch!</li>
@@ -228,7 +234,7 @@
     <h2>For:</h2>
     <ul>
       {{#each items}}
-      <li><a data-link href="{{pathFor 'item-detail-form'}}">{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></li>
+      <li><a data-link href="{{urlFor 'item-detail-form'}}">{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></li>
       {{/each}}
     </ul>
   </div>

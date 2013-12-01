@@ -3,7 +3,7 @@ build/
 spec/**/*.js
 app/**/*.js
 src/
-app/git-ignore-me.coffee
+app/server/git-ignore-me.coffee
 
 
 

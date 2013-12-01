@@ -16,9 +16,11 @@ _.extend Template['global-menu'], do ->
       else 
         false
   upButtonDisabled = -> not upPage()?
+  creator = ->
+    Meteor.users.findOne(currentScenario?.user)
   rendered: ->
     if currentScenario?
-      $('head title').text "##{currentScenario.name} - Divvy"
+      $('head title').text "“#{currentScenario.name}” by #{creator().username} - Divvy"
   nextButtonDisabled: nextButtonDisabled
   upButtonDisabled: upButtonDisabled
   message: -> Session.get 'message'
@@ -27,8 +29,7 @@ _.extend Template['global-menu'], do ->
       currentScenario
   user: ->
     Meteor.user()
-  creator: ->
-    Meteor.users.findOne(currentScenario?.user)
+  creator: creator
   events:
     'click [data-next-button]': ->
       if not nextButtonDisabled()

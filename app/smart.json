@@ -1,6 +1,5 @@
 {
   "packages": {
-    "iron-router": {},
-    "z-mongo-admin": {}
+    "iron-router": {}
   }
 }

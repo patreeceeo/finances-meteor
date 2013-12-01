@@ -9,7 +9,6 @@ insecure
 preserve-inputs
 coffeescript
 less
-iron-router
 
 router
 spin
@@ -17,3 +16,5 @@ page-js-ie-support
 HTML5-History-API
 amplify
 accounts-password
+iron-router
+
