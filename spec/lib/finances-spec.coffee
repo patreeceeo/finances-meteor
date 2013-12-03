@@ -168,15 +168,15 @@ describe "finances", ->
       add = (a, b) ->
         a + b
       _.reduce list, add, 0
+    sumAmounts = (list) ->
+      findSum(o.amount for o in list)
     scenarios = []
     totalPayments = 0
     beforeEach ->
       scenarios =
-      for seed in [0..8]
+      for seed in [1..8]
         s = finances.testScenario seed
-        s.totalPayments = findSum(
-          p.amount for p in s._payments().fetch()
-        )
+        s.totalPayments = sumAmounts(s._payments().fetch())
         s
 
     it 'should have payments', ->
@@ -185,27 +185,28 @@ describe "finances", ->
 
     it 'should have all items paid for', ->
       for s in scenarios
-        expect(s.totalPayments).toBe findSum (i.amount for i in s._items().fetch())
-        # expect(s.payments.length >= s.items.length).toBeTruthy()
-        # for i in s.items
-        #   expect(findSum(
-        #     p.amount for p in s._payments(items: i._id)
-        #   )).toBe i.amount
+        expect(s.totalPayments).toBe sumAmounts(s._items().fetch())
         
     it 'should have every account at least either a payer or a user', ->
       for s in scenarios
         for a in s._accounts().fetch()
-          # expect(a.usesItems.length or a.sendsPayments.length).toBeGreaterThan 0
           expect(s._usage(fromAccount: a._id) or s._payment(fromAccount: a._id)).toBeDefined()
 
-    it """should transform to one in which the net amount
-          that each account pays is equal""", ->
+    it 'should transform such that each account pays for its share of each item it uses', ->
       for s in scenarios
         s.addInternalPayments()
         s.simplifyPayments()
-        fairShare = s.totalPayments / s._accounts().count()
-        for a in s._accounts().count()
-          share = findSum (p.amount for p in s._payments(fromAccount: a._id).fetch()) -
-            findSum (p.amount for p in s._payments(toAccount: a._id))
+        for account in s._accounts().fetch()
+          account.balance = 0
+          for payment in s._payments(fromAccount: account._id).fetch()
+            account.balance -= payment.amount
+          for payment in s._payments(toAccount: account._id).fetch()
+            account.balance += payment.amount
 
-          expect(share).toEqual fairShare
+          fairShare = 0
+          for usage in s._usages(fromAccount: account._id).fetch()
+            fairShare += s._item(usage.item).amount / s._usages(item: usage.item).count()
+          expect(account.balance).toBe(-fairShare)
+
+          
+

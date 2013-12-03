@@ -19,6 +19,7 @@ add notFound template
 issues:
 
 text is too large on desktop
+it's possible to specify more than one payer for an item
 remove autopublish package, manually setup subscriptions
 remove insecure package
 in older (mac os tiger) safari:
@@ -40,7 +41,6 @@ in IE 10:
 
 tech debt:
 
-use router helpers to generate links using `href` attribute rather than programmatically changing routes?
 merge mobile design with desktop design
 need more test coverage!
 come up with more intuitive naming conventions in lib/finances.coffee

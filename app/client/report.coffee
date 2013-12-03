@@ -16,28 +16,37 @@ _.extend Template['report'],
     for payment in currentScenario._payments(settled: false).fetch()
       payment = new finances.Payment payment
       payment.vivifyAssociates()
-  usages: ->
-    for usage in currentScenario._usages().fetch()
-      usage = new finances.Usage usage
-      usage.vivifyAssociates()
   accounts: -> 
-    for account in currentScenario._accounts().fetch()
-      account.incomingPayments = currentScenario._payments(toAccount: account._id).fetch()
-      account.incomingTotal = 0 
-      for payment in account.incomingPayments
-        account.incomingTotal += payment.amount
-        payment.name = (
-          for item in payment.items
-            currentScenario._item(item).name
-        ).join('/')
-      account.outgoingPayments = currentScenario._payments(fromAccount: account._id).fetch()
-      account.outgoingTotal = 0 
-      for payment in account.outgoingPayments
-        account.outgoingTotal += payment.amount
-        payment.name = (
-          for item in payment.items
-            currentScenario._item(item).name
-        ).join('/')
-      account.netTotal = account.outgoingTotal - account.incomingTotal
+    concatItemNames = (items) ->
+      (for _id in items
+          currentScenario._item(_id).name
+      ).join('/')
+    s = currentScenario
+
+    for account in s._accounts().fetch()
+      _.extend account,
+        balance: 0
+        fairShare: 0
+        incomingPayments: []
+        outgoingPayments: []
+        usages: []
+
+      for payment in s._payments(fromAccount: account._id).fetch()
+        account.balance -= payment.amount
+        payment.itemNames = concatItemNames(payment.items)
+        account.outgoingPayments.push payment
+
+      for payment in s._payments(toAccount: account._id).fetch()
+        account.balance += payment.amount
+        payment.itemNames = concatItemNames(payment.items)
+        account.incomingPayments.push payment
+
+      for usage in s._usages(fromAccount: account._id).fetch()
+        itemAmount = s._item(usage.item).amount
+        nUsers = s._usages(item: usage.item).count()
+        account.fairShare += itemAmount / nUsers
+        usage.item = s._item usage.item
+        account.usages.push usage
+      
       account
       

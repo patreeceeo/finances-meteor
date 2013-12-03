@@ -170,7 +170,7 @@
     {{#if account}}
     <h1>Fill in the blank:</h1>
     <h1>{{account.name}} _____ {{item.name}}.</h1>
-    <a data-use-drop-zone type=button>used</a>{{#unless payers}}<a data-both-drop-zone type=button>used &amp; paid for</a><a data-pay-drop-zone type=button>paid for</a>{{/unless}}<a data-pay-drop-zone type=button>did nothing with</a>
+    <a data-use-drop-zone type=button>used</a>{{#unless payers}}<a data-both-drop-zone type=button>used &amp; paid for</a><a data-pay-drop-zone type=button>paid for</a>{{/unless}}<a data-nothing-drop-zone type=button>did nothing with</a>
     {{/if}}
     {{#unless account}}
     <h1>Looks like we're done here!</h1>
@@ -201,28 +201,34 @@
     </ol>
     {{#each accounts}}
     <br>
-    <h1>Breakdown for {{name}}:</h1>
-    <h2>Incoming:</h2>
+    <h1>The goings on with {{name}}:</h1>
+    <h2>Had or participated in:</h2>
     <ul>
-      {{#each incomingPayments}}
-      <li><a data-link href='{{urlFor "report-payment-detail"}}' {{#unless settled}}class='highlight'{{/unless}}>{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></a></li>
+      {{#each usages}}
+      {{#with item}}
+      <li><a data-link href='{{urlFor "item-detail-form"}}'>{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></li>
+      {{/with}}
       {{/each}}
-      {{#unless incomingPayments}}
-      <li>Nothin'!</li>
-      {{/unless}}
     </ul>
-    <p>total: <span class='pull-right'>${{#round}}{{incomingTotal}}{{/round}}</span></p>
-    <h2>Outgoing:</h2>
+    <h2>Forks over $$ for:</h2>
     <ul>
       {{#each outgoingPayments}}
-      <li><a data-link href='{{urlFor "report-payment-detail"}}' {{#unless settled}}class='highlight'{{/unless}}>{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></a></li>
+      <li><a data-link href='{{urlFor "report-payment-detail"}}' {{#unless settled}}class='highlight'{{/unless}}>{{itemNames}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></a></li>
       {{/each}}
       {{#unless outgoingPayments}}
       <li>Zilch!</li>
       {{/unless}}
     </ul>
-    <p>total: <span class="pull-right">${{#round}}{{outgoingTotal}}{{/round}}</span></p>
-    <h2>net total: <span class='pull-right'>${{#round}}{{outgoingTotal}}{{/round}} - ${{#round}}{{incomingTotal}}{{/round}} = ${{#round}}{{netTotal}}{{/round}}</span></h2>
+    <h2>Receives $$ for:</h2>
+    <ul>
+      {{#each incomingPayments}}
+      <li><a data-link href='{{urlFor "report-payment-detail"}}' {{#unless settled}}class='highlight'{{/unless}}>{{itemNames}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></a></li>
+      {{/each}}
+      {{#unless incomingPayments}}
+      <li>Nothin'!</li>
+      {{/unless}}
+    </ul>
+    <h2>balance: <span class='pull-right'>${{#round}}{{balance}}{{/round}}</span></h2>
     {{/each}}
   </div>
 </template>

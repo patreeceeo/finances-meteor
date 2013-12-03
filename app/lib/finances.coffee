@@ -10,7 +10,18 @@ log =
   write: ->
     console.debug.apply console, arguments
 
-@finances ?= {}
+@finances ?= 
+  concatNames: (list) ->
+    (o.name for o in list).join('/')
+
+pstr = (doc) ->
+  (new finances.Payment doc).toString()
+istr = (doc) ->
+  (new finances.Item doc).toString()
+astr = (doc) ->
+  (new finances.Account doc).toString()
+ustr = (doc) ->
+  (new finances.Usage doc).toString()
 
 if not _?
   _ = Package?.underscore._
@@ -18,30 +29,32 @@ if not _?
 class finances.Base
   constructor: (doc) ->
     _.extend this, doc 
-  findOne: (Collection, selector) ->
-    Collection.findOne selector
+  findOne: (Collection, selector, options) ->
+    extendedSelector = _.extend _(selector).clone(),
+      scenario: @scenario or @_id
+    Collection.findOne extendedSelector, options
   find: (Collection, selector = {}, options = {}) ->
     extendedSelector = _.extend _(selector).clone(),
       scenario: @scenario or @_id
     Collection.find(extendedSelector, options)
-  _scenario: (selector = @scenario) ->
-    @findOne ScenarioCollection, selector
-  _account: (selector = @account) ->
-    @findOne AccountCollection, selector
+  _scenario: (selector = @scenario, options = {}) ->
+    @findOne ScenarioCollection, selector, options
+  _account: (selector = @account, options = {}) ->
+    @findOne AccountCollection, selector, options
   _accounts: (selector, options = {}) ->
-    @find AccountCollection, selector
-  _item: (selector = @item) ->
-    @findOne ItemCollection, selector
+    @find AccountCollection, selector, options
+  _item: (selector = @item, options = {}) ->
+    @findOne ItemCollection, selector, options
   _items: (selector, options = {}) ->
-    @find ItemCollection, selector
-  _payment: (selector = @payments) ->
-    @findOne PaymentCollection, selector
+    @find ItemCollection, selector, options
+  _payment: (selector = @payments, options = {}) ->
+    @findOne PaymentCollection, selector, options
   _payments: (selector, options = {}) ->
-    @find PaymentCollection, selector
-  _usage: (selector = @usage) ->
-    @findOne UsageCollection, selector
+    @find PaymentCollection, selector, options
+  _usage: (selector = @usage, options = {}) ->
+    @findOne UsageCollection, selector, options
   _usages: (selector, options = {}) ->
-    @find UsageCollection, selector
+    @find UsageCollection, selector, options
   add: (Collection, document) ->
     extendedDocument = _.extend _(document).clone(), 
       scenario: @scenario or @_id
@@ -90,16 +103,18 @@ class finances.Scenario extends finances.Base
       toAccount: attributes.toAccount
 
     if payment
-      log.write "increase #{(new Payment payment).toString()} by $#{attributes.amount}"
+      log.write "combine #{pstr(attributes)} with existing #{pstr(payment)}"
       if attributes.amount
         payment.amount += attributes.amount
       if attributes.items?
-        payment.items.concat attributes.items
+        payment.items = payment.items.concat attributes.items
       @updatePayment payment
       payment
     else
+      log.write "add #{pstr(attributes)}"
       @addPayment attributes
   addInternalPayments: ->
+    console.count('addInternalPayments')
     @_items().forEach (item) =>
       users = []
       @_usages(item: item._id).forEach (usage) =>
@@ -118,6 +133,7 @@ class finances.Scenario extends finances.Base
       undefined
     undefined
   simplifyPayments: ->
+    console.count('simplifyPayments')
     # Simplify the payment graph as much as
     # possible without changing the ultimate
     # flow of $$$.
@@ -163,26 +179,17 @@ class finances.Scenario extends finances.Base
 
         if p.amount is p2.amount
           if p.fromAccount isnt p2.toAccount
-            log.write "redirect #{(new Payment p).toString()} to #{@_account(p2.toAccount).name}"
+            log.write "redirect #{pstr p} to #{@_account(p2.toAccount).name}"
             p.toAccount = p2.toAccount
             @updatePayment p
           else
-            log.write "delete #{(new Payment p).toString()}"
+            log.write "delete loopback: #{pstr p}"
             p.obviated = true
             @updatePayment p
-          log.write "delete #{(new Payment p).toString()}"
+          log.write "delete 2nd equal edge: #{pstr p2}"
           p2.obviated = true
           @updatePayment p2
         else
-          minflow = Math.min(p.amount, p2.amount)
-
-          if p.fromAccount isnt p2.toAccount
-            newp = @addOrIncreasePayment
-              fromAccount: p.fromAccount
-              toAccount: p2.toAccount
-              amount: minflow
-              settled: false
-          
           if p.amount > p2.amount
             larger = p
             smaller = p2
@@ -190,15 +197,20 @@ class finances.Scenario extends finances.Base
             larger = p2
             smaller = p
 
-          if larger.amount > minflow
-            log.write "decrease #{(new Payment larger).toString()} by $#{minflow}"
-            larger.amount -= minflow
-            @updatePayment larger
-          else
-            log.write "delete #{(new Payment larger).toString()}"
-            larger.obviated = true
-            @updatePayment larger
-          log.write "delete #{(new Payment smaller).toString()}"
+          minflow = smaller.amount
+
+          if p.fromAccount isnt p2.toAccount
+            @addOrIncreasePayment
+              fromAccount: p.fromAccount
+              items: p.items
+              toAccount: p2.toAccount
+              amount: minflow
+              settled: false
+          
+          log.write "decrease larger #{pstr larger} by $#{minflow}"
+          larger.amount -= minflow
+          @updatePayment larger
+          log.write "delete smaller #{pstr smaller}"
           smaller.obviated = true
           @updatePayment smaller
 
@@ -210,6 +222,9 @@ class finances.Scenario extends finances.Base
 class finances.Item extends finances.Base
   clone: (name) ->
     @add ItemCollection, name: name, amount: @amount
+  toString: ->
+    "#{@name} ($#{@amount})"
+
 
 class finances.Account extends finances.Base
   addPayment: (document) ->
@@ -217,6 +232,7 @@ class finances.Account extends finances.Base
   addUsage: (document) ->
     new finances.Usage @add UsageCollection, document
   pays: (item, percent = 100) ->
+    log.write "#{@toString()} pays for #{istr(item)}"
     @addPayment
       items: [item._id]
       percent: percent
@@ -224,19 +240,23 @@ class finances.Account extends finances.Base
       settled: true
       amount: @_item(item).amount
   uses: (item) ->
+    log.write "#{@toString()} uses #{istr(item)}"
     @addUsage
       item: item._id
       fromAccount: @_id
   paysAndUses: (item, percent = 100) ->
     @pays(item, percent)
     @uses(item)
+  # TODO: deprecate
   crunch: ->
     total = 0
     @_payments(fromAccount: @_id, settled: false).forEach (p) ->
-      log.write "include in total #{(new Payment p).toString()}"
+      log.write "include in total #{pstr(p)}"
       total += p.amount
     total: total
-
+  toString: ->
+    @name
+  
 Payment =
 class finances.Payment extends finances.Base
   vivifyAssociates: ->
@@ -260,7 +280,7 @@ class finances.Payment extends finances.Base
     } to #{
       @_toAccount()?.name
     } for #{
-      @_item()?.name
+      finances.concatNames(@_item(item) for item in @items or [])
     } ($#{
       @amount
     })"""
@@ -278,19 +298,18 @@ _.extend finances,
       r = x - Math.floor(x)
       Math.round r * (max - min) + min
   testScenario: (seed) ->
+    console.count('testScenario')
     scenario = new finances.Scenario 
       name: "test ##{seed}"
       _id: "#{seed}"
     random = @getPRNG(seed)
     totalPayments = 0
 
-    nUsers = random(2, 10)
-    nPayers = random(2, 10)
+    nAccounts = random(2, 5)
+    nUsers = random(1, nAccounts)
+    nPayers = random(1, nAccounts)
 
-    nAccounts = do ->
-      min = Math.max(nUsers, nPayers)
-      random(min, nUsers + nPayers)
-    nItems = random(Math.max(nUsers, nPayers), nAccounts * 3)
+    nItems = random(Math.max(nUsers, nPayers), nAccounts * 2)
 
     accounts =
     for i in [1..nAccounts]
@@ -300,7 +319,7 @@ _.extend finances,
     for i in [1..nItems]
       scenario.addItem
         name: "item #{i}"
-        amount: random(2, 100)
+        amount: random(1, 100)
 
     for own index, item of items
       payerIndex = index % nPayers

@@ -15,15 +15,14 @@ _.extend Template['item-detail-form'], do ->
     users
   payers = ->
     accounts = []
-    currentScenario._payments(items: itemId()).forEach (payment) ->
+    currentScenario._payments(items: itemId(), settled: true).forEach (payment) ->
       account = currentScenario._account(payment.fromAccount)
       account.payment = payment._id
       accounts.push(account) if account?
     accounts 
   account = ->
     accountIndexDep.depend()
-    accounts = currentScenario._accounts().fetch()
-    new finances.Account accounts[accountIndex]
+    new finances.Account(currentScenario._account({}, skip: accountIndex))
 
   created: ->
     accountIndex = 0
@@ -33,6 +32,17 @@ _.extend Template['item-detail-form'], do ->
   users: users
   payers: payers
   account: account
+  action: ->
+    retval = null
+    if currentScenario._payment(items: itemId(), fromAccount: account()._id, settled: true)?
+      retval = 'pays'
+    if currentScenario._usage(item: itemId(), fromAccount: account()._id)
+      retval =
+      if retval is 'pays'
+        'pays and uses'
+      else
+        'uses'
+    retval  
   events: do ->
     accountEvent = (fn) ->
       (e) ->
@@ -51,18 +61,20 @@ _.extend Template['item-detail-form'], do ->
             scenario: currentScenario._id
         accountIndexDep.changed()
 
-
     'click [data-use-drop-zone]': accountEvent ->
       if not currentScenario._usage(
           item: itemId()
           fromAccount: account()._id)?
-        account()?.uses item()
+        account().uses item()
     'click [data-pay-drop-zone]': accountEvent ->
       if not currentScenario._payment(items: itemId())?
-        account()?.pays item()
+        account().pays item()
     'click [data-both-drop-zone]': accountEvent ->
-      if not currentScenario._payment(items: itemId())?
-        account()?.paysAndUses item()
+      if not currentScenario._payment(items: itemId())? and 
+          not currentScenario._usage(
+            item: itemId()
+            fromAccount: account()._id)?
+        account().paysAndUses item()
     'click [data-nothing-drop-zone]': accountEvent ->
     'click [data-remove-button][data-usage]': (e) ->
       currentScenario.removeUsage $(e.target).data().usage
