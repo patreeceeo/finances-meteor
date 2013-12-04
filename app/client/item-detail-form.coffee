@@ -1,10 +1,8 @@
 _.extend Template['item-detail-form'], do ->
-  accountIndex = 0
   itemId = ->
     Router.getData().itemId
   item = ->
     currentScenario._item itemId()
-  accountIndexDep = new Deps.Dependency
 
   users = ->
     users = []
@@ -20,62 +18,38 @@ _.extend Template['item-detail-form'], do ->
       account.payment = payment._id
       accounts.push(account) if account?
     accounts 
-  account = ->
-    accountIndexDep.depend()
-    new finances.Account(currentScenario._account({}, skip: accountIndex))
 
   created: ->
     accountIndex = 0
     Session.set 'message', ""
   message: -> Session.get 'message'
   item: item
-  users: users
-  payers: payers
-  account: account
-  action: ->
-    retval = null
-    if currentScenario._payment(items: itemId(), fromAccount: account()._id, settled: true)?
-      retval = 'pays'
-    if currentScenario._usage(item: itemId(), fromAccount: account()._id)
-      retval =
-      if retval is 'pays'
-        'pays and uses'
-      else
-        'uses'
-    retval  
-  events: do ->
-    accountEvent = (fn) ->
-      (e) ->
-        e.stopPropagation?()
-        fn.call(this)
-        accountIndex++
-        if accountIndex >= currentScenario._accounts().count()
-          accountIndex = 0
-          itemIds = currentScenario._items().map (item) ->
-            item._id
-          index = _(itemIds).indexOf(itemId()) + 1
-          if index >= itemIds.length
-            index = 0
-          Router.go 'item-detail-form', 
-            _id: itemIds[index]
-            scenario: currentScenario._id
-        accountIndexDep.changed()
+  accounts: ->
+    for account in currentScenario._accounts().fetch()
+      debugger
+      account.pays = currentScenario._payment(fromAccount: account._id, items: item()._id)?
+      account.uses = currentScenario._usage(fromAccount: account._id, item: item()._id)?
+      account
 
-    'click [data-use-drop-zone]': accountEvent ->
-      if not currentScenario._usage(
-          item: itemId()
-          fromAccount: account()._id)?
-        account().uses item()
-    'click [data-pay-drop-zone]': accountEvent ->
-      if not currentScenario._payment(items: itemId())?
-        account().pays item()
-    'click [data-both-drop-zone]': accountEvent ->
-      if not currentScenario._payment(items: itemId())? and 
-          not currentScenario._usage(
-            item: itemId()
-            fromAccount: account()._id)?
-        account().paysAndUses item()
-    'click [data-nothing-drop-zone]': accountEvent ->
+  events: do ->
+    'click input[type=checkbox]': (e) ->
+      $el = $(e.target)
+      checked = $el.prop 'checked'
+      account = new finances.Account currentScenario._account($el.data 'account')
+      action = $el.data 'action'
+      if checked
+        if action is 'pays'
+          account.pays item()
+        else
+          account.uses item()
+      else
+        debugger
+        if action is 'pays'
+          payment = currentScenario._payment fromAccount: account._id, items: item()._id
+          PaymentCollection.remove payment?._id
+        if action is 'uses'
+          usage = currentScenario._usage fromAccount: account._id, item: item()._id
+          UsageCollection.remove usage?._id
     'click [data-remove-button][data-usage]': (e) ->
       currentScenario.removeUsage $(e.target).data().usage
     'click [data-remove-button][data-payment]': (e) ->

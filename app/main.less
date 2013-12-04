@@ -81,8 +81,19 @@ cite {
   a[data-link] {
     text-decoration: underline;
   }
-  a[data-reset-button]:hover {
-    background-color: @danger-color;
+  a[data-reset-button] {
+    width: 25%;
+    &:hover {
+      background-color: @danger-color;
+    }
+  }
+}
+
+.call-to-action-row {
+  text-align: center;
+  a[type=button] {
+    min-width: 50%;
+    max-width: 100%;
   }
 }
 
@@ -100,10 +111,8 @@ cite {
     margin-bottom: 1em;
   }
 
-  input {
+  input, select {
     font-size: 1em;
-    height: 1.5em;
-    -webkit-appearance: none;
     padding: 0;
     border: 0;
     box-sizing: border-box;
@@ -115,18 +124,37 @@ cite {
     border-right: 3px solid lighten(#aea, 10%);
   }
 
+  input {
+    height: 1.5em;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+
+  input[type=checkbox] {
+    width: 1.5em;
+    vertical-align: middle;
+    border-bottom: 3px solid darken(#aea, 30%);
+    border-right: 3px solid darken(#aea, 30%);
+    border-top: 3px solid lighten(#aea, 10%);
+    border-left: 3px solid lighten(#aea, 10%);
+    cursor: pointer;
+    &:checked {
+      background-color: darken(#aea, 10%);
+      border-top: 3px solid darken(#aea, 30%);
+      border-left: 3px solid darken(#aea, 30%);
+      border-bottom: 3px solid lighten(#aea, 10%);
+      border-right: 3px solid lighten(#aea, 10%);
+    }
+  }
+  
   a[data-remove-button]:hover {
     background-color: @danger-color;
   }
 }
 
 #home {
-  .call-to-action-row {
-    text-align: center;
-  }
   font-size: 2em;
-  a[data-start-button] {
-    width: 50%;
+  [data-start-button] {
     font-size: 1.5em;
   }
   ul {
@@ -168,21 +196,14 @@ cite {
 }
 
 
-#account-form {
+form {
   input, a[data-link] {
     display: inline-block;
   }
 }
 
 #item-form {
-  a[data-link] {
-    display: inline-block;
-  }
-  [data-input=name] {
-    display: inline-block;
-  }
   [data-input=amount] {
-    display: inline-block;
     text-align: right;
   }
   span {

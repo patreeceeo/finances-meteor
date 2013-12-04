@@ -1,6 +1,6 @@
 ideas:
 
-show payments grouped by account and item
+when combining or subtracting payments, set the payments name to reflect the Arithmetic
 payment gateways integration.
 make it easy to make a charitable payment to a non-profit while using the app.
 add scenario detail page that shows the creator and collaborators, a reset button, and links to the scenario-form, items-form, accounts-form and report

@@ -27,13 +27,11 @@
       <p>Simplify, simplify, simplify!</p>
       <cite>Thoreau</cite>
     </blockquote>
-    <p>If you're</p>
+    <p>If you're frequently &mdash;</p>
     <ul>
       <li>Owed money</li>
       <li>Owing money</li>
-      <li>All the above</li>
-    </ul>
-    <p>This app can help. While it won't make money magically appear in your bank account (slated for version 2.0), it will tell you the simplest way to give everyone what they're owed. Or it can be used to make sure you did it fairly.</p> 
+      <li>All theout of thin air    <p>&mdash; this app can take out some of the headache. While it won't make money appear out of thin air (slated for version 2.0), it will tell you the simplest way to give everyone (roommates, flatmates, co-conspirators) the money they're owed.</p> 
     <div class='call-to-action-row'>
       <a data-start-button type=button class='center'>Get Started!</a>
     </div>
@@ -86,15 +84,10 @@
 <template name='global-menu'>
   <div id='global-menu' class='clearfix'>
     {{#if user}}
-    <a data-logout-button type=button class="pull-left">log out</a>
+    <a data-logout-button type=button class="pull-right">log out</a>
     {{/if}}
-    {{#if scenario}}
-    <a data-reset-button type=button class="pull-left" title='Clear all data and start over'>reset &times;</a>
-    {{/if}}
-    <h1>{{#if scenario}}&ldquo;{{scenario.name}}&rdquo; by {{/if}}{{#if creator}}{{creator.username}}{{/if}}</h1>
+    <h1>{{#with scenario}}<a href='{{urlFor "scenario-detail"}}' data-link>&ldquo;{{scenario.name}}&rdquo;</a> by {{/with}}{{#if creator}}{{creator.username}}{{/if}}</h1>
     <p data-flash-message class='pull-left'>{{message}}</p>
-    <a data-next-button type=button class='pull-right {{#if nextButtonDisabled}}disabled{{/if}}'>next &gt;</a>
-    <a data-up-button type=button class='pull-right {{#if upButtonDisabled}}disabled{{/if}}'>up ^</a>
   </div> 
 </template>
 
@@ -130,8 +123,20 @@
   </div>
 </template>
 
-<template name="account-form">
+<template name='scenario-detail'>
   {{> global-menu}}
+  {{> account-form}}
+  <br>
+  {{> item-form}}
+  <br>
+  <div class="center page call-to-action-row">
+    {{#with scenario}}
+    <a href="{{urlFor 'report'}}" type=button>crunch those #s!</a>
+    {{/with}}
+  </div>
+</template>
+
+<template name="account-form">
   <form id='account-form' class='center page'>
     <h1>Who's involved?</h1>
     <ul>
@@ -147,8 +152,14 @@
   </form>
 </template>
 
+<template name='account-detail-form'>
+  {{> global-menu }}
+  {{> payment-form }}
+  <br>
+  {{> usage-form}}
+</template>
+
 <template name="item-form">
-  {{> global-menu}}
   <form id='item-form' class='center page'>
     <h1>What's involved?</h1>
     <ul>
@@ -167,24 +178,22 @@
 <template name='item-detail-form'>
   {{> global-menu}}
   <form id='item-detail-form' class='center page'>
-    {{#if account}}
-    <h1>Fill in the blank:</h1>
-    <h1>{{account.name}} _____ {{item.name}}.</h1>
-    <a data-use-drop-zone type=button>used</a>{{#unless payers}}<a data-both-drop-zone type=button>used &amp; paid for</a><a data-pay-drop-zone type=button>paid for</a>{{/unless}}<a data-nothing-drop-zone type=button>did nothing with</a>
-    {{/if}}
-    {{#unless account}}
-    <h1>Looks like we're done here!</h1>
-    {{/unless}}
-    <h1>The story of {{item.name}}:</h1>
-    <ul data-story>
-      {{#each users}}
-      <li><a data-story-item data-link>{{name}} used {{item.name}}</a><a data-usage='{{usage}}' data-remove-button type=button>&times;</a></li>
-      {{/each}}
-      {{#each payers}}
-      <li><a data-story-item data-link>{{name}} paid for {{item.name}}</a><a data-payment='{{payment}}' data-remove-button type=button>&times;</a></li>
-      {{/each}}
-    </ul>
+    <h1>What's the deal with {{item.name}}? Check all that apply.</h1>
+    {{#each accounts}}
+      <h2>{{name}}:</h2>
+      <p><input type=checkbox data-action="uses" data-account='{{_id}}' {{#if pays}}checked{{/if}} /><label>used {{item.name}}.</label></p>
+      <p><input type=checkbox data-action="pays" data-account='{{_id}}' {{#if uses}}checked{{/if}} /><label>paid $<input type=number min=0 max={{item.amount}}> for {{item.name}}.</label></p>
+    {{/each}}
   </form>
+</template>
+
+<template name='payment-detail-form'>
+  {{> global-menu}}
+  {{> item-form}}
+</template>
+
+<template name='usage-detail-form'>
+  {{> global-menu}}
 </template>
 
 <template name='report'>

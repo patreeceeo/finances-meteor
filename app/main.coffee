@@ -34,7 +34,7 @@ redirectAnonymous = ->
 
 root = this
 loadCurrentScenario = ->
-  scenarioId = @params.scenario
+  scenarioId = @params.scenario or @params._id
   scenario = ScenarioCollection.findOne scenarioId
   if scenario?
     root.currentScenario = new finances.Scenario
@@ -70,13 +70,10 @@ Router.map ->
       page: 'account-form'
       nextPage: 'item-form'
 
-  # todo: stop lying
   @route 'scenario-detail',
-    path: '/:_id/accounts'
+    path: '/:_id'
     data: ->
       scenarioId: @params._id
-      page: 'account-form'
-      nextPage: 'item-form'
 
 
   @route 'item-form',
@@ -96,7 +93,7 @@ Router.map ->
       nextPage: 'report'
 
   @route 'report',
-    path: '/:scenario/report'
+    path: '/:_id/report'
 
   @route 'report-payment-detail',
     path: '/:scenario/report/:_id'

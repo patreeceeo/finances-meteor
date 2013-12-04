@@ -11,13 +11,10 @@ _.extend Template['item-form'],
     item = {}
     addItem = (e) ->
       if item.amount > 0 and item.name isnt ''
-        currentScenario.addItem item
-        Session.set 'message', 'Note: click an item to add people'
-        do ->
-          parent = $(e.target).parent()
-          parent.find('input').val ''
-          parent.find('input[type=text]').focus()
-        item = {}
+        {_id: _id} = currentScenario.addItem item
+        Router.go 'item-detail-form',
+          scenario: currentScenario._id
+          _id: _id
       else
         Session.set 'message', 'Note: enter name and price'
     removeItem = (e) ->
