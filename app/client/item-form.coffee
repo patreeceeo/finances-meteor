@@ -3,7 +3,7 @@ Template['item-form'].preserve ['input[type=text]', 'input[type=number]']
 
 _.extend Template['item-form'],
   items: -> 
-    currentScenario._items()
+    ItemCollection.find()
   message: -> Session.get 'message'
   created: ->
     Session.set 'message', ''
@@ -11,7 +11,7 @@ _.extend Template['item-form'],
     item = {}
     addItem = (e) ->
       if item.amount > 0 and item.name isnt ''
-        {_id: _id} = currentScenario.addItem item
+        _id = ItemCollection.insert _.extend(item, scenario: currentScenario._id)
         Router.go 'item-detail-form',
           scenario: currentScenario._id
           _id: _id

@@ -1,28 +1,10 @@
 
 _.extend Template['global-menu'], do ->
-  page = -> Router.getData().page
-  nextPage = -> Router.getData().nextPage
-  upPage = -> Router.getData().upPage
-
-  nextButtonDisabled = ->
-    not nextPage()? or
-    switch page()
-      when 'item-form'
-        currentScenario?._items().count() < 1
-      when 'item-detail-form'
-        currentScenario?._items().count() < 1
-      when 'account-form'
-        currentScenario?._accounts().count() < 2
-      else 
-        false
-  upButtonDisabled = -> not upPage()?
   creator = ->
     Meteor.users.findOne(currentScenario?.user)
   rendered: ->
     if currentScenario?
       $('head title').text "“#{currentScenario.name}” by #{creator().username} - Divvy"
-  nextButtonDisabled: nextButtonDisabled
-  upButtonDisabled: upButtonDisabled
   message: -> Session.get 'message'
   scenario: ->
     if currentScenario?

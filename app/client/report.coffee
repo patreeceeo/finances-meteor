@@ -9,17 +9,17 @@ _.extend Template['report'],
         currentScenario.simplifyPayments() 
   message: -> Session.get 'message'
   externalPayments: ->
-    for payment in currentScenario._payments(settled: true).fetch()
+    for payment in PaymentCollection.find(settled: true).fetch()
       payment = new finances.Payment payment
       payment.vivifyAssociates()
   unsettledPayments: ->
-    for payment in currentScenario._payments(settled: false).fetch()
+    for payment in PaymentCollection.find(settled: false).fetch()
       payment = new finances.Payment payment
       payment.vivifyAssociates()
   accounts: -> 
     concatItemNames = (items) ->
       (for _id in items
-          currentScenario._item(_id).name
+          ItemCollection.findOne(_id).name
       ).join('/')
     s = currentScenario
 

@@ -96,7 +96,7 @@ Router.map ->
   @route 'item-detail-form',
     path: 'scenarios/:scenario/items/:_id'
     data: ->
-      item = currentScenario._item(@params._id)
+      item = ItemCollection.findOne(@params._id)
       if item?
         scenarioId: @params.scenario
         item: item
@@ -107,7 +107,7 @@ Router.map ->
   @route 'report-payment-detail',
     path: 'scenarios/:scenario/report/:_id'
     data: ->
-      payment = currentScenario._payment(@params._id)
+      payment = PaymentCollection.findOne(@params._id)
       if payment?
         scenarioId: @params.scenario
         payment: payment

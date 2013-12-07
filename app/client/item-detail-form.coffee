@@ -4,15 +4,15 @@ _.extend Template['item-detail-form'], do ->
 
   users = ->
     users = []
-    currentScenario._usages(item: item()._id).forEach (usage) =>
-      user = currentScenario._account(usage.fromAccount)
+    UsageCollection.find(item: item()._id).forEach (usage) =>
+      user = AccountCollection.findOne(usage.fromAccount)
       user.usage = usage._id
       users.push(user) if user?
     users
   payers = ->
     accounts = []
-    currentScenario._payments(items: item()._id, settled: true).forEach (payment) ->
-      account = currentScenario._account(payment.fromAccount)
+    PaymentCollection.find(items: item()._id, settled: true).forEach (payment) ->
+      account = AccountCollection.findOne(payment.fromAccount)
       account.payment = payment._id
       accounts.push(account) if account?
     accounts 
@@ -23,11 +23,11 @@ _.extend Template['item-detail-form'], do ->
   message: -> Session.get 'message'
   item: item
   accounts: ->
-    for account in currentScenario._accounts().fetch()
-      payment = currentScenario._payment(fromAccount: account._id, items: item()._id, settled: true)
+    for account in AccountCollection.find().fetch()
+      payment = PaymentCollection.findOne(fromAccount: account._id, items: item()._id, settled: true)
       account.pays = payment?
 
-      usage = currentScenario._usage(fromAccount: account._id, item: item()._id)
+      usage = UsageCollection.findOne(fromAccount: account._id, item: item()._id)
       account.uses = usage?
 
       account
@@ -36,7 +36,7 @@ _.extend Template['item-detail-form'], do ->
     'click input[type=checkbox]': (e) ->
       $el = $(e.target)
       checked = $el.prop 'checked'
-      account = new finances.Account currentScenario._account($el.data 'account')
+      account = new finances.Account AccountCollection.findOne($el.data 'account')
       action = $el.data 'action'
       if checked
         if action is 'pays'
@@ -48,7 +48,3 @@ _.extend Template['item-detail-form'], do ->
           Meteor.call 'removePayments', fromAccount: account._id, items: item()._id, settled: true
         if action is 'uses'
           Meteor.call 'removeUsages', fromAccount: account._id, item: item()._id
-    'click [data-remove-button][data-usage]': (e) ->
-      currentScenario.removeUsage $(e.target).data().usage
-    'click [data-remove-button][data-payment]': (e) ->
-      currentScenario.removePayment $(e.target).data().payment 

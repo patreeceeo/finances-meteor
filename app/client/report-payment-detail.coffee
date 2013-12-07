@@ -4,12 +4,12 @@ _.extend Template['report-payment-detail'], do ->
 
   payment: payment
   fromAccount: ->
-    currentScenario._account(payment().fromAccount)
+    AccountCollection.findOne(payment().fromAccount)
   toAccount: ->
-    currentScenario._account(payment().toAccount)
+    AccountCollection.findOne(payment().toAccount)
   items: ->
     for item in payment().items
-      currentScenario._item(item)
+      ItemCollection.findOne(item)
 
 
 
