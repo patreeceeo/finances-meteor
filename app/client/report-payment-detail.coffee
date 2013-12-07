@@ -1,6 +1,7 @@
 _.extend Template['report-payment-detail'], do ->
   payment = ->
-    currentScenario._payment(Router.getData().paymentId)
+    Router.getData().payment
+
   payment: payment
   fromAccount: ->
     currentScenario._account(payment().fromAccount)

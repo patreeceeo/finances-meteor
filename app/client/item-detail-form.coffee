@@ -1,19 +1,17 @@
 _.extend Template['item-detail-form'], do ->
-  itemId = ->
-    Router.getData().itemId
   item = ->
-    currentScenario._item itemId()
+    Router.getData().item
 
   users = ->
     users = []
-    currentScenario._usages(item: itemId()).forEach (usage) =>
+    currentScenario._usages(item: item()._id).forEach (usage) =>
       user = currentScenario._account(usage.fromAccount)
       user.usage = usage._id
       users.push(user) if user?
     users
   payers = ->
     accounts = []
-    currentScenario._payments(items: itemId(), settled: true).forEach (payment) ->
+    currentScenario._payments(items: item()._id, settled: true).forEach (payment) ->
       account = currentScenario._account(payment.fromAccount)
       account.payment = payment._id
       accounts.push(account) if account?

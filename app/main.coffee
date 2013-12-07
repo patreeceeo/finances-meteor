@@ -51,10 +51,12 @@ loadCurrentScenario = ->
       root.currentScenario._id = scenarioId
       _.extend root.currentScenario, scenario
     else
-      Router.go 'scenario-form'
+      @render 'not-found'
+      @stop()
 
 Router.configure
   loadingTemplate: 'loading'
+  notFoundTemplate: 'not-found'
 
 Router.before loadCurrentScenario, except: ['home', 'login', 'create-account', 'admin-login', 'admin', 'scenario-form', 'find-scenario']
 Router.before redirectAnonymous, except: ['home', 'login', 'create-account', 'admin-login', 'admin']
@@ -76,42 +78,39 @@ Router.map ->
     before: loadAllScenarios
 
   @route 'account-form',
-    path: '/:scenario/accounts'
+    path: 'scenarios/:scenario/accounts'
     data: ->
       scenarioId: @params.scenario
-      page: 'account-form'
-      nextPage: 'item-form'
 
   @route 'scenario-detail',
-    path: '/:_id'
+    path: 'scenarios/:_id'
     data: ->
       scenarioId: @params._id
 
 
   @route 'item-form',
-    path: '/:scenario/items'
+    path: 'scenarios/:scenario/items'
     data: ->
       scenarioId: @params.scenario
-      page: 'item-form'
-      nextPage: 'report'
 
   @route 'item-detail-form',
-    path: '/:scenario/item/:_id'
+    path: 'scenarios/:scenario/items/:_id'
     data: ->
-      scenarioId: @params.scenario
-      itemId: @params._id
-      page: 'item-detail-form'
-      upPage: 'item-form'
-      nextPage: 'report'
+      item = currentScenario._item(@params._id)
+      if item?
+        scenarioId: @params.scenario
+        item: item
 
   @route 'report',
-    path: '/:_id/report'
+    path: 'scenarios/:_id/report'
 
   @route 'report-payment-detail',
-    path: '/:scenario/report/:_id'
+    path: 'scenarios/:scenario/report/:_id'
     data: ->
-      scenarioId: @params.scenario
-      paymentId: @params._id
+      payment = currentScenario._payment(@params._id)
+      if payment?
+        scenarioId: @params.scenario
+        payment: payment
 
   @route 'admin-login'
 
@@ -122,6 +121,7 @@ Router.map ->
         Meteor.call 'getAdminCreds', (error, result) =>
           if adminUser isnt result.pretzel
             @redirect 'admin-login'
+
 
 
 
