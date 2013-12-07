@@ -26,6 +26,8 @@ if Meteor.isServer
         UsageCollection.remove selector
       removePayments: (selector) ->
         PaymentCollection.remove(selector)
+      removeUsages: (selector) ->
+        UsageCollection.remove(selector)
       removeAccount: (_id) ->
         UsageCollection.remove(fromAccount: _id)
         PaymentCollection.remove(fromAccount: _id)

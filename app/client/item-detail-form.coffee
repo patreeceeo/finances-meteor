@@ -26,9 +26,12 @@ _.extend Template['item-detail-form'], do ->
   item: item
   accounts: ->
     for account in currentScenario._accounts().fetch()
-      debugger
-      account.pays = currentScenario._payment(fromAccount: account._id, items: item()._id)?
-      account.uses = currentScenario._usage(fromAccount: account._id, item: item()._id)?
+      payment = currentScenario._payment(fromAccount: account._id, items: item()._id, settled: true)
+      account.pays = payment?
+
+      usage = currentScenario._usage(fromAccount: account._id, item: item()._id)
+      account.uses = usage?
+
       account
 
   events: do ->
@@ -43,13 +46,10 @@ _.extend Template['item-detail-form'], do ->
         else
           account.uses item()
       else
-        debugger
         if action is 'pays'
-          payment = currentScenario._payment fromAccount: account._id, items: item()._id
-          PaymentCollection.remove payment?._id
+          Meteor.call 'removePayments', fromAccount: account._id, items: item()._id, settled: true
         if action is 'uses'
-          usage = currentScenario._usage fromAccount: account._id, item: item()._id
-          UsageCollection.remove usage?._id
+          Meteor.call 'removeUsages', fromAccount: account._id, item: item()._id
     'click [data-remove-button][data-usage]': (e) ->
       currentScenario.removeUsage $(e.target).data().usage
     'click [data-remove-button][data-payment]': (e) ->
