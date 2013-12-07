@@ -17,7 +17,19 @@ if Meteor.isServer
     ItemCollection = new Meteor.Collection 'items'
     PaymentCollection = new Meteor.Collection 'payments'
     UsageCollection = new Meteor.Collection 'usages'
- 
+
+    Meteor.publish 'scenarios', (selector) ->
+      console.log 'scenarios', ScenarioCollection.find(selector).fetch()
+      ScenarioCollection.find(selector)
+    Meteor.publish 'accounts', (selector) ->
+      AccountCollection.find(selector)
+    Meteor.publish 'items', (selector) ->
+      ItemCollection.find(selector)
+    Meteor.publish 'payments', (selector) ->
+      PaymentCollection.find(selector)
+    Meteor.publish 'usages', (selector) ->
+      UsageCollection.find(selector)
+
     Meteor.methods
       reset: (selector) ->
         AccountCollection.remove selector

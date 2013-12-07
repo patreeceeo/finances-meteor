@@ -28,20 +28,30 @@ if Meteor.isClient
     Session.setDefault 'user', false
 
 redirectAnonymous = ->
-  if not Meteor.user()?
-    @render 'login'
-    @stop()
+  if @ready()
+    if not Meteor.user()?
+      @render 'login'
+      @stop()
 
 root = this
+loadAllScenarios = ->
+  @subscribe('scenarios', {}).wait()
+
 loadCurrentScenario = ->
   scenarioId = @params.scenario or @params._id
-  scenario = ScenarioCollection.findOne scenarioId
-  if scenario?
-    root.currentScenario = new finances.Scenario
-    root.currentScenario._id = scenarioId
-    _.extend root.currentScenario, scenario
-  else
-    Router.go 'scenario-form'
+  @subscribe('scenarios', scenarioId).wait()
+  @subscribe('accounts', scenario: scenarioId).wait()
+  @subscribe('items', scenario: scenarioId).wait()
+  @subscribe('payments', scenario: scenarioId).wait()
+  @subscribe('usages', scenario: scenarioId).wait()
+  if @ready() 
+    scenario = ScenarioCollection.findOne()
+    if scenario?
+      root.currentScenario = new finances.Scenario
+      root.currentScenario._id = scenarioId
+      _.extend root.currentScenario, scenario
+    else
+      Router.go 'scenario-form'
 
 Router.configure
   loadingTemplate: 'loading'
@@ -59,9 +69,11 @@ Router.map ->
 
   @route 'scenario-form',
     path: '/scenarios'
+    before: loadAllScenarios
 
   @route 'find-scenario',
     path: '/find-scenario'
+    before: loadAllScenarios
 
   @route 'account-form',
     path: '/:scenario/accounts'
