@@ -33,12 +33,12 @@ _.extend Template['report'],
 
       for payment in s._payments(fromAccount: account._id).fetch()
         account.balance -= payment.amount
-        payment.itemNames = concatItemNames(payment.items)
+        payment.itemNames = concatItemNames(payment.addItems)
         account.outgoingPayments.push payment
 
       for payment in s._payments(toAccount: account._id).fetch()
         account.balance += payment.amount
-        payment.itemNames = concatItemNames(payment.items)
+        payment.itemNames = concatItemNames(payment.addItems)
         account.incomingPayments.push payment
 
       for usage in s._usages(fromAccount: account._id).fetch()

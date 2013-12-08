@@ -8,7 +8,7 @@ _.extend Template['report-payment-detail'], do ->
   toAccount: ->
     AccountCollection.findOne(payment().toAccount)
   items: ->
-    for item in payment().items
+    for item in payment().addItems
       ItemCollection.findOne(item)
 
 

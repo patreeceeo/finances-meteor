@@ -37,8 +37,8 @@ describe "finances", ->
   it 'should track payments', ->
     a1.pays i1, 50
     a2.pays i1, 50
-    expect(s._payment(items: i1._id, fromAccount: a1._id)).toBeDefined()
-    expect(s._payment(items: i1._id, fromAccount: a2._id)).toBeDefined()
+    expect(s._payment(addItems: i1._id, fromAccount: a1._id)).toBeDefined()
+    expect(s._payment(addItems: i1._id, fromAccount: a2._id)).toBeDefined()
 
   describe 'when settling debts', ->
 

@@ -26,9 +26,6 @@ in older (mac os tiger) safari:
   scenario links don't work
   buttons after inputs are wrapped to next line
   &check; sequence isn't recognized
-in FF:
-  can't dismiss flash message w/ click
-  buttons after inputs are wrapped to next line
 in IE 7:
   SHOW-STOPPING ERROR: history.state.initial is null or not an object
 in IE 9:
@@ -41,9 +38,11 @@ in IE 10:
 
 tech debt:
 
+think about DB migration!
 merge mobile design with desktop design
 need more test coverage!
 come up with more intuitive naming conventions in lib/finances.coffee
+refactor collection wrapper functions in finances.coffee b/c of manual publishing
 
 
 

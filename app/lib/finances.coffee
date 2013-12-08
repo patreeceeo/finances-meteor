@@ -106,8 +106,8 @@ class finances.Scenario extends finances.Base
       log.write "combine #{pstr(attributes)} with existing #{pstr(payment)}"
       if attributes.amount
         payment.amount += attributes.amount
-      if attributes.items?
-        payment.items = payment.items.concat attributes.items
+      if attributes.addItems?
+        payment.addItems = payment.addItems.concat attributes.addItems
       @updatePayment payment
       payment
     else
@@ -121,11 +121,11 @@ class finances.Scenario extends finances.Base
         user = @_account(usage.fromAccount)
         users.push(user) if user?
         undefined
-      @_payments(items: item._id, settled: true).forEach (p) =>
+      @_payments(addItems: item._id, settled: true).forEach (p) =>
         for user in users when user._id isnt p.fromAccount
           @addOrIncreasePayment
             amount: item.amount / users.length
-            items: [item._id]
+            addItems: [item._id]
             toAccount: p.fromAccount
             fromAccount: user._id
             settled: false
@@ -202,7 +202,7 @@ class finances.Scenario extends finances.Base
           if p.fromAccount isnt p2.toAccount
             @addOrIncreasePayment
               fromAccount: p.fromAccount
-              items: p.items
+              addItems: p.addItems
               toAccount: p2.toAccount
               amount: minflow
               settled: false
@@ -234,7 +234,7 @@ class finances.Account extends finances.Base
   pays: (item, percent = 100) ->
     log.write "#{@toString()} pays for #{istr(item)}"
     @addPayment
-      items: [item._id]
+      addItems: [item._id]
       percent: percent
       fromAccount: @_id
       settled: true
@@ -262,13 +262,13 @@ class finances.Payment extends finances.Base
   vivifyAssociates: ->
     @fromAccount = @_account @fromAccount
     @toAccount = @_account @toAccount
-    @items = 
-    for item in @items or []
+    @addItems = 
+    for item in @addItems or []
       @_item item
     this
   addItem: (document) ->
     @amount += document.amount
-    @items.push document._id
+    @addItems.push document._id
   toString: ->
     """#{
     if @settled
@@ -280,7 +280,7 @@ class finances.Payment extends finances.Base
     } to #{
       @_toAccount()?.name
     } for #{
-      finances.concatNames(@_item(item) for item in @items or [])
+      finances.concatNames(@_item(item) for item in @addItems or [])
     } ($#{
       @amount
     })"""
