@@ -257,8 +257,11 @@
     <h1>${{#round}}{{payment.amount}}{{/round}} from {{fromAccount.name}}{{#if toAccount}} to {{toAccount.name}}{{/if}}</h1>
     <h2>For:</h2>
     <ul>
-      {{#each items}}
-      <li><a data-link href="{{urlFor 'item-detail-form'}}">{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></li>
+      {{#each addItems}}
+      <li><a data-link href="{{urlFor 'item-detail-form'}}">{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}/{{nUsages}}</span></a></li>
+      {{/each}}
+      {{#each minusItems}}
+      <li><a data-link href="{{urlFor 'item-detail-form'}}">{{name}}<span class='pull-right'>$-{{#round}}{{amount}}{{/round}}/{{nUsages}}</span></a></li>
       {{/each}}
     </ul>
   </div>
