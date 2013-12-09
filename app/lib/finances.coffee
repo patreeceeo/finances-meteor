@@ -11,8 +11,37 @@ log =
     console.debug.apply console, arguments
 
 @finances ?= 
-  concatNames: (list) ->
-    (o.name for o in list).join('/')
+  concatNames: (list, separator = '/') ->
+    (o.name for o in list).join(separator)
+  buildArithmaticExpression: (addends = [], subtrahends = []) ->
+    addendCount = {}
+    subtrahendCount = {}
+    for addend in addends
+      addendCount[addend.name] ?= 0
+      addendCount[addend.name] += 1
+    for subtrahend in subtrahends
+      subtrahendCount[subtrahend.name] ?= 0
+      subtrahendCount[subtrahend.name] += 1
+    addendExpression = (
+      for own name, count of addendCount
+        "#{name}"
+    ).join '+'
+    subtrahendExpression = (
+      for own name, count of subtrahendCount
+        "#{name}"
+    ).join '-'
+    "#{
+      if addendExpression.length
+        addendExpression
+      else
+        ''
+    }#{
+      if subtrahendExpression.length
+        "-#{subtrahendExpression}"
+      else
+        ''
+    }"
+
 
 pstr = (doc) ->
   (new finances.Payment doc).toString()
@@ -30,7 +59,7 @@ class finances.Base
   constructor: (doc) ->
     _.extend this, doc 
   findOne: (Collection, selector, options) ->
-    extendedSelector = _.extend _(selector).clone(),
+    extendedSelector = _.extend _(selector or {}).clone(),
       scenario: @scenario or @_id
     Collection.findOne extendedSelector, options
   find: (Collection, selector = {}, options = {}) ->
@@ -102,17 +131,20 @@ class finances.Scenario extends finances.Base
       fromAccount: attributes.fromAccount
       toAccount: attributes.toAccount
 
-    if payment
+    if payment?
       log.write "combine #{pstr(attributes)} with existing #{pstr(payment)}"
-      if attributes.amount
+      if attributes.amount?
         payment.amount += attributes.amount
       if attributes.addItems?
         payment.addItems = payment.addItems.concat attributes.addItems
+      if attributes.minusItems?
+        payment.minusItems = (payment.minusItems or []).concat attributes.minusItems
       @updatePayment payment
       payment
     else
       log.write "add #{pstr(attributes)}"
       @addPayment attributes
+    
   addInternalPayments: ->
     console.count('addInternalPayments')
     @_items().forEach (item) =>
@@ -203,12 +235,15 @@ class finances.Scenario extends finances.Base
             @addOrIncreasePayment
               fromAccount: p.fromAccount
               addItems: p.addItems
+              minusItems: p.minusItems
               toAccount: p2.toAccount
               amount: minflow
               settled: false
           
           log.write "decrease larger #{pstr larger} by $#{minflow}"
           larger.amount -= minflow
+          larger.minusItems = (larger.minusItems or []).concat smaller.addItems
+          larger.addItems = larger.addItems.concat (smaller.minusItems or [])
           @updatePayment larger
           log.write "delete smaller #{pstr smaller}"
           smaller.obviated = true
@@ -238,7 +273,7 @@ class finances.Account extends finances.Base
       percent: percent
       fromAccount: @_id
       settled: true
-      amount: @_item(item).amount
+      amount: item.amount
   uses: (item) ->
     log.write "#{@toString()} uses #{istr(item)}"
     @addUsage
@@ -262,13 +297,15 @@ class finances.Payment extends finances.Base
   vivifyAssociates: ->
     @fromAccount = @_account @fromAccount
     @toAccount = @_account @toAccount
-    @addItems = 
-    for item in @addItems or []
-      @_item item
+    @addItems = @fetchItems @addItems
+    @minusItems = @fetchItems @minusItems
     this
   addItem: (document) ->
     @amount += document.amount
     @addItems.push document._id
+  fetchItems: (items = []) ->
+    for item in items
+      @_item item
   toString: ->
     """#{
     if @settled
@@ -280,7 +317,7 @@ class finances.Payment extends finances.Base
     } to #{
       @_toAccount()?.name
     } for #{
-      finances.concatNames(@_item(item) for item in @addItems or [])
+      finances.buildArithmaticExpression(@fetchItems(@addItems), @fetchItems(@minusItems))
     } ($#{
       @amount
     })"""

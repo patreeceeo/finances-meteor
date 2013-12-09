@@ -28,6 +28,20 @@ describe "finances", ->
   it 'should be groovy', ->
     expect(finances).toBeDefined()
 
+  it 'should build arithmetic expressions', ->
+    addItems = [
+      { name: 'fruits' }
+      { name: 'veggies' }
+      { name: 'exercise' }
+    ]
+    minusItems = [
+      { name: 'smoking' }
+      { name: 'fast food' }
+      { name: '(di)stress' }
+    ]
+    exp = finances.buildArithmaticExpression(addItems, minusItems)
+    expect(exp).toBe 'fruits+veggies+exercise-smoking-fast food-(di)stress'
+
   it 'should track users', ->
     a1.uses i1
     a2.uses i1

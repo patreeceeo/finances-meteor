@@ -17,10 +17,6 @@ _.extend Template['report'],
       payment = new finances.Payment payment
       payment.vivifyAssociates()
   accounts: -> 
-    concatItemNames = (items) ->
-      (for _id in items
-          ItemCollection.findOne(_id).name
-      ).join('/')
     s = currentScenario
 
     for account in s._accounts().fetch()
@@ -33,12 +29,14 @@ _.extend Template['report'],
 
       for payment in s._payments(fromAccount: account._id).fetch()
         account.balance -= payment.amount
-        payment.itemNames = concatItemNames(payment.addItems)
+        payment = new finances.Payment(payment).vivifyAssociates()
+        payment.itemNames = finances.buildArithmaticExpression(payment.addItems, payment.minusItems)
         account.outgoingPayments.push payment
 
       for payment in s._payments(toAccount: account._id).fetch()
         account.balance += payment.amount
-        payment.itemNames = concatItemNames(payment.addItems)
+        payment = new finances.Payment(payment).vivifyAssociates()
+        payment.itemNames = finances.buildArithmaticExpression(payment.addItems, payment.minusItems)
         account.incomingPayments.push payment
 
       for usage in s._usages(fromAccount: account._id).fetch()
