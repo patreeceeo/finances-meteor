@@ -44,12 +44,19 @@ loadCurrentScenario = ->
   @subscribe('items', scenario: scenarioId).wait()
   @subscribe('payments', scenario: scenarioId).wait()
   @subscribe('usages', scenario: scenarioId).wait()
+
   if @ready() 
     scenario = ScenarioCollection.findOne()
     if scenario?
       root.currentScenario = new finances.Scenario
       root.currentScenario._id = scenarioId
       _.extend root.currentScenario, scenario
+
+      root.currentScenario.deps =
+        user: new Deps.Dependency
+      Meteor.call 'findUsers', _id: currentScenario?.user, (error, users) ->
+        currentScenario.user = users[0]
+        root.currentScenario.deps.user.changed()
     else
       @render 'not-found'
       @stop()

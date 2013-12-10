@@ -3,13 +3,13 @@ _.extend Template['find-scenario'], do ->
   scenarios = null
   dep = new Deps.Dependency()
   search = (username) ->
-    user = Meteor.users.findOne(username: username)
-    if user
-      scenarios = ScenarioCollection.find(user: user._id).fetch()
-    else
-      scenarios = null
-      Session.set 'message', "That user doesn't exist"
-    dep.changed()
+    Meteor.call 'findUsers', username: username, (error, users) ->
+      if users[0]
+        scenarios = ScenarioCollection.find(user: users[0]._id).fetch()
+      else
+        scenarios = null
+        Session.set 'message', "That user doesn't exist"
+      dep.changed()
   scenarios: -> 
     dep.depend()
     scenarios ?= []

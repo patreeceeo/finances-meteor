@@ -19,7 +19,6 @@ issues:
 
 text is too large on desktop
 it's possible to specify more than one payer for an item
-remove autopublish package, manually setup subscriptions
 remove insecure package
 in older (mac os tiger) safari:
   scenario links don't work

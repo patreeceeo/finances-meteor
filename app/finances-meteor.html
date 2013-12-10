@@ -25,7 +25,7 @@
   <div id='not-found' class='center page'>
     <h1>404</h1>
     <p>That page doesn't exist.</p>
-    <p><a href='{{urlFor "scenario-form"}}' data-link>Create or choose a 'scenario'</a></p>
+    <p><a href='{{urlFor "scenario-form"}}' data-link>Create or choose a &ldquo;scenario&rdquo;</a></p>
   </div>
 </template>
 
@@ -39,7 +39,9 @@
     <ul>
       <li>Owed money</li>
       <li>Owing money</li>
-      <li>All theout of thin air    <p>&mdash; this app can take out some of the headache. While it won't make money appear out of thin air (slated for version 2.0), it will tell you the simplest way to give everyone (roommates, flatmates, co-conspirators) the money they're owed.</p> 
+      <li>All the above</li>
+    </ul>
+    <p>&mdash; this app can take out some of the headache. While it won't make money appear out of thin air (slated for version 2.0), it will tell you the simplest way to give everyone (roommates, flatmates, co-conspirators) the money they're owed.</p> 
     <div class='call-to-action-row'>
       <a data-start-button type=button class='center'>Get Started!</a>
     </div>
@@ -102,7 +104,7 @@
 <template name='scenario-form'>
   {{> global-menu}}
   <div id='scenario-form' class='center page'>
-    <h1>Create or choose a 'scenario'</h1>
+    <h1>Create or choose a &ldquo;scenario&rdquo;</h1>
     <ul>
       <li>
         <input type='text' placeholder='Name' value="{{name}}" name='scenario-name'><a type='button' data-add-button data-item='{{name}}'>&check;</a>

@@ -12,6 +12,7 @@ _.extend Template['item-form'],
     addItem = (e) ->
       if item.amount > 0 and item.name isnt ''
         _id = ItemCollection.insert _.extend(item, scenario: currentScenario._id)
+        item = {}
         Router.go 'item-detail-form',
           scenario: currentScenario._id
           _id: _id

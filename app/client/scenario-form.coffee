@@ -8,7 +8,7 @@ _.extend Template['scenario-form'], do ->
     AccountCollection.insert
       name: Meteor.user().username
       scenario: _id
-    Router.go 'account-form', scenario: _id 
+    Router.go 'scenario-detail', _id: _id 
   rendered: ->
     $name = $ 'input[name=scenario-name]'
   message: -> Session.get 'message'

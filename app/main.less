@@ -14,35 +14,6 @@ body {
   font-size: 18px !important;
 }
 
-blockquote {
-  text-align: center;
-  display: block;
-  margin: 1em 0 1em 0;
-  p:before {
-    content: '“';
-    font-size: 400%;
-    height: 0;
-    display: inline-block;
-    position: relative;
-    top: 0.4em;
-  }
-  p:after {
-    content: '”';
-    font-size: 400%;
-    height: 0;
-    display: inline-block;
-    position: relative;
-    top: 0.4em;
-  }
-}
-
-cite {
-  text-align: right;
-  display: block;
-  &:before {
-    content: '— ';
-  }
-}
 
 .flash {
   color: gray;
@@ -149,6 +120,33 @@ cite {
   
   a[data-remove-button]:hover {
     background-color: @danger-color;
+  }
+
+  blockquote {
+    text-align: center;
+    display: block;
+    margin: 1em 0 1em 0;
+    p {
+      display: inline-block;
+      &:before {
+        content: '“';
+        font-size: 250%;
+        float: left;
+      }
+      &:after {
+        content: '”';
+        font-size: 250%;
+        float: right;
+      }
+    }
+  }
+
+  cite {
+    text-align: right;
+    display: block;
+    &:before {
+      content: '— ';
+    }
   }
 }
 

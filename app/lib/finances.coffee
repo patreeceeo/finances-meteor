@@ -92,7 +92,7 @@ class finances.Base
     @findOne(Collection, _id) 
   update: (Collection, document, _id = document._id) ->
     throw new Error("Trying to update '#{@constructor.name}' without `_id`") unless _id?
-    Collection.update _id, _(document).omit '_id'
+    Collection.update _id, $set: _(document).omit '_id'
   remove: (Collection, _id) ->
     Collection.remove(_id)
   _fromAccount: ->

@@ -19,7 +19,6 @@ if Meteor.isServer
     UsageCollection = new Meteor.Collection 'usages'
 
     Meteor.publish 'scenarios', (selector) ->
-      console.log 'scenarios', ScenarioCollection.find(selector).fetch()
       ScenarioCollection.find(selector)
     Meteor.publish 'accounts', (selector) ->
       AccountCollection.find(selector)
@@ -29,6 +28,51 @@ if Meteor.isServer
       PaymentCollection.find(selector)
     Meteor.publish 'usages', (selector) ->
       UsageCollection.find(selector)
+
+    userIsCreatorOrScenarioCreator = (userId, doc) ->
+      ScenarioCollection.findOne(doc.scenario)?.user is userId or doc.user is userId
+
+    ScenarioCollection.allow
+      insert: (userId, doc) ->
+        true
+      update: (userId, doc, fields, modifier) ->
+        doc.user is userId
+      remove: (userId, doc) ->
+        doc.user is userId
+      fetch: ['_id', 'user']
+    AccountCollection.allow
+      insert: (userId, doc) ->
+        true
+      update: (userId, doc, fields, modifier) ->
+        userIsCreatorOrScenarioCreator(userId, doc)
+      remove: (userId, doc) ->
+        userIsCreatorOrScenarioCreator(userId, doc)
+      fetch: ['_id', 'scenario', 'user']
+    ItemCollection.allow
+      insert: (userId, doc) ->
+        true
+      update: (userId, doc, fields, modifier) ->
+        userIsCreatorOrScenarioCreator(userId, doc)
+      remove: (userId, doc) ->
+        userIsCreatorOrScenarioCreator(userId, doc)
+      fetch: ['_id', 'scenario', 'user']
+    PaymentCollection.allow
+      insert: (userId, doc) ->
+        true
+      update: (userId, doc, fields, modifier) ->
+        userIsCreatorOrScenarioCreator(userId, doc)
+      remove: (userId, doc) ->
+        userIsCreatorOrScenarioCreator(userId, doc)
+      fetch: ['_id', 'scenario', 'user']
+    UsageCollection.allow
+      insert: (userId, doc) ->
+        true
+      update: (userId, doc, fields, modifier) ->
+        userIsCreatorOrScenarioCreator(userId, doc)
+      remove: (userId, doc) ->
+        userIsCreatorOrScenarioCreator(userId, doc)
+      fetch: ['_id', 'scenario', 'user']
+
 
     Meteor.methods
       reset: (selector) ->
@@ -53,4 +97,6 @@ if Meteor.isServer
         safepw.hash(string)
       validateHash: (hash, string) ->
         safepw.validate hash, string
+      findUsers: (selector) ->
+        Meteor.users.find(selector).fetch()
 

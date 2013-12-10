@@ -1,7 +1,8 @@
 
 _.extend Template['global-menu'], do ->
   creator = ->
-    Meteor.users.findOne(currentScenario?.user)
+    currentScenario.deps.user.depend()
+    currentScenario.user
   rendered: ->
     if currentScenario?
       $('head title').text "“#{currentScenario.name}” by #{creator().username} - Divvy"
