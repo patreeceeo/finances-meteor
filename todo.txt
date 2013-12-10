@@ -2,10 +2,8 @@ ideas:
 
 payment gateways integration.
 make it easy to make a charitable payment to a non-profit while using the app.
-add scenario detail page that shows the creator and collaborators, a reset button, and links to the scenario-form, items-form, accounts-form and report
-rework global-menu to show just a logout button and links to the scenario-detail, items-form, accounts-form and report
+add scenario detail page that shows the creator and collaborators, and includes items-form, accounts-form and report
 somehow indicate who is currently signed in and possibly viewing/editing the current scenario
-after item page go back to account page and each account link goes to an detail page analogous to the item detail page
 allow associating accounts with google/facebook accounts
 create (more) detailed report on how the answers were arrived at, both in narrative and graphical form
 keyboard shortcuts?

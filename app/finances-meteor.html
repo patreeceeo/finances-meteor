@@ -256,8 +256,7 @@
 <template name='report-payment-detail'>
   {{> global-menu }}
   <div id='report-payment-detail' class='center page'>
-    <h1>${{#round}}{{payment.amount}}{{/round}} from {{fromAccount.name}}{{#if toAccount}} to {{toAccount.name}}{{/if}}</h1>
-    <h2>For:</h2>
+    <h1>Payment from {{fromAccount.name}}{{#if toAccount}} to {{toAccount.name}}{{/if}} for:</h1>
     <ul>
       {{#each addItems}}
       <li><a data-link href="{{urlFor 'item-detail-form'}}">{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}/{{nUsages}}</span></a></li>
@@ -265,6 +264,7 @@
       {{#each minusItems}}
       <li><a data-link href="{{urlFor 'item-detail-form'}}">{{name}}<span class='pull-right'>$-{{#round}}{{amount}}{{/round}}/{{nUsages}}</span></a></li>
       {{/each}}
+      <li>Total <span class='pull-right'>${{#round}}{{payment.amount}}{{/round}}</span></li>
     </ul>
   </div>
 </template>
