@@ -1,5 +1,6 @@
 ideas:
 
+allow more than one payer per item
 payment gateways integration.
 make it easy to make a charitable payment to a non-profit while using the app.
 add scenario detail page that shows the creator and collaborators, and includes items-form, accounts-form and report
@@ -11,7 +12,7 @@ added/modified/removed meta-data
 move login/create-account to back of flow?
 find search icon for find-scenario page
 use `check` utility
-add notFound template
+add help blurbs to each page that can be shown/hidden with one button press
 
 issues:
 

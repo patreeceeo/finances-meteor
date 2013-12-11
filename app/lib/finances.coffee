@@ -156,7 +156,7 @@ class finances.Scenario extends finances.Base
       @_payments(addItems: item._id, settled: true).forEach (p) =>
         for user in users when user._id isnt p.fromAccount
           @addOrIncreasePayment
-            amount: item.amount / users.length
+            amount: p.amount / users.length
             addItems: [item._id]
             toAccount: p.fromAccount
             fromAccount: user._id
@@ -266,21 +266,20 @@ class finances.Account extends finances.Base
     new finances.Payment @add PaymentCollection, document
   addUsage: (document) ->
     new finances.Usage @add UsageCollection, document
-  pays: (item, percent = 100) ->
-    log.write "#{@toString()} pays for #{istr(item)}"
+  pays: (item, amount) ->
+    log.write "#{@toString()} pays $#{amount} for #{istr(item)}"
     @addPayment
       addItems: [item._id]
-      percent: percent
       fromAccount: @_id
       settled: true
-      amount: item.amount
+      amount: amount or item.amount
   uses: (item) ->
     log.write "#{@toString()} uses #{istr(item)}"
     @addUsage
       item: item._id
       fromAccount: @_id
-  paysAndUses: (item, percent = 100) ->
-    @pays(item, percent)
+  paysAndUses: (item, amount) ->
+    @pays(item, amount)
     @uses(item)
   # TODO: deprecate
   crunch: ->
@@ -312,7 +311,7 @@ class finances.Payment extends finances.Base
       ''
     else
       'unsettled '
-    }payment from #{
+    }payment of $#{@amount} from #{
       @_fromAccount().name
     } to #{
       @_toAccount()?.name
@@ -342,26 +341,30 @@ _.extend finances,
     random = @getPRNG(seed)
     totalPayments = 0
 
-    nAccounts = random(2, 5)
+    nAccounts = random(2, 4)
     nUsers = random(1, nAccounts)
     nPayers = random(1, nAccounts)
 
-    nItems = random(Math.max(nUsers, nPayers), nAccounts * 2)
+    nItems = random(nPayers * 0.1, nPayers * 1)
+
+    console.debug 'nAccounts',nAccounts,'nItems',nItems
 
     accounts =
     for i in [1..nAccounts]
       scenario.addAccount name: "account #{i}"
 
-    items =
+    items = 
     for i in [1..nItems]
       scenario.addItem
         name: "item #{i}"
-        amount: random(1, 100)
+        amount: random(1, 100/24) * 24
 
     for own index, item of items
-      payerIndex = index % nPayers
-      payer = accounts[payerIndex]
-      payer.pays item
-      accounts[accounts.length - 1 - index % nUsers].uses item
-    
+      nPayersPerItem = Math.min Math.ceil(nAccounts/nItems), accounts.length - index - 1
+      for groupIndex in [0...nPayersPerItem] 
+        payerIndex = index % nPayers + groupIndex
+        userIndex = accounts.length - 1 - (index + groupIndex) % nUsers
+        accounts[payerIndex].pays item, item.amount / nPayersPerItem
+        accounts[userIndex].uses item
+
     scenario

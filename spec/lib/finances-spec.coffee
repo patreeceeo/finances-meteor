@@ -123,6 +123,18 @@ describe "finances", ->
       expect(a2.crunch().total).toBe 0
       expect(a1.crunch().total).toBe 0
 
+    it 'should handle multiple payers for the same item', ->
+      a1.pays i1, 30
+      a2.pays i1, 30
+      a3.uses i1
+
+      s.addInternalPayments()
+      s.simplifyPayments()
+
+      expect(a1.crunch().total).toBe 0
+      expect(a2.crunch().total).toBe 0
+      expect(a3.crunch().total).toBe 60
+
     describe 'when all debts are not equal', ->
 
       describe 'when the first debt in the path is bigger', ->
@@ -188,7 +200,7 @@ describe "finances", ->
     totalPayments = 0
     beforeEach ->
       scenarios =
-      for seed in [1..8]
+      for seed in [6]
         s = finances.testScenario seed
         s.totalPayments = sumAmounts(s._payments().fetch())
         s
@@ -201,7 +213,7 @@ describe "finances", ->
       for s in scenarios
         expect(s.totalPayments).toBe sumAmounts(s._items().fetch())
         
-    it 'should have every account at least either a payer or a user', ->
+    xit 'should have every account at least either a payer or a user', ->
       for s in scenarios
         for a in s._accounts().fetch()
           expect(s._usage(fromAccount: a._id) or s._payment(fromAccount: a._id)).toBeDefined()
@@ -220,6 +232,8 @@ describe "finances", ->
           fairShare = 0
           for usage in s._usages(fromAccount: account._id).fetch()
             fairShare += s._item(usage.item).amount / s._usages(item: usage.item).count()
+          if account.balance isnt -fairShare
+            debugger
           expect(account.balance).toBe(-fairShare)
 
           
