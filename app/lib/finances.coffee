@@ -131,8 +131,29 @@ class finances.Scenario extends finances.Base
       fromAccount: attributes.fromAccount
       toAccount: attributes.toAccount
 
+    # TODO: maybe make oppositePayment an optional param?
+    oppositePayment = @_payment
+      fromAccount: attributes.toAccount
+      toAccount: attributes.fromAccount
+
+    if oppositePayment?
+      if oppositePayment.amount > attributes.amount
+        payment = oppositePayment
+        attributes = _(attributes).extend
+          amount: -attributes.amount
+          addItems: attributes.minusItems
+          minusItems: attributes.addItems
+      else
+        debugger
+        attributes = _(attributes).extend
+          amount: attributes.amount - oppositePayment.amount
+          addItems: _(attributes.addItems or []).difference(oppositePayment.addItems or [])
+          minusItems: _(attributes.minusItems or []).union(oppositePayment.minusItems or [])
+        @removePayment oppositePayment
+
     if payment?
       log.write "combine #{pstr(attributes)} with existing #{pstr(payment)}"
+
       if attributes.amount?
         payment.amount += attributes.amount
       if attributes.addItems?
@@ -212,8 +233,16 @@ class finances.Scenario extends finances.Base
         if p.amount is p2.amount
           if p.fromAccount isnt p2.toAccount
             log.write "redirect #{pstr p} to #{@_account(p2.toAccount).name}"
-            p.toAccount = p2.toAccount
-            @updatePayment p
+            # p.toAccount = p2.toAccount
+            # @updatePayment p
+            @addOrIncreasePayment
+              fromAccount: p.fromAccount
+              toAccount: p2.toAccount
+              addItems: p.addItems
+              minusItems: p.minusItems
+              amount: p.amount
+              settled: false
+            @removePayment p._id
           else
             log.write "delete loopback: #{pstr p}"
             p.obviated = true
@@ -267,7 +296,7 @@ class finances.Account extends finances.Base
   addUsage: (document) ->
     new finances.Usage @add UsageCollection, document
   pays: (item, amount) ->
-    log.write "#{@toString()} pays $#{amount} for #{istr(item)}"
+    log.write "#{@toString()} pays $#{amount or @_item(item).amount} for #{istr(item)}"
     @addPayment
       addItems: [item._id]
       fromAccount: @_id
