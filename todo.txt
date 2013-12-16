@@ -1,6 +1,5 @@
 ideas:
 
-allow more than one payer per item
 payment gateways integration.
 make it easy to make a charitable payment to a non-profit while using the app.
 add scenario detail page that shows the creator and collaborators, and includes items-form, accounts-form and report
@@ -17,7 +16,6 @@ add help blurbs to each page that can be shown/hidden with one button press
 issues:
 
 text is too large on desktop
-it's possible to specify more than one payer for an item
 buildArithmaticExpression should simplify terms
 in older (mac os tiger) safari:
   scenario links don't work
@@ -35,6 +33,7 @@ in IE 10:
 
 tech debt:
 
+look into using transform functions with collections
 think about DB migration!
 merge mobile design with desktop design
 need more test coverage!

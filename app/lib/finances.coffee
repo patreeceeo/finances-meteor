@@ -353,6 +353,13 @@ class finances.Account extends finances.Base
       log.write "include in total #{pstr(p)}"
       total += p.amount
     total: total
+  balance: ->
+    balance = 0
+    for payment in @_payments(fromAccount: @_id).fetch()
+      balance -= payment.amount
+    for payment in @_payments(toAccount: @_id).fetch()
+      balance += payment.amount
+    balance
   toString: ->
     @name
   
@@ -392,6 +399,14 @@ _.extend finances,
       x = Math.sin(seed++) * 10000
       r = x - Math.floor(x)
       Math.round r * (max - min) + min
+  randomZeroSumArray: (length, depth, seed) ->
+    random = @getPRNG seed
+    retval = (0 for i in [1..length])
+    for i in [1..length]
+      dig = random 0, depth
+      retval[random 0, length - 1] -= dig
+      retval[random 0, length - 1] += dig
+    retval
   testScenario: (seed) ->
     console.count('testScenario')
     scenario = new finances.Scenario 
@@ -423,10 +438,11 @@ _.extend finances,
 
     for own index, item of items
       nPayersPerItem = Math.min Math.ceil(nAccounts/nItems), accounts.length - index
+      zeroSumArray = @randomZeroSumArray nPayersPerItem, item.amount/ nPayersPerItem / 2, seed
       for groupIndex in [0...nPayersPerItem] 
         payerIndex = index % nPayers + groupIndex
         userIndex = accounts.length - 1 - (index + groupIndex) % nUsers
-        accounts[payerIndex].pays item, item.amount / nPayersPerItem
+        accounts[payerIndex].pays item, item.amount / nPayersPerItem + zeroSumArray[groupIndex]
         accounts[userIndex].uses item
 
     scenario

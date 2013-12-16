@@ -1,12 +1,5 @@
 root = this
 
-Array::where = (object) ->
-  _(this).where(object)
-
-Array::contains = (object) ->
-  @where(object).length > 0
-
-
 describe "finances", ->
   [s, a1, a2, a3, i1, i2, i3] = (null for i in [1..7])
 
@@ -176,6 +169,21 @@ describe "finances", ->
           expect(a2.crunch().total).toBe i2.amount / 2 - i1.amount / 2
           expect(a1.crunch().total).toBe 0
 
+    describe 'when multiple accounts pay unequal amounts for the same item', ->
+
+      it 'should simplify such that each account pays an equal amount', ->
+        a1.paysAndUses i1, 42
+        a2.paysAndUses i1, 18
+        a3.uses i1
+
+        s.addInternalPayments()
+        s.simplifyPayments()
+
+        expect(a1.balance()).toBe -i1.amount / 3
+        expect(a2.balance()).toBe -i1.amount / 3
+        expect(a3.balance()).toBe -i1.amount / 3
+
+
   describe 'pseudo-random number generator', ->
 
     it 'should always generate the same sequence for a given seed', ->
@@ -185,6 +193,16 @@ describe "finances", ->
       sequence2 = rng2() for i in [1..20]
       for i in [1..20]
         expect(sequence1[i]).toEqual sequence2[i]
+
+  describe 'zero sum arrays', ->
+
+    it 'should sum to zero', ->
+      for seed in [1..20]
+        zsa = finances.randomZeroSumArray(10, 10, seed)
+        sum = 0
+        for v in zsa
+          sum += v
+        expect(sum).toBe 0
   
   describe 'test scenarios', ->
     # TODO: make a scenario class and move all the methods and
@@ -200,7 +218,7 @@ describe "finances", ->
     totalPayments = 0
     beforeEach ->
       scenarios =
-      for seed in [0..20]
+      for seed in [1..20]
         s = finances.testScenario seed
         s.totalPayments = sumAmounts(s._payments().fetch())
         s
@@ -229,18 +247,13 @@ describe "finances", ->
         s.addInternalPayments()
         s.simplifyPayments()
         for account in s._accounts().fetch()
-          account.balance = 0
-          for payment in s._payments(fromAccount: account._id).fetch()
-            account.balance -= payment.amount
-          for payment in s._payments(toAccount: account._id).fetch()
-            account.balance += payment.amount
-
+          account = new finances.Account account
           fairShare = 0
           for usage in s._usages(fromAccount: account._id).fetch()
             fairShare += s._item(usage.item).amount / s._usages(item: usage.item).count()
-          if finances.round(account.balance) isnt finances.round -fairShare
+          if finances.round(account.balance()) isnt finances.round -fairShare
             debugger
-          expect(finances.round account.balance).toBe(finances.round -fairShare)
+          expect(finances.round account.balance()).toBe(finances.round -fairShare)
 
           
 
