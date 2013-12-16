@@ -200,7 +200,7 @@ describe "finances", ->
     totalPayments = 0
     beforeEach ->
       scenarios =
-      for seed in [6]
+      for seed in [0..20]
         s = finances.testScenario seed
         s.totalPayments = sumAmounts(s._payments().fetch())
         s
@@ -211,8 +211,14 @@ describe "finances", ->
 
     it 'should have all items paid for', ->
       for s in scenarios
-        expect(s.totalPayments).toBe sumAmounts(s._items().fetch())
-        
+        for item in s._items().fetch()
+          # NOTE: this works as long as there aren't payments for multiple
+          #       items yet.
+          totalPayment = sumAmounts s._payments(addItems: item._id).fetch()
+          if item.amount isnt finances.round totalPayment
+            debugger
+          expect(item.amount).toBe finances.round totalPayment
+           
     xit 'should have every account at least either a payer or a user', ->
       for s in scenarios
         for a in s._accounts().fetch()
@@ -232,9 +238,9 @@ describe "finances", ->
           fairShare = 0
           for usage in s._usages(fromAccount: account._id).fetch()
             fairShare += s._item(usage.item).amount / s._usages(item: usage.item).count()
-          if account.balance isnt -fairShare
+          if finances.round(account.balance) isnt finances.round -fairShare
             debugger
-          expect(account.balance).toBe(-fairShare)
+          expect(finances.round account.balance).toBe(finances.round -fairShare)
 
           
 

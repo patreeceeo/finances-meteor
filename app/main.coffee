@@ -3,7 +3,7 @@ if Meteor.isClient
 
   Handlebars.registerHelper 'round', (options) ->
     number = parseFloat options.fn(this)
-    string = "#{Math.round(number * 100) / 100}"
+    string = "#{finances.round number}"
     pointPosition = _(string).indexOf('.')
     if pointPosition isnt -1
       if string.length - pointPosition is 2

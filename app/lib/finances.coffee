@@ -10,9 +10,21 @@ log =
   write: ->
     console.debug.apply console, arguments
 
+union = (arr1, arr2) ->
+  unless _.isArray(arr1) and _.isArray(arr2)
+    debugger
+  _.union arr1, arr2
+difference = (arr1, arr2) ->
+  unless _.isArray(arr1) and _.isArray(arr2)
+    debugger
+  _.difference arr1, arr2
+  
+
 @finances ?= 
   concatNames: (list, separator = '/') ->
     (o.name for o in list).join(separator)
+  round: (val) ->
+    Math.round(val * 100) / 100
   buildArithmaticExpression: (addends = [], subtrahends = []) ->
     addendCount = {}
     subtrahendCount = {}
@@ -104,7 +116,7 @@ class finances.Scenario extends finances.Base
   addAccount: (document) ->
     new finances.Account @add AccountCollection, document
   addItem: (document) ->
-    document.amount = parseInt document.amount
+    document.amount = finances.round parseInt document.amount
     new finances.Item @add ItemCollection, document
   addPayment: (document) ->
     new finances.Payment @add PaymentCollection, document
@@ -130,48 +142,73 @@ class finances.Scenario extends finances.Base
     payment = @_payment 
       fromAccount: attributes.fromAccount
       toAccount: attributes.toAccount
+      obviated: null
 
     # TODO: maybe make oppositePayment an optional param?
     oppositePayment = @_payment
       fromAccount: attributes.toAccount
       toAccount: attributes.fromAccount
+      obviated: null
 
     if oppositePayment?
       if oppositePayment.amount > attributes.amount
+        if payment?
+          debugger
         payment = oppositePayment
         attributes = _(attributes).extend
           amount: -attributes.amount
           addItems: attributes.minusItems
           minusItems: attributes.addItems
       else
-        debugger
+        # the opposite payment is annihilated by the new payment
+        @removePayment oppositePayment
         attributes = _(attributes).extend
           amount: attributes.amount - oppositePayment.amount
-          addItems: _(attributes.addItems or []).difference(oppositePayment.addItems or [])
-          minusItems: _(attributes.minusItems or []).union(oppositePayment.minusItems or [])
-        @removePayment oppositePayment
+          addItems: difference attributes.addItems, oppositePayment.addItems
+          minusItems: union attributes.minusItems, oppositePayment.minusItems
 
     if payment?
-      log.write "combine #{pstr(attributes)} with existing #{pstr(payment)}"
+      log.write "combine payment of $#{
+        attributes.amount
+      }#{
+        if attributes.addItems?.length and attributes.minusItems?.length
+          " for #{
+            finances.buildArithmaticExpression (@_item(item) for item in attributes.addItems), (@_item(item) for item in attributes.minusItems)
+          }"
+        else
+          ""
+      } with #{
+        pstr payment
+      }"
 
       if attributes.amount?
         payment.amount += attributes.amount
       if attributes.addItems?
-        payment.addItems = payment.addItems.concat attributes.addItems
+        payment.addItems = union payment.addItems, attributes.addItems
       if attributes.minusItems?
-        payment.minusItems = (payment.minusItems or []).concat attributes.minusItems
+        payment.minusItems = union payment.minusItems, attributes.minusItems
+
+      # Normalize negative payments
+      if payment.amount <= 0
+        debugger
+        # TODO: if its possible to get here, also need
+        #       to swap addItems and minusItems
+        payment.amount = -payment.amount
+        payment.toAccount = payment.fromAccount
+        payment.fromAccount = payment.toAccount
+
       @updatePayment payment
       payment
-    else
+    else if attributes.amount > 0
       log.write "add #{pstr(attributes)}"
       @addPayment attributes
     
   addInternalPayments: ->
-    console.count('addInternalPayments')
+    console.log 'addInternalPayments',@_id
     @_items().forEach (item) =>
       users = []
       @_usages(item: item._id).forEach (usage) =>
-        user = @_account(usage.fromAccount)
+        user = @_account usage.fromAccount
         users.push(user) if user?
         undefined
       @_payments(addItems: item._id, settled: true).forEach (p) =>
@@ -179,6 +216,7 @@ class finances.Scenario extends finances.Base
           @addOrIncreasePayment
             amount: p.amount / users.length
             addItems: [item._id]
+            minusItems: []
             toAccount: p.fromAccount
             fromAccount: user._id
             settled: false
@@ -186,7 +224,7 @@ class finances.Scenario extends finances.Base
       undefined
     undefined
   simplifyPayments: ->
-    console.count('simplifyPayments')
+    console.log('simplifyPayments', @_id)
     # Simplify the payment graph as much as
     # possible without changing the ultimate
     # flow of $$$.
@@ -214,6 +252,7 @@ class finances.Scenario extends finances.Base
     # Implemenation:
 
     @_payments(settled: false, {sort: ['amount', 'asc']}).forEach (p) =>
+      
       @_payments(settled: false, fromAccount: p.toAccount).forEach (p2) =>
         return if p.obviated or p2.obviated
         log.write """#{
@@ -233,20 +272,16 @@ class finances.Scenario extends finances.Base
         if p.amount is p2.amount
           if p.fromAccount isnt p2.toAccount
             log.write "redirect #{pstr p} to #{@_account(p2.toAccount).name}"
-            # p.toAccount = p2.toAccount
-            # @updatePayment p
             @addOrIncreasePayment
               fromAccount: p.fromAccount
               toAccount: p2.toAccount
-              addItems: p.addItems
-              minusItems: p.minusItems
+              addItems: []
+              minusItems: []
               amount: p.amount
               settled: false
-            @removePayment p._id
-          else
-            log.write "delete loopback: #{pstr p}"
-            p.obviated = true
-            @updatePayment p
+          log.write "delete 1st equal edge: #{pstr p}"
+          p.obviated = true
+          @updatePayment p
           log.write "delete 2nd equal edge: #{pstr p2}"
           p2.obviated = true
           @updatePayment p2
@@ -263,16 +298,16 @@ class finances.Scenario extends finances.Base
           if p.fromAccount isnt p2.toAccount
             @addOrIncreasePayment
               fromAccount: p.fromAccount
-              addItems: p.addItems
-              minusItems: p.minusItems
+              addItems: []
+              minusItems: []
               toAccount: p2.toAccount
               amount: minflow
               settled: false
           
           log.write "decrease larger #{pstr larger} by $#{minflow}"
           larger.amount -= minflow
-          larger.minusItems = (larger.minusItems or []).concat smaller.addItems
-          larger.addItems = larger.addItems.concat (smaller.minusItems or [])
+          larger.minusItems = union larger.minusItems, smaller.addItems
+          larger.addItems = union larger.addItems, smaller.minusItems
           @updatePayment larger
           log.write "delete smaller #{pstr smaller}"
           smaller.obviated = true
@@ -296,9 +331,10 @@ class finances.Account extends finances.Base
   addUsage: (document) ->
     new finances.Usage @add UsageCollection, document
   pays: (item, amount) ->
-    log.write "#{@toString()} pays $#{amount or @_item(item).amount} for #{istr(item)}"
+    log.write "#{@toString()} pays $#{amount or item.amount} for #{istr(item)}"
     @addPayment
       addItems: [item._id]
+      minusItems: []
       fromAccount: @_id
       settled: true
       amount: amount or item.amount
@@ -329,26 +365,20 @@ class finances.Payment extends finances.Base
     @minusItems = @fetchItems @minusItems
     this
   addItem: (document) ->
-    @amount += document.amount
+    @amount += finances.round document.amount
     @addItems.push document._id
   fetchItems: (items = []) ->
     for item in items
       @_item item
   toString: ->
-    """#{
-    if @settled
-      ''
-    else
-      'unsettled '
-    }payment of $#{@amount} from #{
+    """
+    payment of $#{@amount} from #{
       @_fromAccount().name
     } to #{
       @_toAccount()?.name
     } for #{
       finances.buildArithmaticExpression(@fetchItems(@addItems), @fetchItems(@minusItems))
-    } ($#{
-      @amount
-    })"""
+    }"""
 
 class finances.Usage extends finances.Base
   vivifyAssociates: ->
@@ -365,14 +395,14 @@ _.extend finances,
   testScenario: (seed) ->
     console.count('testScenario')
     scenario = new finances.Scenario 
-      name: "test ##{seed}"
+      name: "S#{seed}"
       _id: "#{seed}"
     random = @getPRNG(seed)
     totalPayments = 0
 
-    nAccounts = random(2, 4)
-    nUsers = random(1, nAccounts)
-    nPayers = random(1, nAccounts)
+    nAccounts = random 2, 9
+    nUsers = random 1, nAccounts
+    nPayers = random 1, nAccounts
 
     nItems = random(nPayers * 0.1, nPayers * 1)
 
@@ -380,16 +410,19 @@ _.extend finances,
 
     accounts =
     for i in [1..nAccounts]
-      scenario.addAccount name: "account #{i}"
+      scenario.addAccount 
+        _id: "S#{seed}A#{i}"
+        name: "A#{i}"
 
     items = 
     for i in [1..nItems]
       scenario.addItem
-        name: "item #{i}"
+        _id: "S#{seed}I#{i}"
+        name: "I#{i}"
         amount: random(1, 100/24) * 24
 
     for own index, item of items
-      nPayersPerItem = Math.min Math.ceil(nAccounts/nItems), accounts.length - index - 1
+      nPayersPerItem = Math.min Math.ceil(nAccounts/nItems), accounts.length - index
       for groupIndex in [0...nPayersPerItem] 
         payerIndex = index % nPayers + groupIndex
         userIndex = accounts.length - 1 - (index + groupIndex) % nUsers
