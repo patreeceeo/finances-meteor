@@ -1,8 +1,9 @@
 ideas:
 
+add amount field to Usage
 payment gateways integration.
 make it easy to make a charitable payment to a non-profit while using the app.
-elimate item form from UI and add an optional "for" field on item-detail-form, which is renamed to 'payment form'
+eliminate item form from UI and add an optional "for" field on item-detail-form, which is renamed to 'payment form'
 add scenario detail page that shows the creator and collaborators, and includes items-form, accounts-form and report
 somehow indicate who is currently signed in and possibly viewing/editing the current scenario
 allow associating accounts with google/facebook accounts

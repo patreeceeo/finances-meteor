@@ -36,14 +36,14 @@ describe "finances", ->
     expect(exp).toBe 'fruits+veggies+exercise-smoking-fast food-(di)stress'
 
   it 'should track users', ->
-    a1.uses i1
-    a2.uses i1
+    a1.uses i1, i1.amount / 2
+    a2.uses i1, i1.amount / 2
     s._usages(item: i1._id).forEach (usage) =>
       expect(usage.fromAccount in [a1._id, a2._id]).toBeTruthy()
 
   it 'should track payments', ->
-    a1.pays i1, 50
-    a2.pays i1, 50
+    a1.pays i1, i1.amount / 2
+    a2.pays i1, i1.amount / 2
     expect(s._payment(addItems: i1._id, fromAccount: a1._id)).toBeDefined()
     expect(s._payment(addItems: i1._id, fromAccount: a2._id)).toBeDefined()
 
@@ -87,12 +87,12 @@ describe "finances", ->
     it 'should ignore larger cycles of equal debts', ->
       i2 = i1.clone('b-fast')
       i3 = i1.clone('lunch')
-      a1.paysAndUses i1
-      a2.uses i1
-      a2.paysAndUses i2
-      a3.uses i2
-      a3.paysAndUses i3
-      a1.uses i3
+      a1.paysAndUses i1, i1.amount / 2
+      a2.uses i1, i1.amount / 2
+      a2.paysAndUses i2, i2.amount / 2
+      a3.uses i2, i2.amount / 2
+      a3.paysAndUses i3, i3.amount / 2
+      a1.uses i3, i3.amount / 2
 
       s.addInternalPayments()
       s.simplifyPayments()
@@ -104,10 +104,12 @@ describe "finances", ->
     it 'should replace debts along the same path with one direct debt', ->
       i2 = i1.clone('b-fast')
 
-      a1.paysAndUses i1
-      a2.uses i1
-      a2.paysAndUses i2
-      a3.uses i2
+      a1.pays i1
+      a1.uses i1, i1.amount / 2
+      a2.uses i1, i1.amount / 2
+      a2.pays i2
+      a2.uses i2, i2.amount / 2
+      a3.uses i2, i2.amount / 2
 
       s.addInternalPayments()
       s.simplifyPayments()
@@ -117,8 +119,8 @@ describe "finances", ->
       expect(a1.crunch().total).toBe 0
 
     it 'should handle multiple payers for the same item', ->
-      a1.pays i1, 30
-      a2.pays i1, 30
+      a1.pays i1, i1.amount / 2
+      a2.pays i1, i1.amount / 2
       a3.uses i1
 
       s.addInternalPayments()
@@ -138,10 +140,12 @@ describe "finances", ->
             name: 'dessert'
             amount: i1.amount + 5
 
-          a1.paysAndUses i1
-          a2.uses i1
-          a2.paysAndUses i2
-          a3.uses i2
+          a1.pays i1
+          a1.uses i1, i1.amount / 2
+          a2.uses i1, i1.amount / 2
+          a2.pays i2
+          a2.uses i2, i2.amount / 2
+          a3.uses i2, i2.amount / 2
 
           s.addInternalPayments()
           s.simplifyPayments()
@@ -157,10 +161,12 @@ describe "finances", ->
             name: 'dessert'
             amount: i1.amount + 5
 
-          a1.paysAndUses i2
-          a2.uses i2
-          a2.paysAndUses i1
-          a3.uses i1
+          a1.pays i2
+          a1.uses i2, i2.amount / 2
+          a2.uses i2, i2.amount / 2
+          a2.pays i1
+          a2.uses i1, i1.amount / 2
+          a3.uses i1, i1.amount / 2
 
           s.addInternalPayments()
           s.simplifyPayments()
@@ -172,9 +178,11 @@ describe "finances", ->
     describe 'when multiple accounts pay unequal amounts for the same item', ->
 
       it 'should simplify such that each account pays an equal amount', ->
-        a1.paysAndUses i1, 42
-        a2.paysAndUses i1, 18
-        a3.uses i1
+        a1.pays i1, 42
+        a2.pays i1, 18
+        a1.uses i1, i1.amount / 3
+        a2.uses i1, i1.amount / 3
+        a3.uses i1, i1.amount / 3
 
         s.addInternalPayments()
         s.simplifyPayments()
@@ -182,6 +190,22 @@ describe "finances", ->
         expect(a1.balance()).toBe -i1.amount / 3
         expect(a2.balance()).toBe -i1.amount / 3
         expect(a3.balance()).toBe -i1.amount / 3
+
+    describe 'when multiple accounts use unequal amounts of the same item', ->
+
+      it 'should simplify such that each account pays the amount used', ->
+        a1.pays i1, i1.amount / 3
+        a2.pays i1, i1.amount / 3
+        a3.pays i1, i1.amount / 3
+        a1.uses i1, 42
+        a2.uses i1, 18
+
+        s.addInternalPayments()
+        s.simplifyPayments()
+
+        expect(a1.balance()).toBe -42
+        expect(a2.balance()).toBe -18
+        expect(a3.balance()).toBe 0
 
 
   describe 'pseudo-random number generator', ->
@@ -205,8 +229,6 @@ describe "finances", ->
         expect(sum).toBe 0
   
   describe 'test scenarios', ->
-    # TODO: make a scenario class and move all the methods and
-    #       properties of `finances` to `finances.Scenario`
     count = 10
     findSum = (list) ->
       add = (a, b) ->
@@ -215,17 +237,10 @@ describe "finances", ->
     sumAmounts = (list) ->
       findSum(o.amount for o in list)
     scenarios = []
-    totalPayments = 0
     beforeEach ->
       scenarios =
       for seed in [1..20]
-        s = finances.testScenario seed
-        s.totalPayments = sumAmounts(s._payments().fetch())
-        s
-
-    it 'should have payments', ->
-      for s in scenarios
-        expect(s.totalPayments).toBeGreaterThan 0
+        finances.testScenario seed
 
     it 'should have all items paid for', ->
       for s in scenarios
@@ -233,6 +248,16 @@ describe "finances", ->
           # NOTE: this works as long as there aren't payments for multiple
           #       items yet.
           totalPayment = sumAmounts s._payments(addItems: item._id).fetch()
+          if item.amount isnt finances.round totalPayment
+            debugger
+          expect(item.amount).toBe finances.round totalPayment
+
+    it 'should have all items used', ->
+      for s in scenarios
+        for item in s._items().fetch()
+          # NOTE: this works as long as there aren't payments for multiple
+          #       items yet.
+          totalPayment = sumAmounts s._usages(item: item._id).fetch()
           if item.amount isnt finances.round totalPayment
             debugger
           expect(item.amount).toBe finances.round totalPayment

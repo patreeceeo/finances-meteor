@@ -206,23 +206,18 @@ class finances.Scenario extends finances.Base
   addInternalPayments: ->
     console.log 'addInternalPayments',@_id
     @_items().forEach (item) =>
-      users = []
-      @_usages(item: item._id).forEach (usage) =>
-        user = @_account usage.fromAccount
-        users.push(user) if user?
-        undefined
-      @_payments(addItems: item._id, settled: true).forEach (p) =>
-        for user in users when user._id isnt p.fromAccount
-          @addOrIncreasePayment
-            amount: p.amount / users.length
-            addItems: [item._id]
-            minusItems: []
-            toAccount: p.fromAccount
-            fromAccount: user._id
-            settled: false
-        undefined
-      undefined
-    undefined
+      payments = @_payments(addItems: item._id, settled: true)
+      payments.forEach (payment) =>
+        usages = @_usages(item: item._id)
+        usages.forEach (usage) =>
+          if usage.fromAccount isnt payment.fromAccount
+            @addOrIncreasePayment
+              amount: payment.amount / (item.amount / usage.amount)
+              addItems: [item._id]
+              minusItems: []
+              toAccount: payment.fromAccount
+              fromAccount: usage.fromAccount
+              settled: false
   simplifyPayments: ->
     console.log('simplifyPayments', @_id)
     # Simplify the payment graph as much as
@@ -330,22 +325,23 @@ class finances.Account extends finances.Base
     new finances.Payment @add PaymentCollection, document
   addUsage: (document) ->
     new finances.Usage @add UsageCollection, document
-  pays: (item, amount) ->
+  pays: (item, amount = item.amount) ->
     log.write "#{@toString()} pays $#{amount or item.amount} for #{istr(item)}"
     @addPayment
       addItems: [item._id]
       minusItems: []
       fromAccount: @_id
       settled: true
-      amount: amount or item.amount
-  uses: (item) ->
-    log.write "#{@toString()} uses #{istr(item)}"
+      amount: amount
+  uses: (item, amount = item.amount) ->
+    log.write "#{@toString()} uses $#{amount} of #{istr(item)}"
     @addUsage
       item: item._id
       fromAccount: @_id
+      amount: amount
   paysAndUses: (item, amount) ->
     @pays(item, amount)
-    @uses(item)
+    @uses(item, amount)
   # TODO: deprecate
   crunch: ->
     total = 0
@@ -443,6 +439,6 @@ _.extend finances,
         payerIndex = index % nPayers + groupIndex
         userIndex = accounts.length - 1 - (index + groupIndex) % nUsers
         accounts[payerIndex].pays item, item.amount / nPayersPerItem + zeroSumArray[groupIndex]
-        accounts[userIndex].uses item
+        accounts[userIndex].uses item, item.amount / nPayersPerItem
 
     scenario
