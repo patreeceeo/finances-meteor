@@ -8,8 +8,11 @@ _.extend Template['account-form'],
   events: do ->
     addAccount = (e) ->
       if e.target.value > ''
-        AccountCollection.insert scenario: currentScenario._id, name: e.target.value
+        _id = AccountCollection.insert scenario: currentScenario._id, name: e.target.value
         e.target.value = ''
+        Router.go 'account-detail-form',
+          scenario: currentScenario._id
+          _id: _id
     removeAccount = (e) ->
       Meteor.call 'removeAccount', $(e.target).data().account
 

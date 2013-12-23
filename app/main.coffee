@@ -100,13 +100,13 @@ Router.map ->
     data: ->
       scenarioId: @params.scenario
 
-  @route 'item-detail-form',
-    path: 'scenarios/:scenario/items/:_id'
+  @route 'account-detail-form',
+    path: 'scenarios/:scenario/accounts/:_id'
     data: ->
-      item = ItemCollection.findOne(@params._id)
-      if item?
+      account = AccountCollection.findOne(@params._id)
+      if account?
         scenarioId: @params.scenario
-        item: item
+        account: account
 
   @route 'report',
     path: 'scenarios/:_id/report'

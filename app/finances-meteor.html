@@ -137,11 +137,9 @@
   {{> global-menu}}
   {{> account-form}}
   <br>
-  {{> item-form}}
-  <br>
   <div class="center page call-to-action-row">
     {{#with scenario}}
-    <a href="{{urlFor 'report'}}" type=button>crunch those #s!</a>
+    <a href="{{urlFor 'report'}}" type=button>Done</a>
     {{/with}}
   </div>
 </template>
@@ -155,7 +153,7 @@
       </li>
     {{#each accounts}}
     <li>
-      <a data-link data-account='{{_id}}'>{{name}}</a><a type='button' data-remove-button data-account='{{_id}}'>&times;</a>
+      <a data-link href="{{urlFor 'account-detail-form'}}">{{name}}</a><a type='button' data-remove-button data-account='{{_id}}'>&times;</a>
     </li>
     {{/each}}
     </ul>
@@ -164,9 +162,29 @@
 
 <template name='account-detail-form'>
   {{> global-menu }}
-  {{> payment-form }}
+  <form id='account-detail-form' class='center page'>
+    <h1>What's {{account.name}}'s involvement?</h1>
+    <input name='amount' type=number placeholder='$$$' min=0> for <input name='name' type=text placeholder='Memo'>
+    <div class="center-contents button-group">
+      <a type=button data-add-payment-button>Add Payment</a><a type=button data-add-usage-button>Add Debt</a>
+    </div>
+    <ul>
+    {{#each items}}
+      {{#each payments}}
+      <li><span>Pays ${{amount}} for {{itemNames}}</span><a type='button' data-remove-button data-payment='{{_id}}'>&times;</a></li>
+      {{/each}}
+      {{#each usages}}
+      <li><span>Owes ${{amount}} for {{item.name}}</span><a type='button' data-remove-button data-usage='{{_id}}'>&times;</a></li>
+      {{/each}}
+    {{/each}}
+    </ul>
+  </form>
   <br>
-  {{> usage-form}}
+  <div class="center page call-to-action-row">
+    {{#with scenario}}
+    <a href="{{urlFor 'scenario-detail'}}" type=button>Done</a>
+    {{/with}}
+  </div>
 </template>
 
 <template name="item-form">

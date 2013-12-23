@@ -20,6 +20,13 @@ body {
   background-color: lighten(#aea, 10%)
 }
 
+.button-group {
+  [type=button] {
+    display: inline-block;
+    margin-right: 20px;
+  }
+}
+
 #more-button {
   .center;
   display: block;
@@ -209,13 +216,9 @@ form {
   }
 }
 
-#item-detail-form {
-  [data-nothing-drop-zone], [data-pay-drop-zone], 
-  [data-use-drop-zone], [data-both-drop-zone], {
-    margin: 0 20px 20px 0;
-  }
-  [data-story-item] {
-    display: inline-block;
+#account-detail-form {
+  input {
+    width: 400px;
   }
 }
 
