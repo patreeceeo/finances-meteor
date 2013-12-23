@@ -243,9 +243,7 @@
     <h2>Had or participated in:</h2>
     <ul>
       {{#each usages}}
-      {{#with item}}
-      <li><a data-link href='{{urlFor "item-detail-form"}}'>{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></li>
-      {{/with}}
+      <li><a data-link href='{{#with item}}{{urlFor "item-detail-form"}}{{/with}}'>{{#with item}}{{name}}{{/with}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></li>
       {{/each}}
     </ul>
     <h2>Forks over $$ for:</h2>
