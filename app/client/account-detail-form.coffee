@@ -42,13 +42,13 @@ _.extend Template['account-detail-form'], do ->
           _id: ItemCollection.insert(item) 
       )
     addPayment = ->
-      amount = amountInput.value or 0
+      amount = parseInt amountInput.value or 0
       account = new finances.Account Router.getData().account
       item = addOrFetchItem()
       if amount > 0
         account.pays item, amount
     addUsage = ->
-      amount = amountInput.value or 0
+      amount = parseInt amountInput.value or 0
       account = new finances.Account Router.getData().account
       item = addOrFetchItem()
       if amount > 0
@@ -56,8 +56,12 @@ _.extend Template['account-detail-form'], do ->
         
     removeAccount = (e) ->
       Meteor.call 'removeAccount', $(e.target).data().account
+    removePaymentOrUsage = (e) ->
+      Meteor.call 'removePayments', $(e.target).data().payment      
+      Meteor.call 'removeUsages',  $(e.target).data().usage
 
     'click [data-add-payment-button]': addPayment
     'click [data-add-usage-button]': addUsage
+    'click [data-remove-button]': removePaymentOrUsage
 Template['account-form'].preserve ['input']
 

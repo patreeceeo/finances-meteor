@@ -25,6 +25,11 @@ difference = (arr1, arr2) ->
     (o.name for o in list).join(separator)
   round: (val) ->
     Math.round(val * 100) / 100
+  sum: (documents) ->
+    retval = 0
+    for doc in documents
+      retval += doc.amount
+    retval
   buildArithmaticExpression: (addends = [], subtrahends = []) ->
     addendCount = {}
     subtrahendCount = {}
@@ -206,18 +211,20 @@ class finances.Scenario extends finances.Base
   addInternalPayments: ->
     console.log 'addInternalPayments',@_id
     @_items().forEach (item) =>
-      payments = @_payments(addItems: item._id, settled: true)
-      payments.forEach (payment) =>
-        usages = @_usages(item: item._id)
-        usages.forEach (usage) =>
+      item = new finances.Item item
+      payments = @_payments(addItems: item._id, settled: true).fetch()
+      # itemAmount = finances.sum payments
+      for payment in payments
+        @_usages(item: item._id).forEach (usage) =>
           if usage.fromAccount isnt payment.fromAccount
             @addOrIncreasePayment
-              amount: payment.amount / (item.amount / usage.amount)
+              amount: payment.amount / (item.valuate() / usage.amount)
               addItems: [item._id]
               minusItems: []
               toAccount: payment.fromAccount
               fromAccount: usage.fromAccount
               settled: false
+      undefined
   simplifyPayments: ->
     console.log('simplifyPayments', @_id)
     # Simplify the payment graph as much as
@@ -318,6 +325,8 @@ class finances.Item extends finances.Base
     @add ItemCollection, name: name, amount: @amount
   toString: ->
     "#{@name} ($#{@amount})"
+  valuate: ->
+    finances.sum @_payments(addItems: @_id, settled: true).fetch()
 
 
 class finances.Account extends finances.Base

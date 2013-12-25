@@ -35,15 +35,9 @@
       <p>Simplify, simplify, simplify!</p>
       <cite>Thoreau</cite>
     </blockquote>
-    <p>If you're frequently &mdash;</p>
-    <ul>
-      <li>Owed money</li>
-      <li>Owing money</li>
-      <li>All the above</li>
-    </ul>
-    <p>&mdash; this app can take out some of the headache. While it won't make money appear out of thin air (slated for version 2.0), it will tell you the simplest way to give everyone (roommates, flatmates, co-conspirators) the money they're owed.</p> 
+    <p>With this app you can keep track of who owes who and find the easiest way to &ldquo;square up,&rdquo; though it won't make money appear out of thin air (slated for version 2.0)
     <div class='call-to-action-row'>
-      <a data-start-button type=button class='center'>Get Started!</a>
+      <a data-start-button type=button class='center'>Give it a try</a>
     </div>
   </div>
 </template>
@@ -228,44 +222,16 @@
 <template name='report'>
   {{> global-menu }}
   <div id='report' class='center page'>
-    <h1>Here's what should happen:</h1>
+    <h1>Your simplified square up plan:</h1>
     <ol>
       {{#each unsettledPayments}}
-      <li><a data-link href='{{urlFor "report-payment-detail"}}'>{{fromAccount.name}} pays ${{#round}}{{amount}}{{/round}} to {{toAccount.name}}</a></li>
+      <!-- <li><a data-link href='{{urlFor "report-payment-detail"}}'>{{fromAccount.name}} pays ${{#round}}{{amount}}{{/round}} to {{toAccount.name}}</a></li> -->
+      <li>{{fromAccount.name}} pays ${{#round}}{{amount}}{{/round}} to {{toAccount.name}}</li>
       {{/each}}
       {{#unless unsettledPayments}}
       <li>Nothing! You're already even!</li>
       {{/unless}}
     </ol>
-    {{#each accounts}}
-    <br>
-    <h1>The goings on with {{name}}:</h1>
-    <h2>Had or participated in:</h2>
-    <ul>
-      {{#each usages}}
-      <li><a data-link href='{{#with item}}{{urlFor "item-detail-form"}}{{/with}}'>{{#with item}}{{name}}{{/with}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></li>
-      {{/each}}
-    </ul>
-    <h2>Forks over $$ for:</h2>
-    <ul>
-      {{#each outgoingPayments}}
-      <li><a data-link href='{{urlFor "report-payment-detail"}}' {{#unless settled}}class='highlight'{{/unless}}>{{itemNames}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></a></li>
-      {{/each}}
-      {{#unless outgoingPayments}}
-      <li>Zilch!</li>
-      {{/unless}}
-    </ul>
-    <h2>Receives $$ for:</h2>
-    <ul>
-      {{#each incomingPayments}}
-      <li><a data-link href='{{urlFor "report-payment-detail"}}' {{#unless settled}}class='highlight'{{/unless}}>{{itemNames}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></a></li>
-      {{/each}}
-      {{#unless incomingPayments}}
-      <li>Nothin'!</li>
-      {{/unless}}
-    </ul>
-    <h2>balance: <span class='pull-right'>${{#round}}{{balance}}{{/round}}</span></h2>
-    {{/each}}
   </div>
 </template>
 
@@ -275,10 +241,10 @@
     <h1>Payment from {{fromAccount.name}}{{#if toAccount}} to {{toAccount.name}}{{/if}} for:</h1>
     <ul>
       {{#each addItems}}
-      <li><a data-link href="{{urlFor 'item-detail-form'}}">{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}/{{nUsages}}</span></a></li>
+      <li><a data-link href="{{urlFor 'item-detail-form'}}">{{name}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></li>
       {{/each}}
       {{#each minusItems}}
-      <li><a data-link href="{{urlFor 'item-detail-form'}}">{{name}}<span class='pull-right'>$-{{#round}}{{amount}}{{/round}}/{{nUsages}}</span></a></li>
+      <li><a data-link href="{{urlFor 'item-detail-form'}}">{{name}}<span class='pull-right'>$-{{#round}}{{amount}}{{/round}}</span></a></li>
       {{/each}}
       <li>Total <span class='pull-right'>${{#round}}{{payment.amount}}{{/round}}</span></li>
     </ul>
@@ -297,4 +263,33 @@
     <li>{{fromAccount.name}} used {{item.name}}</li>
     {{/each}}
   </ol>
+  {{#each accounts}}
+  <br>
+  <h1>The goings on with {{name}}:</h1>
+  <h2>Had or participated in:</h2>
+  <ul>
+    {{#each usages}}
+    <li><a data-link href='{{#with item}}{{urlFor "item-detail-form"}}{{/with}}'>{{#with item}}{{name}}{{/with}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></li>
+    {{/each}}
+  </ul>
+  <h2>Forks over $$ for:</h2>
+  <ul>
+    {{#each outgoingPayments}}
+    <li><a data-link href='{{urlFor "report-payment-detail"}}' {{#unless settled}}class='highlight'{{/unless}}>{{itemNames}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></a></li>
+    {{/each}}
+    {{#unless outgoingPayments}}
+    <li>Zilch!</li>
+    {{/unless}}
+  </ul>
+  <h2>Receives $$ for:</h2>
+  <ul>
+    {{#each incomingPayments}}
+    <li><a data-link href='{{urlFor "report-payment-detail"}}' {{#unless settled}}class='highlight'{{/unless}}>{{itemNames}}<span class='pull-right'>${{#round}}{{amount}}{{/round}}</span></a></a></li>
+    {{/each}}
+    {{#unless incomingPayments}}
+    <li>Nothin'!</li>
+    {{/unless}}
+  </ul>
+  <h2>balance: <span class='pull-right'>${{#round}}{{balance}}{{/round}}</span></h2>
+  {{/each}}
 </template>

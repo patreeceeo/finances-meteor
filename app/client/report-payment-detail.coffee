@@ -8,15 +8,15 @@ _.extend Template['report-payment-detail'], do ->
   toAccount: ->
     AccountCollection.findOne(payment().toAccount)
   addItems: ->
-    for item in payment().addItems or []
-      item = ItemCollection.findOne(item)
-      item.nUsages = UsageCollection.find(item: item._id).count()
-      item
+    for itemId in payment().addItems or []
+      _id: itemId
+      amount: UsageCollection.findOne(item: itemId, fromAccount: payment().fromAccount).amount
+      name: ItemCollection.findOne(itemId).name
   minusItems: ->
-    for item in payment().minusItems or []
-      item = ItemCollection.findOne(item)
-      item.nUsages = UsageCollection.find(item: item._id).count()
-      item
+    for itemId in payment().minusItems or []
+      _id: itemId
+      amount: UsageCollection.findOne(item: itemId, fromAccount: payment().fromAccount).amount
+      name: ItemCollection.findOne(itemId).name
 
 
 
