@@ -3,6 +3,8 @@ _.extend Template['account-form'],
   accounts: -> 
     AccountCollection.find()
   message: -> Session.get 'message'
+  showHelp: ->
+    Session.get 'showHelp'
   created: ->
     Session.set 'message', ''
   events: do ->
@@ -24,4 +26,6 @@ _.extend Template['account-form'],
         e.stopPropagation()
         addAccount e
     'click [data-remove-button]': removeAccount
+    'click [data-help]': ->
+      Session.set 'showHelp', not Session.get('showHelp')
 Template['account-form'].preserve ['input']

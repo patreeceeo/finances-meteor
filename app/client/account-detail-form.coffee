@@ -30,6 +30,8 @@ _.extend Template['account-detail-form'], do ->
       ((itemsMap[item.name] ?= {}).usages ?= []).push usage
       usage.item = item
     _.values itemsMap
+  showHelp: ->
+    Session.get 'showHelp'
   events: do ->
     addOrFetchItem = ->
       name = nameInput.value or 'unspecified'
@@ -63,5 +65,7 @@ _.extend Template['account-detail-form'], do ->
     'click [data-add-payment-button]': addPayment
     'click [data-add-usage-button]': addUsage
     'click [data-remove-button]': removePaymentOrUsage
+    'click [data-help]': ->
+      Session.set 'showHelp', not Session.get('showHelp')
 Template['account-form'].preserve ['input']
 

@@ -25,6 +25,8 @@ _.extend Template['create-account'], do ->
       MAX_USERS = maxUsers
     setInterval setMaxUsers, 500
   message: -> Session.get 'message'
+  showHelp: ->
+    Session.get 'showHelp'
   disabled: ->
     Meteor.users.find().count() >= MAX_USERS
   events: 
@@ -37,4 +39,6 @@ _.extend Template['create-account'], do ->
       Router.go 'login'
     'click [data-flash-message]': ->
       Session.set 'message', ''
+    'click [data-help]': ->
+      Session.set 'showHelp', not Session.get('showHelp')
 

@@ -8,6 +8,8 @@ _.extend Template['report'],
         currentScenario.addInternalPayments()
         currentScenario.simplifyPayments() 
   message: -> Session.get 'message'
+  showHelp: ->
+    Session.get 'showHelp'
   externalPayments: ->
     for payment in PaymentCollection.find(settled: true).fetch()
       payment = new finances.Payment payment
@@ -47,4 +49,7 @@ _.extend Template['report'],
         account.usages.push usage
       
       account
+  events:
+    'click [data-help]': ->
+      Session.set 'showHelp', not Session.get('showHelp')
       

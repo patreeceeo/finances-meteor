@@ -58,12 +58,20 @@
     <br>
     <a type=button data-create-account-button class='pull-right'>Create Account</a>
     <h1>Or:</h1>
-    <a type=button data-login-button class='pull-right'>Log In</a>
+    <div class='center-contents'>
+      <a data-link data-login-button>Log In</a>
+    </div>
     {{/unless}}
     {{#if disabled}}
     <h1>Consolations, account creation is disabled at this time.</h1>
     <br>
     <h1>Check back with us soon.</h1>
+    {{/if}}
+    <a data-help>Why should I?</a>
+    {{#if showHelp}}
+    <div id='help'>
+      <p>You need to create an account on Divvy so that you can leave and pick up where you left off and so that the people you share things with can find you on here.</p>
+    </div>
     {{/if}}
   </div>
 </template>
@@ -81,7 +89,9 @@
     <br>
     <a type=button data-login-button>Log In</a>
     <h1>Or:</h1>
-    <a type=button data-create-account-button>Create Account</a>
+    <div class='center-contents'>
+    <a data-link data-create-account-button>Create Account</a>
+    </div>
   </div>
 </template>
 
@@ -98,7 +108,7 @@
 <template name='scenario-form'>
   {{> global-menu}}
   <div id='scenario-form' class='center page'>
-    <h1>Create or choose a &ldquo;scenario&rdquo;</h1>
+    <h1>Enter the name of a new &ldquo;scenario&rdquo; or select an existing.</h1>
     <ul>
       <li>
         <input type='text' placeholder='Name' value="{{name}}" name='scenario-name'><a type='button' data-add-button data-item='{{name}}'>&check;</a>
@@ -110,13 +120,19 @@
       {{/each}}
     </ul>
     <a type=button id='more-button' href='/find-scenario'>More &gt;</a>
+    <a data-help>Help!</a>
+    {{#if showHelp}}
+    <div id='help'>
+      <p>On Divvy you create &ldquo;scenario&rdquo; then define the people and payments involved in that &ldquo;scenario.&rdquo;</p>
+    </div>
+    {{/if}}
   </div>
 </template>
 
 <template name='find-scenario'>
   {{> global-menu}}
   <div id='find-scenario' class='center page'>
-    <h1>Find a 'scenario'</h1>
+    <h1>Find a &ldquo;Scenario&rdquo;</h1>
     Enter the User Name of the person who created the scenario.
     <input type=text placeholder='User Name' name='user-name'><a type='button' data-search-button data-item='{{name}}'>*</a>
     <ul>
@@ -124,6 +140,12 @@
       <li><a data-link href='{{urlFor "scenario-detail"}}'>{{name}}</a></li>
       {{/each}}
     </ul>
+    <a data-help>Help!</a>
+    {{#if showHelp}}
+    <div id='help'>
+      <p>If someone else already created the &ldquo;scenario&rdquo; you want to view or edit you can find it here.</p>
+    </div>
+    {{/if}}
   </div>
 </template>
 
@@ -136,11 +158,19 @@
     <a href="{{urlFor 'report'}}" type=button>Done</a>
     {{/with}}
   </div>
+  <div class='center page'>
+    <a data-help>Help!</a>
+    {{#if showHelp}}
+    <div id='help'>
+      <p>This is where it gets interesting. After entering the name of each person you'll be able to specify what they paid for and what they used and should owed money for.</p>
+    </div>
+    {{/if}}
+  </div>
 </template>
 
 <template name="account-form">
   <form id='account-form' class='center page'>
-    <h1>Who's involved?</h1>
+    <h1>Enter each name of who's involved or select an existing.</h1>
     <ul>
       <li>
         <input type='text' placeholder='Name' value="{{name}}" data-input=account><a type='button' data-add-button data-item='{{name}}'>&check;</a>
@@ -157,10 +187,10 @@
 <template name='account-detail-form'>
   {{> global-menu }}
   <form id='account-detail-form' class='center page'>
-    <h1>What's {{account.name}}'s involvement?</h1>
+    <h1>Enter a dollar amount and the name of a good or service then choose &ldquo;Payment&rdquo; or &ldquo;Debt.&rdquo;</h1>
     <input name='amount' type=number placeholder='$$$' min=0> for <input name='name' type=text placeholder='Memo'>
     <div class="center-contents button-group">
-      <a type=button data-add-payment-button>Add Payment</a><a type=button data-add-usage-button>Add Debt</a>
+      <a type=button data-add-payment-button>Payment</a><a type=button data-add-usage-button>Debt</a>
     </div>
     <ul>
     {{#each items}}
@@ -172,12 +202,21 @@
       {{/each}}
     {{/each}}
     </ul>
+    <br>
   </form>
-  <br>
   <div class="center page call-to-action-row">
     {{#with scenario}}
     <a href="{{urlFor 'scenario-detail'}}" type=button>Done</a>
     {{/with}}
+  </div>
+  <div class='center page'>
+    <a data-help>Help!</a>
+    {{#if showHelp}}
+    <div id='help'>
+      <p>To record a payment, enter the amount paid and the name of the good or service then click &ldquo;Payment.&rdquo; To record a debt, do the same and click &ldquo;Debt.&rdquo;</p>
+      <p>Make sure that you always spell the name of the item or service the same or they will be regarded as distinct, for example &ldquo;Ice Cream&rdquo; and &ldquo;icecream&rdquo; would be considered two different things!</p>
+    </div>
+    {{/if}}
   </div>
 </template>
 
@@ -225,13 +264,18 @@
     <h1>Your simplified square up plan:</h1>
     <ol>
       {{#each unsettledPayments}}
-      <!-- <li><a data-link href='{{urlFor "report-payment-detail"}}'>{{fromAccount.name}} pays ${{#round}}{{amount}}{{/round}} to {{toAccount.name}}</a></li> -->
       <li>{{fromAccount.name}} pays ${{#round}}{{amount}}{{/round}} to {{toAccount.name}}</li>
       {{/each}}
       {{#unless unsettledPayments}}
       <li>Nothing! You're already even!</li>
       {{/unless}}
     </ol>
+    <a data-help>Help!</a>
+    {{#if showHelp}}
+    <div id='help'>
+      <p>This is it, you're done! With this website that is. The above is the simplest way for everyone to get what they're owed.</p>
+    </div>
+    {{/if}}
   </div>
 </template>
 

@@ -15,6 +15,8 @@ _.extend Template['find-scenario'], do ->
     scenarios ?= []
   created: ->
     scenarios = null
+  showHelp: ->
+    Session.get 'showHelp'
   events:
     'click [data-link][data-scenario]': (e) ->
       Router.go 'account-form', scenario: $(e.target).data().scenario
@@ -23,5 +25,6 @@ _.extend Template['find-scenario'], do ->
     'keydown input': (e) ->
       if e.keyCode is 13
         e.preventDefault()
-        search e.target.value
-   
+        search e.target.value 
+    'click [data-help]': ->
+      Session.set 'showHelp', not Session.get('showHelp')
