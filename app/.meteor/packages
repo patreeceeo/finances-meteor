@@ -8,11 +8,7 @@ preserve-inputs
 coffeescript
 less
 
-router
-spin
-page-js-ie-support
 amplify
 accounts-password
 
-HTML5-History-API
 iron-router
